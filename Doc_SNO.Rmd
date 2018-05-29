@@ -1,0 +1,411 @@
+---
+title: "SNO"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "24 April 2018"
+output: html_document
+---
+
+###SNOW
+This R-Srcipt includes four functions for simulating snow: the energy balance on a snow surface, separating precipitation into snow or rain, the evaporation rate, the accumulation and melt of snow. Simulating all this is very complex because of many interactions with landuse, soil, temperature and energy balance.
+
+Simulation of snow accumulation and melt is a complex subject [U.S. Army Corps Eng. 1956, Anderson and Crawford 1964, Colbeck and Ray 1979](./doc_literature.html). Detailed expressions for the energy balance of snow surfaces have been developed [Anderson 1976, Dingman 1994](./doc_literature.html) but they are not generalized to all cover types and are too complex for BROOK90. [Leavesley and Striffler 1979](./doc_literature.html) give an energy balance model that includes radiation melt and the effects of canopy cover on it, but ignores convection-condensation melt. More complex algorithms could be developed, but [Colbeck et al. (1979)](./doc_literature.html) say "the energy exchange processes between snow and a forest cover are not well enough understood to allow detailed modelling of the melt process through use of the energy equation." The energy balance is made complicated because of the heat of fusion in the water-ice phase change, and because the surface vapor pressure for melting snow is fixed. Application of the Shuttleworth-Wallace two layer approach to snow under sparse canopies remains in the future.
+
+BROOK90 therefore falls back on the classic degree-day method for estimating snow energy balance. [Anderson 1979, p. 342](./doc_literature.html) states that "Air temperature (ambient) is an adequate index to surface energy exchange in most cases." This is not a perfect solution as Anderson points out three cases in which air temperature fails: 1) warm temperatures with little wind causes overestimates of melt, 2) high dewpoint with high wind causes underestimates, and 3) low temperatures with clear sky and ripe snow causes underestimates. A modified degree-day method that incorporates solar radiation and wind speed could be added but would require development for sparse canopies. Another improvement would separate the day into daytime and nighttime as is done in BROOK90 for evaporation. But BROOK90 currently uses only the mean daily temperature (TA) for the snow energy balance.
+
+The "water equivalent" of snow (SNOW, mm) is the depth of water a snowpack would produce if it were all melted; this is the BROOK90 variable that represents the snowpack. The actual depth of snow, assuming a constant snow density (SNODEN), is used only to calculate the amount of the canopy above the snow in subroutine CANOPY. Variable snow density (mass per unit volume) is not simulated in BROOK90. When the snow is colder than 0°C, it has a "cold content" (CC, MJ/m2), which is the energy needed to warm the snow to 0°C. When the snow is at 0°C, part of SNOW can be liquid water (SNOWLQ, mm). The maximum liquid water that can be retained by the snowpack without draining is a constant fraction (MAXLQF) of SNOW; CC and SNOWLQ are always initialized as zero in BROOK90, so any initial SNOW is considered to be at 0°C with no liquid water.
+
+Groundmelt is snowmelt at the bottom of a snowpack; it occurs because of heat conduction from the soil whenever the soil is unfrozen. A constant groundmelt rate (GRDMLT, mm/d) is an constant parameter in BROOK90 and is applied whenever there is snow on the ground. The possibilities of frozen soil or variable groundmelt are not considered.
+
+Snowmelt (SMLT, mm/d) is the sum of groundmelt and drainage of excess liquid water from the snowpack. Drainage occurs only after the snowpack is both isothermal at 0°C and is holding the maximum possible liquid water; the snowpack is then "ripe". The gains and losses of liquid water by the snowpack, including the refreezing of rain on cold snow, are handled in the somewhat complicated subroutine SNOWPACK.
+
+BROOK90 assumes that the snowpack is always isothermal. In reality, large and variable temperature gradients can exist in thick snowpacks; simulating these is beyond the scope of BROOK90. The snowpack temperature (TSNOW) at the beginning of the day is calculated in MSBSETVARS from the cold content
+
+* TSNOW = - CC / (CVICE x SNOW)
+
+where CVICE is the heat capacity of ice (0.00192 MJ m-2 mm-1 K-1) ([Leavesley and Striffler, 1979](./doc_literature.html)). TSNOW is used both in calculating snow evaporation SNVP and snow energy flux SNOEN.
+
+###Contents
+
+* [Function SNOENRGY](#function-snoenrgy)
+* [Function SNOFRAC](#function-snofrac)
+* [Function SNOVAP](#function-snovap)
+* [Function SNOWPACK](#function-snowpack)
+
+###Function SNOENRGY
+The energy flux density to the snow surface (SNOEN, MJ m-2 d-1) is calculated in subroutine SNOENRGY independently of precipitation for the day.
+
+When TA is <= 0°C, SNOEN is the energy used to heat or cool the snowpack
+
+* SNOEN = CCFAC x 2 x DAYLEN x (TA - TSNOW)
+
+where CCFAC is an input parameter, and DAYLEN is the daytime fraction of a day. CCFAC is the below-zero degree-day factor for a day with a daylength of 0.5 d. [Anderson, 1973](./doc_literature.html) pointed out that this degree-day factor appears to vary seasonally. In BROOK90, this seasonality is incorporated by using 2 * DAYLEN as a multiplier in the above equation. BROOK90 is not very sensitive to CCFAC unless it is close to 0; larger values of CCFAC make the snow melt later because the snowpack cools more. When CCFAC = 0, snow temperature is always 0°C and there is never any cold content.
+
+When TA is greater than 0°C, energy is provided that can melt snow, and SNOEN is calculated differently. The energy supply rate, SNOEN, is then
+
+* SNOEN = MELFAC x 2 x DAYLEN x SLFDAY x TA x exp(-LAIMLT x LAI - SAIMLT x SAI)
+
+where MELFAC is the melting degree-day factor for a day with a daylength of 0.5 d and no canopy, SLFDAY is the ratio of potential insolation on the slope to that on a horizontal surface, and the input parameters LAIMLT and SAIMLT express the dependence of SNOEN on leaf area index (LAI) and stem area index (SAI). MELFAC uses 0°C as a base and is zero for TA below this. Inclusion of SLFDAY in the MELT equation arises from an assumption that radiation melt plays an important role. If this is not so, then SLFDAY multiplier could be omitted, and snowmelt would not depend on slope-aspect. The functional forms of the SAI and LAI dependencies are based on the somewhat arbitrary curves used by [Federer and Lash (1978)](./doc_literature.html).
+
+The following table includes the input to this function:
+
+Input |Description
+------|---------------------------
+TSNOW |snowpack temperature (isothermal assumed) (degC)
+TA    |"mean" temperature for the day (degC)
+DAYLEN|daylength in fraction of day
+CCFAC |cold content factor (MJ/(m2 d K)
+MELFAC|degree day melt factor for open (MJ/(m2 d K))
+SLFDAY|ratio of potential insolation on slope to on horizontal for day
+LAI   |leaf area index (m2/m2)
+SAI   |stem area index (m2/m2)
+LAIMLT|parameter for snowmelt dependence on LAI (dimensionless)
+SAIMLT|parameter for snowmelt dependence on SAI (dimensionless)
+
+Instrinsic for the function SNOENRGY is the EXP function. The resulting output is:
+
+* SNOEN - energy flux density to snow surface (MJ/(m2 d))
+
+```{r}
+SNOENRGY<-function(TSNOW, TA, DAYLEN, CCFAC, MELFAC, SLFDAY, LAI, SAI, LAIMLT, SAIMLT){
+if (TA <= 0) {
+  SNOEN <- CCFAC * 2 * DAYLEN * (TA - TSNOW)
+}else{
+  SNOEN <- MELFAC * 2 * DAYLEN * TA * exp(-SAIMLT * SAI) * exp(-LAIMLT * LAI) * SLFDAY
+}
+return(SNOEN)
+}
+```
+
+###Function SNOFRAC
+Separation of daily precipitation into snow or rain is a major problem in hydrologic modeling. For instance, if the wrong precipitation form is chosen in December, simulated streamflow from that day's precipitation could be shifted from December to April or vice versa, a rather significant effect! BROOK90 uses both daily maximum (TMAX) and daily minimum (TMIN) temperatures to allow days on which mixed rain and snow falls. This reduces the potential error from making the wrong choice. The algorithm seems to have been stated first by [Willen and Shumway (1971)](./doc_literature.html). When TMAX for the day is greater than the parameter RSTEMP and TMIN is less than RSTEMP, the fraction of precipitation as snow, SNOFRC, is
+
+* SNOFRC = (RSTEMP - TMIN) / (TMAX - TMIN)
+
+where RSTEMP is the "base" temperature for the rain-snow transition. When TMAX < RSTEMP, SNOFRC = 1; when TMIN > RSTEMP, SNOFRC = 0. The default value of RSTEMP is -0.5°C because that seems to work best at Hubbard Brook. If precipitation is input more than once a day, the same SNOFRC is used for all precipitation intervals. 
+
+The subroutine SNOFRAC separetes rainfall from snowfall. The input includes:
+
+Input |Description
+------|-----------------------
+TMAX  |maximum temperature for the day (degC)
+TMIN  |minimum temperature for the day (degC)
+RSTEMP|base temperature for snow-rain transition, -0.5°C (degC)
+
+The output of SNOFRAC is:
+
+* SNOFRC - fraction of precipitation for the day as snowfall (unitless)
+
+```{r}
+SNOFRAC<-function (TMAX, TMIN, RSTEMP){
+if (TMIN >= RSTEMP) {
+  SNOFRC <- 0
+}else if (TMAX < RSTEMP){
+  SNOFRC <- 1
+}else{
+  SNOFRC <- 1 - (TMAX - RSTEMP) / (TMAX - TMIN)
+}
+return(SNOFRC)
+}
+```
+
+###Function SNOVAP
+Evaporation rate from the snowpack, and its negative, condensation, are evaluated using the aerodynamic flux equation
+
+* E = (cp $\rho$ / g Ls rw ) (e0 - ea) / (raa + ras)
+
+where ea is the vapor pressure of the air, e0 is the surface vapor pressure, and raa and ras are the Shuttleworth-Wallace resistances described in section [PET](./doc_pet.html). The constants cp $\rho$ (CPRHO), $\gamma$ (GAMMA), and the latent heat of sublimation Ls $\rho$w (LS) are constant. BROOK90 assumes that the snowpack is always isothermal and that its temperature does not change diurnally. When the snowpack temperature (TSNOW) is less than 0°C, the surface vapor pressure, e0, is the saturated vapor pressure at TSNOW and is obtained by calling subroutine [ESAT](./doc_pet.html). When TSNOW is 0°C, e0 is 0.61 kPa; use of Ls instead of the latent heat of vaporization, Lv, in this case is slightly wrong. The vapor pressure ea (EA) is the input vapor pressure at reference height za . The resistances raa and ras are obtained from subroutine [SWGRA](./doc_pet.html) using the daily average wind speed (UA). The value of E in mm/d returned from SNOVAP is called PSNVP because it can be reduced in [Function SNOWPACK](#function-snowpack) if snow disappears.
+
+For evaporation from snow in the open, [U.S. Army Corps of Engineers (1956)](./doc_literature.html) gives
+
+* E = 1.9 ua (e0 - ea)
+
+for evaporation in the open. This yields E = 0.6 mm when ua = 3 m/s and the vapor pressure difference is 0.1 kPa. The two E equations are the same when ras = 0, za - d = 2 m, and z0 = 1 mm. Subroutine SWGRA thus gives the appropriate raa for snow in the open.
+
+[Colbeck et al. (1979)](./doc_literature.html) state "Evaporation from the snow in a forest has received a great deal of attention, with many investigators concluding that it is small.... Although there are many reports of high evaporative losses from forests, these have not been verified from heat balance considerations." Generally, literature values are around 0.5 mm/d in the open, with monthly values around 10 mm and annual values of 20 mm or more. [Anderson (1976)](./doc_literature.html) gives 15-20 mm annually for Sleepers River, VT.
+
+The modified Shuttleworth and Gurney resistance formulations in subroutine [SWGRA](./doc_pet.html) for a leafless tall canopy give raa about 3 s/m and ras about 40 s/m for a weather station wind speed of 3 m/s. A common vapor pressure difference of 0.1 kPa then gives a very high evaporation of 1.6 mm/d or 50 mm/ month. The problem may be that the resistances calculated by SWGRA are too small, either because of too large a roughness parameter for leafless deciduous forests, or because stability effects are ignored. To fix the problem BROOK90 includes KSNVP, which is an arbitrary constant multiplier of PSNVP. Use KSNVP = 1.0 for open open areas or short canopies normally covered by snow; but for forest, KSNVP of 0.3 gives more reasonable values of SNVP. More work is obviously needed on amount and theory of snow evaporation under forests.
+
+Note that although evaporation and condensation of water are simulated in SNOVAP, the accompanying latent transfer is not simulated. The snow energy balance in subroutine [Function SNOENRGY](#function-snoenrgy) is (unfortunately) decoupled from the snow evaporation-condensation process. 
+
+The snow evaporation and condensation is calculated with the function SNOVAP. 
+
+The following table shows the input:
+
+Input |Description
+------|--------------------------
+DISP  |zero-plane displacement (m)
+DISPC |zero-plane displacement for closed canopy of HEIGHT (m)
+EA    |vapor pressure for the day (kPa)
+HEIGHT|canopy height (m)
+KSNVP |multiplier to fix snow evaporation problem
+LAI   |leaf area index (m2/m2)
+LWIDTH|leaf width (m)
+NN    |wind/diffusivity extinction coefficient
+RHOTP |ratio of total leaf area to projected area
+SAI   |stem area index (m2/m2)
+TA    |mean  temperature for the day at reference height (degC)
+TSNOW |snowpack temperature (isothermal assumed) (degC)
+UA    |average wind speed for the day at reference height (m/s)
+Z0    |roughness parameter (m)
+Z0C   |roughness parameter for closed canopy of HEIGHT (m)
+Z0GS  |snow surface roughness (m)
+ZA    |reference height for TA, EA, UA, above ground (m)
+
+Three locals are needed in this function:
+
+* ESNOW - vapor pressure at snow surface (kPa)
+* RAA - Shuttleworth-Wallace atmosphere aerodynamic resistance (s/m)
+* RAS - Shuttleworth-Wallace ground aerodynamic resistance (s/m)
+
+And necessary external functions are ESAT, SWGRA and RMIN. 
+
+If the temperature of the snowpack is greater than -0.1 degC, then the vapor pressure at snow surface is 0.61 kPa. Else ESNOW is unlisted from the external function ESAT. RAA and RAS are unlisted from external [SWGRA](./doc_pet.html). The potential snow evaporation is calculated with these values and then corrected with the KSNVP-multiplier to fix snow evaporation problem.
+
+The function gives the output:
+
+* PSNVP - potential snow evaporation (mm/d)
+
+```{r}
+SNOVAP<-function (TSNOW, TA, EA, UA, ZA, HEIGHT, Z0, DISP, Z0C, DISPC, Z0GS, LWIDTH, RHOTP, NN, LAI, SAI, KSNVP){
+#local
+ESNOW <-0 
+RAA   <-0 
+RAS   <-0  
+#  ignores effect of interception on PSNVP or of PSNVP on PTRAN
+if (TSNOW > -0.1) {
+  ESNOW <- 0.61
+}else{
+#  snow surface vapor pressure saturated at lower of TA and TSNOW
+  esatt<-ESAT(RMINF(TA, TSNOW), ESNOW, dummy)
+   ESNOW<-unlist(esatt[1])
+}
+swgra<-SWGRA(UA, ZA, HEIGHT, Z0, DISP, Z0C, DISPC, Z0GS, LWIDTH, RHOTP, NN, LAI, SAI, RAA, RAC, RAS)
+  RAA<-unlist(swgra[1])
+  RAC<-unlist(swgra[2])
+  RAS<-unlist(swgra[3])
+
+PSNVP <- (WTOMJ / LS) * (CPRHO / GAMMA) * (ESNOW - EA) / (RAA + RAS)
+PSNVP <- KSNVP * PSNVP
+return(PSNVP)
+}
+```
+
+###Function SNOWPACK
+In each precipitation interval, throughfall of rain (RTHR) and throughfall of snow (STHR) are calculated and subroutine SNOWPACK is entered if there is STHR or if there is SNOW. This subroutine adds throughfall to the snowpack, subtracts groundmelt, snow evaporation, and drainage of liquid water, and calculates the new cold content (CC) and liquid water content (SNOWLQ) of the snowpack. There are a number of different ways to program all this adding and subtracting of energy and water. The program flow of SNOWPACK has been selected to make the many realizable situations as clear as possible. Much shorter algorithms could have been used, but at the expense of clarity. Any alterations to this routine must be made carefully, keeping all the possibilities in mind. However, unlike routine SNOENRGY, the content of the SNOWPACK routine is essentially standard for all snow models and alterations generally should not be necessary.
+
+In SNOWPACK, snow throughfall (STHR) is first added to SNOW. If TA is <0°C, the cold content of the new snow is increased by
+
+* CC = CC - CVICE x TA x STHR x DTP
+
+where DTP is the precipitation interval time step and CVICE is the volumetric heat capacity of ice. If this addition of cold snow causes both cold content (CC) and liquid water (SNOWLQ) to coexist, then liquid water is refrozen; CC is used to refreeze part or all of the liquid.
+
+Groundmelt (GRDMLT) and snow evaporation-condensation are dealt with next. In the precipitation time interval (DTP), the fraction of the snowpack that melts by groundmelt and evaporates is
+
+* FRAC = (GRDMLT + PSNVP) x DTP / SNOW.
+
+If FRAC is > 1 then all the snow melts and evaporates at rates proportional to GRDMLT and PSNVP. If FRAC is < 1, SNVP is equal to potential snow evaporation (PSNVP) and GRDMLT drains from the snowpack as snowmelt (SMLT). An assumption is made that evaporation and groundmelt remove any liquid water and cold content that is associated with the snow removed, so SNOW, SNOWLQ, and CC are all reduced by 1 - FRAC. If PSNVP is negative, condensation is occurring; SNOW, SNOWLQ, and CC are correspondingly increased. This is simple, but not quite accurate. If no snow is left the routine ends.
+
+The amount of snowpack warming or cooling is calculated next. The equivalent amount of ice melted by the energy input from SNOEN and the heat included in any warm rain is
+
+* EQEN = DTP x (SNOEN + RTHR x RMAX(TA,0) x CVLQ) / LF
+
+where CVLQ is the specific heat of water, and LF is the latent heat of fusion of water. Both CVLQ and LF are constant. When EQEN is less than 0, the snow is cooling; first any SNOWLQ is refrozen, then CC is increased. CC is not allowed to be reduced so that TSNOW is below the mean daily air temperature, TA, although it may remain colder, i.e. if TA < 0°, CC can only be reduced to TSNOW = TA. When EQEN is greater than 0, the snow is warming; first CC is reduced, then SNOWLQ is produced, and finally melt (SMLT) occurs.
+
+Finally, any rain throughfall (RTHR) is added to the snowpack. If any CC exists it refreezes rain until the CC is "used up". Any additional rain then increases SNOWLQ; when the maximum SNOWLQ is reached, the input of rain to the snow (RSNO) has also reached its maximum. In all cases the final results are a new SNOW, new SNOLQ and CC, and a value of RSNO.
+
+[MSBPREINT](./doc_bv904_sub.html) then calculates the rain passing through the snow (RNET) as RNET = RTHR - RSNO.
+
+When SNOW exists at the beginning of the day, soil evaporation (SLVP) is zero. 
+
+The input to SNOWPACK is:
+
+Input |Description
+------|-----------------------
+RTHR  |rain throughfall rate (mm/d)
+STHR  |SNOW throughfall rate (mm/d)
+PSNVP |potential evaporation rate from snowpack (mm/d)
+SNOEN |energy flux density to SNOW surface (MJ/(m2 d)
+DTP   |time step for precipitation interval (may be <= 1 d)
+TA    |"mean" temperature for the day (degC)
+MAXLQF|maximum liquid water fraction of SNOW (dimensionless)
+GRDMLT|rate of groundmelt of snowpack (mm/d)
+
+Some values are input and output:
+
+* CC - cold content of snowpack (positive) (MJ/m2)
+* SNOW - water equivalent of SNOW on the ground (mm)
+* SNOWLQ  liquid water content of SNOW on the ground (mm)
+
+Some locals are defined:
+
+* SNOWLQ
+* FRAC - groundmelt and evaporation fraction of SNOW (dimensionless)
+* EQEN - meltwater equivalent of energy input, including warm rain (mm)
+* NMLT - EQEN when EQEN is negative, "negative melt" (mm)
+* ALQ - MAXLQF*SNOW - SNOWLQ, available space for liquid water (mm)
+* RIN - RTHR*DTP, rain input to SNOW (mm)
+
+Additional the external functions RMIN and RMAX are needed. And the calculated ouput of the function is:
+
+* RSNO - rain added to snowpack (mm/d)
+* SNVP - evaporation rate from snowpack (mm/d)
+* SMLT - melt drainage rate from snowpack (mm/d)
+
+```{r}
+SNOWPACK<-function(RTHR, STHR, PSNVP, SNOEN, CC, SNOW, SNOWLq, DTP, TA, MAXLQF, GRDMLT){
+#local
+SNOWLQ<-SNOWLq
+FRAC <-0
+EQEN <-0
+NMLT<-0
+ALQ <-0
+RIN <-0 
+#
+#SNOW throughfall and its cold content, SNOWLQ unchanged
+SNOW <- SNOW + STHR * DTP
+CC <- CC + CVICE * RMAXF(-TA, 0) * STHR * DTP
+
+if (CC > 0 && SNOWLQ > 0) {
+  if (CC > SNOWLQ * LF) {
+# refreeze all liquid
+    CC <- CC - SNOWLQ * LF
+    SNOWLQ <- 0
+  }else{
+# refreeze part
+    SNOWLQ <- SNOWLQ - CC / LF
+    CC <- 0
+  }
+}
+# groundmelt and evaporation loss as fraction of SNOW
+FRAC <- (GRDMLT + PSNVP) * DTP / SNOW
+# FRAC can be negative if condensation exceeds groundmelt
+if (FRAC < 1) {
+  SMLT <- GRDMLT
+  SNVP <- PSNVP
+# reduce CC, SNOWLQ, and SNOW proportionally for groundmelt and evaporation
+# increase them proportionally if condensation exceeds groundmelt
+  CC <- CC * (1 - FRAC)
+  SNOWLQ <- SNOWLQ * (1 - FRAC)
+  SNOW <- SNOW * (1 - FRAC)
+}else{
+# all SNOW disappears from groundmelt and/or evaporation
+  SMLT <- GRDMLT / FRAC
+  SNVP <- PSNVP / FRAC
+  RSNO <- 0
+  CC <- 0
+  SNOWLQ <- 0
+  SNOW <- 0
+}
+# snowpack cooling or warming
+if (SNOW > 0) {
+# equivalent ice melted by energy input including warm rain (mm)
+  EQEN <- DTP * (SNOEN + RTHR * RMAXF(TA, 0) * CVLQ) / LF
+  if (EQEN <= 0) {
+# snowpack cooling
+    NMLT <- -EQEN
+    if (NMLT < SNOWLQ) {
+# only part of SNOWLQ refreezes
+      CC <- 0
+# should be 0 already because SNOWLQ is positive
+      SNOWLQ <- SNOWLQ - NMLT
+    }else{
+# all SNOWLQ (if any) refreezes, remaining NMLT increases CC
+      NMLT <- NMLT - SNOWLQ
+      SNOWLQ <- 0
+      CC <- CC + NMLT * LF
+# do not allow TSNOW to cool below TA
+      CC <- RMINF(CC, -TA * SNOW * CVICE)
+    }
+  }else{
+# snowpack warming  (cant have both CC and SNOWLQ)
+    if (EQEN * LF < CC || TA < 0) {
+# reduce but dont eliminate CC
+      if (TA < 0) {
+# do not allow TSNOW to warm above TA when TA < 0
+        CC <- RMAXF(CC - EQEN * LF, -TA * SNOW * CVICE)
+      }else{
+        CC <- CC - EQEN * LF
+      }
+      SNOWLQ <- 0
+    }else{
+# CC eliminated
+      EQEN <- EQEN - CC / LF
+      CC <- 0
+      if (EQEN <= MAXLQF * SNOW - SNOWLQ){
+# remaining energy increases liquid water
+        SNOWLQ <- SNOWLQ + EQEN
+# SMLT and SNOW unchanged
+      }else{
+# liquid water capacity reached, SNOW melt produced
+        EQEN <- EQEN - (MAXLQF * SNOW - SNOWLQ)
+        if (SNOW * (1 - MAXLQF) > EQEN) {
+# melt is ice plus the liquid included in it
+          SMLT <- SMLT + (EQEN / DTP) / (1 - MAXLQF)
+          SNOW <- SNOW - EQEN / (1 - MAXLQF)
+          SNOWLQ <- MAXLQF * SNOW
+        }else{
+# all SNOW melts
+          SMLT <- SMLT + SNOW / DTP
+          SNOW <- 0
+          SNOWLQ <- 0
+        }
+      }
+    }
+  }
+# add rain to snowpack,
+if (RTHR == 0 || SNOW == 0) {
+  RSNO <- 0
+}else{
+# rain on SNOW
+  RIN <- RTHR * DTP
+  if (CC > 0) {
+# use CC to refreeze rain
+      if (CC > RIN * LF) {
+# refreezes all rain
+        CC <- CC - RIN * LF
+        RSNO <- RTHR
+        SNOW <- SNOW + RIN
+      }else{
+# CC refreezes part of rain
+        SNOW <- SNOW + CC / LF
+        RSNO <- (CC / LF) / DTP
+        CC <- 0
+# remaining rain
+        RIN <- RIN - RSNO * DTP
+# increase liquid water, SNOWLQ initially zero
+        if (RIN < MAXLQF * SNOW / (1 - MAXLQF)) {
+# remaining RIN all to SNOWLQ
+          SNOWLQ <- RIN
+          RSNO <- RSNO + RIN / DTP
+          SNOW <- SNOW + RIN
+        }else{
+          SNOWLQ <- MAXLQF * SNOW / (1 - MAXLQF)
+          RSNO <- RSNO + SNOWLQ / DTP
+          SNOW <- SNOW + SNOWLQ
+        }
+      }
+    }else{
+# CC = 0.
+        if (SNOWLQ >= MAXLQF * SNOW) {
+# SNOW already holding maximum liquid
+          RSNO <- 0
+        }else{
+          ALQ <- MAXLQF * SNOW - SNOWLQ
+          if (RIN < ALQ) {
+# all RIN to SNOW
+            RSNO <- RTHR
+            SNOWLQ <- SNOWLQ + RIN
+            SNOW <- SNOW + RIN
+          }else{
+# maximum liquid reached
+            RSNO <- (ALQ / (1 - MAXLQF)) / DTP
+            SNOW <- SNOW + RSNO * DTP
+            SNOWLQ <- MAXLQF * SNOW
+          }
+        }
+      }
+    }
+}    
+return (list(CC,SNOW,SNOWLQ,RSNO, SNVP, SMLT))
+}
+```
