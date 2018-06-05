@@ -1,0 +1,417 @@
+---
+title: "EVP"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "3 Mai 2018"
+output: html_document
+---
+
+### EVP - Interception and transpiration
+The R-script EVP contains functions for rain interception, rain interception with duration in hours, actual transpiration rate by layers and a function that allocates total plant resistance to xylem and root layers.
+
+BROOK90 routines in this module relate to interception and actual transpiration. Subroutines INTER and INTER24, which handle the interception of rain or snow by the plant canopy are equivalent routines. INTER24 is used when parameter NPINT is 1 and precipitation is input once a day; it assumes that the daily precipitation all occurs within DURATN hours in the middle of the day. INTER is used when NPINT > 1 and precipitation is input more than once a day; it assumes that precipitation rate is constant through the precipitation time step. INTER and INTER24 are used both for rain and snow, with different calling parameters and variables. PLNTRES calculates parameters related to rhizosphere, root, and xylem resistance; it is called once at the beginning of each day. These parameters affect only soil water supply rate, not potential transpiration. TBYLAYER calculates the daily transpiration from each soil layer from the potential transpiration (PTRAN) and the total soil water potential in each layer (PSITI). 
+
+### Contents
+
+* [Function INTER](#function-inter)
+* [Function INTER24](#function-inter24)
+* [Function PLNTRES](#function-plntres)
+* [Function TBYLAYER](#function-tbylayer)
+
+### Function INTER
+Subroutine INTER accounts in the simplest way for the concepts of catch rate, evaporation rate, and canopy capacity. The same algorithm is applied to both rain and snow, which are considered to behave independently with respect to their interception. INTER is used when precipitation data are input more than once a day in a precip. interval file (PINT > 1). If only daily precipitation is input, then the modified procedure of INTER24 is used. 
+
+The conservation of mass equation for rain interception can be written as
+
+* dS/dt = C - I - D
+
+where S is the amount of water stored on the canopy (mm), C is the catch rate, or rate of water input to the canopy, I is the rate of evaporation of intercepted water, and D is the drip rate, or rate of transfer of liquid water to the ground. The same equation applies to snow or mixed snow and rain, when any solid-liquid phase change is ignored and D includes all rain or snow blowing or falling from canopy to ground.
+
+BROOK90 ignores D by defining C as a net catch rate (C - D), or only the portion of the catch that will sooner or later evaporate, so, from the Flow Chart,
+
+* d INTR / dt = RINT - IRVP; for rain
+* d INTS / dt = SINT - ISVP; for snow,
+
+where INTR and INTS are the canopy storages, RINT and SINT are the net catch rates, and IRVP and ISVP are the evaporation rates, for rain and snow respectively.
+
+BROOK90 assumes that interception catch rates, RINT and SINT, are a constant fraction of rainfall or snowfall until the canopy reaches a storage capacity. Until the capacity is reached, RINT and SINT are assumed to be linear functions of LAI and SAI, so that
+
+* RINT = (FRINTL x LAI + FRINTS x SAI) x RFAL
+* SINT = (FSINTL x LAI + FSINTS x SAI) x SFAL
+
+where RFAL and SFAL are rainfall rate and snowfall rate as determined from subroutine SNOFRAC, FRINTL and FSINTL are the catch fraction per unit LAI for rain and snow, respectively, and FRINTS and FSINTS are the catch fraction per unit SAI for rain and snow, respectively.
+
+The canopy has capacities or maximum values of INTR and INTS that depend on LAI and SAI. In BROOK90 these dependencies are assumed linear. The parameters CINTRL and CINTRS are the capacities for intercepted rain per unit LAI and SAI respectively, so that INTRMX, the capacity for rain, is
+
+* INTRMX = CINTRL x LAI + CINTRS x SAI.
+* INTSMX = CINTSL x LAI + CINTSS x SAI ; For snow,
+
+and the capacity parameters are generally larger than for rain. The eight interception parameters, FRINTL, FRINTS, FSINTL, FSINTS, CINTRL, CINTRS, CINTSL, and CINTSS, only control interception loss in small storms; interception loss in large storms is controlled by the evaporation rate of intercepted water (PINT) and the storm intensity and duration.
+
+The rate at which intercepted water evaporates (PINT) is calculated from the Shuttleworth-Wallace equations by calling subroutine SWPE (Section [PET](./pet.html)) with the canopy resistance rc = 0. The soil surface resistance (RSS) is not reduced for the PINT calculation. The [MSBDAYNIGHT](./b90v4_sub.html) routine does this separately for daytime and for nighttime weather variables and the results are weighted by daylength (DAYLEN) to produce PINT. PINT is considered to be constant throughout the daily time step; its actual diurnal variation is ignored.
+
+The canopy is considered to be either completely wetted or completely dry. Partial canopy wetting and drying is not treated in BROOK90, though it is a key component of specific models of the interception process [Rutter et al. (1972)](./literature.html). Subroutine INTER determines the actual catch rate (RINT or SINT) and the actual evaporation rate (IRVP or ISVP) for the precipitation time step in the three cases that the canopy dries during the timestep, the canopy wets but does not reach capacity, and the canopy reaches capacity. The routine appropriately handles the case of a wet canopy with decreasing capacity because of decreasing LAI or SAI by allowing RINT or SINT to be negative. 
+
+The table shows the input arguments to this function:
+
+Input |Description
+------|----------------------------
+RFAL  |rainfall rate (mm/d)
+PINT  |potential interception rate (mm/d)
+LAI   |projected leaf area index (m2/m2)
+SAI   |projected stem area index (m2/m2)
+FRINTL|intercepted fraction of RFAL per unit LAI
+FRINTS|intercepted fraction of RFAL per unit SAI
+CINTRL|maximum interception storage of rain per unit LAI (mm)
+CINTRS|maximum interception storage of rain per unit SAI (mm)
+DTP   |precipitation interval time step (d)
+INTR  |intercepted rain (mm)
+
+Local defined are:
+
+* INTRMX - maximum canopy storage for rain (mm)
+* CATCH - maximum RINT (mm/d)
+* NEWINT - first approximation to new canopy storage (INTR)
+
+If NEWINT > 0, the canopy is wet throughout the precipitation interval time step. Else the canopy dries during the interval or stays dry and IRVP is < PINT. If NEWINT also exceeds INTRMX, then the canopy capacity is reached. RINT can be negative if INTR exists and LAI or SAI is decreasing over time. If NEWINT doesn't exceed INTRMX, the canopy capacity is not reached.
+
+The resulting output of the function is:
+
+* RINT - rain catch rate (mm/d)
+* IRVP - evaporation rate of intercepted rain (mm/d)
+
+```{r}
+INTER<-function(RFAL, PINT, LAI, SAI, FRINTL, FRINTS, CINTRL, CINTRS, DTP, INTR, RINT, IRVP){
+#local
+  INTRMX<-0
+  CATCH<-0
+  NEWINT<-0
+  #
+  CATCH <- (FRINTL * LAI + FRINTS * SAI) * RFAL
+  INTRMX <- CINTRL * LAI + CINTRS * SAI
+  NEWINT <- INTR + (CATCH - PINT) * DTP
+
+  if(NEWINT > 0){
+    IRVP <- PINT
+    if(NEWINT > INTRMX){ 
+      RINT <- PINT + (INTRMX - INTR) / DTP
+    }else{
+      RINT <- CATCH
+    }
+  }else{
+    RINT <- CATCH
+    IRVP <- (INTR / DTP) + CATCH
+  }
+  return(list(RINT,IRVP));
+}
+```
+
+### Function INTER24
+Proper representation and integration of the interception process is a problem for hydrologic models that use a daily interval for precipitation input (NPINT = 1), because the storm duration is not known. For a brief, intense storm, the canopy wets once and the interception loss is limited primarily by canopy capacity. For a low intensity, all day storm, the canopy stays wet and the interception loss is limited primarily by the potential interception, PINT. This problem is worst when only daily precipitation is known, and decreases as precipitation is given at shorter intervals.
+
+Subroutine INTER24 was developed because the use of subroutine INTER for daily precipitation consistently produced too much interception. INTER24 is a modification of [Function INTER](#function-inter) that loops through the procedure every hour,using the PINT rate for each hour. DURATN is a parameter that specifies the average hourly duration of precipitation for each month of the year. INTER24 truncates DURATN to the next lower even integer, and then centers the "storm" on noon. Thus if DURATN is input as 7.5, the daily precipitation is assumed to occur at a constant rate from time 0900 to 1500. Centering on noon is only used to see how much interception carries over into the next day. The algorithm for each hourly loop is the same as for INTER, except that rates are in mm/hr and amounts are summed over the day. The interception catch rate (RINT or SINT), and the evaporation rate (IRVP or ISVP) are returned to [MSBPREINT](./b90v4_sub.html) as average rates over the day. 
+
+This function is used to receive the daily rain interception with duration in hours, used when NPINT% = 1. Also here the same routine is used for snow interception, with different calling variables. The input to INTER24 is:
+
+Input |Description
+------|------------------------------
+RFAL  |24-hour average rainfall rate, mm/d
+PINT  |potential interception rate, mm/d
+LAI   |projected leaf area index, m2/m2
+SAI   |projected stem area index, m2/m2
+FRINTL|intercepted fraction of RFAL per unit LAI
+FRINTS|intercepted fraction of RFAL per unit SAI
+CINTRL|maximum interception storage of rain per unit LAI, mm
+CINTRS|maximum interception storage of rain per unit SAI, mm
+DURATN|average storm duration, hr
+INTR  |intercepted rain storage, mm,
+MONTHN|Month of the year
+
+Intrinsic to calculate INTER24 are CSNG and INT. INTER24 includes many locals:
+
+* INTRMX - maximum canopy storage for rain (mm)
+* INTRNU - canopy storage at end of hour (mm)
+* NEWINT - first approximation to INTRNU (mm)
+* RINTHR - rain catch rate for hour (mm/hr)
+* CATCH - maximum RINTHR (mm/hr)
+* IRVPHR - evaporation rate for hour (mm/hr)
+* SMINT - daily accumulated actual catch (mm)
+* SMVP - daily accumulated actual evaporation (mm)
+* IHD - half DURATN in truncated integer hours
+* hh - hour, 0 to 23
+* DTH - time step, = 1 hr
+
+During rain, mm/hr is rate in mm/d divided by hr of rain/d. If NEWINT > 0.0001, the canopy is wet throughout the hour and the evaporation rate is PINT. And if NEWINT > INTRMX, the canopy capacity is reached. The difference "INTRMX - INTRNU" can be negative if LAI or SAI is decreasing over time. If NEWINT doesn't exceed INTRMX, the canopy capacity is not reached and if it is not greater than 0.0001, the canopy dries during the hour or stays dry. IRVPHR for hour is < PI/24.
+
+The output of the whole function is:
+
+* RINT - rain catch rate (mm/d)
+* IRVP - evaporation rate of intercepted rain (mm/d)
+
+```{r}
+INTER24<-function(RFAL, PINT, LAI, SAI, FRINTL, FRINTS, CINTRL, CINTRS, DURATN, INTR, RINT, IRVP, MONTHN){
+#local
+  INTRMX<-0 
+  INTRNU<-0  
+  NEWINT<-0
+  RINTHR<-0 
+  CATCH<-0   
+  IRVPHR<-0 
+  SMINT<-0    
+  SMVP<-0     
+  IHD<-0     
+  #hh<<-0     
+  DTH<-0
+  #
+  IHD <- as.integer((DURATN[MONTHN] + 0.1) / 2)
+  INTRMX <- CINTRL * LAI + CINTRS * SAI
+  INTRNU <- INTR
+  SMINT <- 0
+  SMVP <- 0
+  DTH <- 1
+  for(i in seq(0,23,1)){
+    if((i < (12 - IHD)) || (i >= (12 + IHD))){
+# before or after rain
+      CATCH <- 0
+    }else{
+      CATCH <- (FRINTL * LAI + FRINTS * SAI) * RFAL / (2 * IHD)
+    }
+    NEWINT <- INTRNU + (CATCH - PINT / 24) * DTH
+    if (NEWINT > 0.0001) {
+      IRVPHR <- PINT / 24
+      if (NEWINT > INTRMX) {
+        RINTHR <- IRVPHR + (INTRMX - INTRNU) / DTH
+      }else{
+        RINTHR <- CATCH
+      }
+    }else{
+        RINTHR <- CATCH
+        IRVPHR <- INTRNU / DTH + CATCH
+    }
+  INTRNU <- INTRNU + (RINTHR - IRVPHR) * DTH
+  SMVP <- SMVP + IRVPHR * DTH
+  SMINT <- SMINT + RINTHR * DTH
+  }
+  IRVP <- SMVP
+# / 1 d
+  RINT <- SMINT
+# / 1 d
+  return(list(RINT,IRVP))
+}
+```
+
+### Function PLNTRES
+Subroutine PLNTRES is called at the beginning of each day to obtain resistivities to liquid water flow: rhizosphere resistivity for each soil layer, root resistivity in each soil layer, and xylem resistivity. These parameters, together with soil water potential in each layer (PSITI) and critical plant water potential (PSICR) control the supply of water to transpiring leaves and thus the reduction of actual transpiration below potential transpiration. As defined by [Hunt et al. (1991)](./literature.html) the resistances used here are "potential difference resistivities", because the transpiration flux rate is in units of mm/d and the potential gradient is in MPa. The resistivities have units of MPa d mm-1.
+
+The function PLNTRES allocates total plant resistance to xylem and root layers. The next table includes contains the input arguments:
+
+Input                 |Description
+----------------------|----------------------------------------------
+DIM NLAYER AS INTEGER |number of soil layers (max 50)
+THICK()               |layer thicknesses (mm)
+STONEF()              |stone volume fraction (unitless)
+RTLEN                 |root length per unit land area (m/m2, MXRTLN x RELHT x DENSEF)
+RELDEN()              |relative values of root length per unit volume
+RTRAD                 |average root radius (mm)
+RPLANT                |plant resistance to water flow (MPa d/mm, 1/(KPLANT x RELHT x DENSEF))
+FXYLEM                |fraction of plant resistance in xylem
+
+Constants that are used in PLNTRES are RHOWG and PI. The intrinsic function is LOG and local are:
+
+* Dim I As Integer - layer counter
+* Dic - stonefree layer thickness
+* SUM - total relative length (mm)
+* RTFRAC - fraction of total root length in layer
+* RTDENI - root density for layer (mm/mm3)
+* DELT - root cross-sectional area x LI (dimensionless)
+* RXYLEm
+* RROOTi
+* ALPHa
+
+If RELDEN[i] < 0.00001 or RTLEN < 0.1, then there are no roots in the layer and RROOTi [i] and ALPHa[i] are set 1E20. Else the root resistance for layer and the rhizosphere resistance for layer can be calculated.
+
+PLNTRES has the output:
+
+* RXYLEm - xylem resistance (MPa d/mm, 1E20 if no roots)
+* RROOTi() - root resistance for layer (MPa d/mm, 1E20 if no roots)
+* ALPHa() - modified Cowan alpha (MPa)
+
+```{r}
+PLNTRES<-function(NLAYER, THICK, STONEF, RTLEN, RELDEN, RTRAD, RPLANT, FXYLEM, RXYLEM, RROOTI, ALPHA){
+#local
+  #Dim I As Integer
+  Dic<-c(seq(1,50,1))
+  SUM<-0 
+  RTFRAC<-0 
+  RTDENI<-0 
+  DELT<-0   
+  RXYLEm<-0
+  RROOTi<-rep(0,ML)
+  ALPHa<-rep(0,ML)
+  #
+  RXYLEm <- FXYLEM * RPLANT
+  for( i in seq( 1,NLAYER, 1)){
+    Dic[i] <- THICK[i] * (1 - STONEF[i])
+    SUM <- SUM + RELDEN[i] * Dic[i]
+  }
+  for( i in seq( 1,NLAYER,1)){
+    if ((RELDEN[i] < 0.00001) || (RTLEN < 0.1)){
+      RROOTi[i] <- 1E+20
+      ALPHa[i] <- 1E+20
+    }else{
+      RTFRAC <- RELDEN[i] * Dic[i] / SUM
+      RROOTi[i] <- (RPLANT - RXYLEm) / RTFRAC
+      RTDENI <- RTFRAC * 0.001 * RTLEN / Dic[i]
+# .001 is (mm/mm2)/(m/m2) conversion
+      DELT <- PI * RTRAD ^ 2 * RTDENI
+      ALPHa[i] <- (1 / (8 * PI * RTDENI)) * (DELT - 3 - 2 * (log(DELT)) / (1 - DELT))
+      ALPHa[i] <- ALPHa[i] * 0.001 * RHOWG / Dic[i]
+# .001 is MPa/kPa conversion
+    }
+  }
+  return(c(RXYLEm,RROOTi,ALPHa))
+}
+```
+
+### Function TBYLAYER
+TBYLAYER determines the rate at which liquid water can be supplied to transpiring leaves, compares this rate with the potential transpiration rate, sets actual transpiration equal to the lesser of the two, and then allocates the transpiration among soil layers. This routine is based on the model of [Federer (1979)](./literature.html), which has been widely used, e.g. [Wetzel and Chang (1987](./literature.html), [Levine and Salvucci (1999)](./literature.html). 
+
+With function TBYLAYER the actual transpiration is calculated. It is important to watch MPa/kPa conversions carefully. Input data to this function are:
+
+Input   |Description
+--------|--------------------------
+J%      |1 for daytime, 2 for nighttime
+PTR     |average potential transpiration rate over time period (mm/d)
+DISPC   |zero-plane displacement for closed canopy (m)
+ALPHA() |modified Cowan alpha (MPa)
+KK()    |hydraulic conductivity (mm/d)
+RROOTI()|root resistance for layer (MPa d/mm)
+RXYLEM  |xylem resistance (MPa d/mm)
+PSITI() |total soil water potential (kPa)
+NLAYER% |number of soil layers (max 20)
+PSICR   |critical potential for plant (MPa)
+NOOUTF% |1 if no outflow allowed from roots, otherwise 0
+
+As local arguments defined are:
+
+* Dim i - layer counter
+* RI - root plus rhizosphere resistance, MPa d/mm
+* RT - combined root resistance from unflagged layers, MPa d/mm
+* SUM - sum of layer conductances, (mm/d)/MPa
+* TRMIN - largest negative transpiration loss, mm/d
+* PSIT - weighted average total soil water potential for unflagged layers, kPa
+* R - (2/pi)(SUPPLY/PTR)
+* SUPPLY - soil water supply rate, mm/d
+* IDEL - subscript of flagged layer
+* FLAG - 1 if layer has no transpiration uptake, otherwise 0
+* NEGFLAG - 1 if second iteration is needed
+* ATr
+* ATRANi
+
+As intrinsic function is SIN needed and the external functions ACOS and RMIN are necessary for calculation. Also the constants RHOWG (density of water times gravity acceleration, MPa/m) and PI will be used.
+
+Flag layers with no roots, they are indicated by RROOTI = 1E20. If outflow from roots is prevented, flag layers with PSITI <= PSICR. A loop for recalculation of transpiration then follows if more layers get flagged. If a layer gets flagged, the actual transpiration rate from layer over time period ATRANi is set zero and if SUM < 1E-20, all layers are flagged and there is no transpiration. Else the combined root resistance from unflagged layers is calculated and the weighted mean soil water potential. The soil water supply rate is assumed constant over day. The transpiration rate is limited by either PTR or SUPPLY. PTR is average of a half sine over daytime and assumed constant over nighttime. And so the actual transpiration rate over time period is computed for day and night. Then the distribution of the total transpiration rate to layers follows and check for any negative transpiration losses. The layer with most negative transpiration will be found and omitted. Finally it repeats the main loop with the flagged layers excluded. The resulting output of the function is:
+
+* ATr - actual transpiration rate over time period (mm/d)
+* ATRANi() - actual transpiration rate from layer over time period (mm/d)
+
+```{r}
+TBYLAYER<-function(J, PTR, DISPC, ALPHA, KK, RROOTI, RXYLEM, PSITI, NLAYER, PSICR, NOOUTF){
+#local
+  #Dim i%  
+  RI<-rep(0,50) 
+  RT<-0    
+  SUM<-0  
+  TRMIN<-0    
+  PSIT<-0  
+  R<-0     
+  SUPPLY<-0         
+  IDEL<-0   
+  FLAG<-rep(0,50) 
+  NEGFLAG<-0      
+  ATr<-0
+  ATRANi<-rep(0,ML)
+  #
+  for (i in seq( 1,NLAYER,1)){
+    if (RROOTI[i] > 1E+15){
+      FLAG[i] <- 1
+    } else if((NOOUTF == 1) && (PSITI[i] / 1000 <= PSICR)) {
+      FLAG[i] <- 1
+    } else {
+      FLAG[i]<- 0 # this layer has roots
+    }
+  }
+  dfw<-0
+# top of loop for recalculation of transpiration if more layers get flagged
+ repeat{
+    NEGFLAG <- 0
+    SUM <- 0
+    for(i in 1:NLAYER){
+      if (FLAG[i]== 0){
+        RI[i] <- RROOTI[i] + ALPHA[i] / KK[i]
+        SUM <- SUM + 1 / RI[i]
+      }else{
+        ATRANi[i] <- 0
+      }
+    }
+    if (SUM < 1E-20){
+        ATr <- 0
+        PSIT <- -10000000000
+        return(list(ATr,ATRANi))
+    }else{
+        RT <- 1 / SUM
+    }
+# weighted mean soil water potential
+    PSIT <- 0
+    for (i in 1:NLAYER){
+        if (FLAG[i] == 0){
+          PSIT <- PSIT + RT * PSITI[i] / RI[i]
+        }
+    }
+    SUPPLY <- (PSIT / 1000 - PSICR - RHOWG * DISPC) / (RT + RXYLEM)
+    if (J == 1){
+# daytime
+      R <- (2 / PI) * (SUPPLY / PTR)
+      if (R <= 0){ 
+        ATr <- 0
+      }else if (R < 1){
+        ATr <- PTR * (1 + R * ACOSF(R) - sin(ACOSF(R)))
+      }else{
+        ATr <- PTR
+      }
+    }else{
+# nighttime
+      if ((SUPPLY <= 0) || (PTR <= 0)){
+        ATr <- 0
+      }else {
+        ATr <- RMINF(SUPPLY, PTR)
+      }
+    }
+    for (i in 1:NLAYER){
+      if (FLAG[i] == 1){
+        ATRANi[i] <- 0
+      }else{
+        ATRANi[i] <- ((PSITI[i]- PSIT) / 1000 + RT * ATr) / RI[i]
+        if (ATRANi[i] < -0.000001){
+          NEGFLAG <- 1
+        }
+      }  
+    }
+    dfw<-dfw+1
+    if (NOOUTF == 1 && NEGFLAG == 1){ 
+           IDEL <- 0
+           TRMIN <- 0
+           for(i in 1:NLAYER){
+            if (ATRANi[i] < TRMIN) {
+              TRMIN <- ATRANi[i]
+              IDEL <- i
+            }
+           }
+           FLAG[IDEL] <- 1
+# repeat main loop with flagged layers excluded
+    }else{
+# done
+       return(list(ATr,ATRANi))
+    }
+  }
+}
+```

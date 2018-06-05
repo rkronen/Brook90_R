@@ -1,0 +1,783 @@
+---
+title: "WAT"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "19 April 2018"
+output: html_document
+---
+
+### WAT - Water movement in soil
+BROOK90 does not try to account for all possible paths of water movement through soil, which is a very complicated subject ([McDonnel, 1990](./literature.html)). As a lumped parameter model it does not move water laterally between subareas. However, it does simulate several different pathways of water movement over or through the soil to streamflow and groundwater (see [Flow Chart](http://www.ecoshift.net/brook/flowchrt.html)):
+
+1. snowmelt and throughfall on impervious areas goes directly to streamflow (SRFL)
+2. snowmelt and precipitation on variable saturated source areas goes directly to streamflow (SRFL)
+3. remaining snowmelt and streamflow (SLFL) infiltrates either all to the surface layer or to several layers via vertical pipes or macropores (INFL)
+4. some infiltrated water can go directly to streamflow as "bypass" flow in pipes (BYFL)
+5. classic vertical matric flow between soil layers (VRFLI)
+6. lateral or downslope movement of matric water to streamflow (DSFL)
+7. vertical drainage of matric water to groundwater (VRFLN)
+8. discharge of groundwater to streamflow (GWFL)
+9. deep seepage loss from groundwater (SEEP) 
+
+SLFL, INFL, VRFLI and VRFLN are internal flows. SRFL and BYFL produce streamflow only on the day of precipitation, simulating a streamflow response of less than 24 hours duration. Users generally should choose one or the other of these flows. DSFL produces a response over several days only if VRFL is limited by a low conductivity layer within the profile or VRFLN is limited by setting DRAIN << 1. VRFL from the bottom of the profile produces a response of several days only if there is no groundwater. GWFL reponse can vary from several to many days. SEEP produces no streamflow at all.
+
+If the surface horizon becomes saturated, infiltration-excess overland flow is simulated as BYFL from the top layer. The input rate (SLFL) is constant over the precipitation interval, which may be a full day for most users. So with saturated hydraulic conductivities usually 200 mm/d or more, such overland flow will be rare.
+
+Vertical water movement out of a layer is a combination of matrix flow, VRFL(I), and the macropore infiltration, SLFL(I). SLFL(I) either becomes BYFL from deeper layers or becomes soil water in deeper layers. VRFL(I) will generally increase with depth as SLFL(I) decreases. Lysimeter users may want to assume that suction lysimeters collect VRFL(I) whereas zero-tension lysimeters collect both VRFL(I) and SLFLI(I).
+
+In this section a subscript i is used to indicate individual layers. 
+
+### Contents
+
+* [Function BYFLFR](#function-byflfr)
+* [Function DSLOP](#function-dslop)
+* [Function GWATER](#function-gwater)
+* [Function INFLOW](#function-inflow)
+* [Function INFPAR](#function-infpar)
+* [Function ITER](#function-iter)
+* [Function RTDEN](#function-rtden)
+* [Function SRFLFR](#function-srflfr)
+* [Function SRFPAR](#function-srfpar)
+* [Function VERT](#function-vert)
+
+### Function BYFLFR
+Bypass flow (BYFL) and surface or source area flow (SRFL) are the two stormflow or quickflow generating mechanisms in BROOK90. The conceptual difference is that SRFL is "new" water that has not infiltrated but has moved across the surface to a channel, whereas BYFL is "new" water that has moved to a channel below the surface via macropores or pipes. In BROOK90 the amount of BYFL from each layer depends on the wetness of that particular layer and on the amount of infiltration to it, which is controlled by INFEXP. The amount of SRFL depends on the total wetness of all soil layers down to and including input parameter QDEPTH. In general users should not try to model BYFL and SRFL simultaneously because trying to fit parameters for both at the same time would be too complicated. The parameter BYPAR is set to 1 to allow BYFL and zero to prevent it. SRFL is prevented by setting both QDEPTH and IMPERV to zero. The same parameters, QFFC and QFPAR, are used for SRFL and for BYFL from all layers.
+
+When BYPAR = 0, there is no bypass flow from deeper layers, but bypass flow is still generated from layer 1 when the layer would otherwise become oversaturated. When INFEXP = 0 or IDEPTH = 0, BYFL can only be generated from layer 1 because it is the only layer receiving infiltrated water.
+
+In each iteration loop, subroutine BYFLFR calculates the fraction of the water infiltrating to each layer that becomes bypass flow (BYFRACi) as
+
+* BYFRACi = QFFC ^ [1 - (1 / QFPAR) x (WETNESi - WETFi) / (1 - WETFi)]
+
+where WETNESi is the layer wetness, WETFi is the layer wetness at field capacity, and QFFC and QFPAR are parameters. QFFC is the bypass fraction at field capacity (WETNESi = WETFi). QFPAR represents the fraction of the water content between field capacity and saturation at which BYFRAC reaches 1. BYFRAC increases exponentially with layer wetness and is prevented from exceeding 1. Raising QFFC will raise BYFL proportionally at all water contents. Raising QFPAR will increase BYFL for soil drier than field capacity and decrease it for soil above field capacity.
+
+With BYPAR = 1 and QFPAR = 0, BYFRAC is 0 below field capacity and 1 above it, and QFFC is ignored. With a single soil layer and no SRFL, this produces a classic "bucket" model, with the leakiness of the bucket determined by DRAIN. With multiple layers and BYPAR = 1, the bucket model does not work because a layer at field capacity diverts all excess water to BYFL, preventing wetting of deeper layers. See [Function SRFLFR](#function-srflfr) for a modified bucket model with multiple layers.
+
+When QFPAR = 1, BYFRAC reaches 1 when the layer is saturated. A very large QFPAR produces a constant BYFRAC of QFFC.
+
+Note that BYFRAC is calculated from soil water prior to the input of water for the time step. 
+
+The input to this function is shown in the following table:
+
+Input   |Description
+--------|---------------------------------
+BYPAR   |1 to allow BYFL, or 0 to prevent BYFL
+NLAYER  |number of soil layers to be used in model, <= ML%
+WETNES()|wetness of the layer (fraction of saturation)
+WETF()  |layer wetness at field capacity (dimensionless)
+QFFC    |BYFL fraction at field capacity
+QFPAR   |quick flow parameter
+
+The output of the function is BYFRAC(), the fraction of layer infiltration to bypass flow.
+
+```{r}
+BYFLFR<-function(){
+#
+for(i in 1:NLAYER){
+  if (BYPAR == 1) {
+    if (QFPAR > 0.01){
+      BYFRAC[i] <- QFFC ^ (1 - (1 / QFPAR) * (WETNES[i] - WETF[i]) / (1 - WETF[i]))
+      if (BYFRAC[i] > 1)  BYFRAC[i] <- 1
+    }else{ # bucket for the layer
+      if(WETNES[i] >= WETF[i]){
+        BYFRAC[i] <- 1
+      }else{
+        BYFRAC[i] <- 0
+      }
+    }
+  }else{
+    BYFRAC[i] <- 0
+  }
+}
+return(BYFRAC)
+}
+```
+
+### Function DSLOP
+The downslope flux (DSFLi) from each layer depends on the slope (DSLOPE) and slope length (LENGTH) parameters as well as on the hydraulic conductivity of the layer. When DSLOPE is zero, there is no DSFL. Because BROOK90 is a unit area model, the ouput flux from a soil layer requires the LENGTH of the slope from which that flux is coming, given as the horizontal or map distance. This is the only place in BROOK90 that LENGTH is used. LENGTH conceptually is the total distance from "ridge" to surface or subsurface "channel", but it effectively is the controlling parameter for DSFL.
+
+The simple algorithm for DSFL is not a realistic hillslope hydrology model. There is no input of downslope flow from upslope, and there is no modeling of changing water potential with depth downslope. There is no lateral or vertical convergence or divergence.
+
+The total potential gradient between the center of the layer and the outflow at the slope foot is assumed to be the sum of the matric potential difference and the gravity potential difference, divided by half the slope length, which is (LENGTH / 2) x sec(DSLOPE). The matric potential at the center of the layer is PSIMi; the matric potential at the outflow is 0 because the matrix at that point must be saturated for outflow of free water to occur. The gravity potential difference is RHOWG x (LENGTH / 2) x tan(DSLOPE). The total potential gradient in kPa/mm is
+
+* (1) GRADi = (RHOWG x (LENGTH/2) x tan(DSLOPE) + PSIMi) / ((LENGTH/2) x sec(DSLOPE)) ; or
+* (2) GRADi = RHOWG x sin(DSLOPE) + (2 x PSIMi / LENGTH) x cos(DSLOPE).
+
+The first term is the gravity gradient; the second term reduces the flow rate when soil is less than saturated because PSIMi is inherently negative. Note that this value of GRADi differs from the value used in subroutine [Function VERT](#function-vert).
+
+The conducting cross-sectional area normal to the slope is
+
+* (3) OAREAi = W x THICKi x (1 - STONEFi) x cos(DSLOPE)
+
+where W is the slope width, and STONEFi reduces the area because stones are non-conducting. The volumetric outflow rate must be divided by the map area of the slope to get the outflow rate in depth/time, where map area is
+
+* (4) MAREA = W x LENGTH.
+
+The outflow rate (DSFLi) in depth/time is then
+
+* (5) DSFLIi = KKi x (OAREAi / MAREA) x GRADi / RHOWG
+
+where KKi is the hydraulic conductivity of the layer. DSFLI is prevented from being negative, because there is no free water source at the outflow.
+
+Studying these equations in detail in July 2013, I realized that they are over-parameterized when there are no nearly impermeable horizons within the profile. When DRAIN is close to zero, which is needed to produce any significant DSFL, then the bottom layer N will nearly saturate so that its PSIM is approximately zero. Unless the lower layers are pretty thin, nearly all the DSFL comes from the bottom layer; so the following equations are for that layer. With the PSIM term in (2) negligible, the downslope flow gradient is
+
+* (6) GRADN = RHOWG x sin (DSLOPE).
+
+substituting (3), (4), and (6) into (5) gives
+
+* (7) DSFLN = KKN x THICKN x (1 - STONEFi) x sin DSLOPE x cos DSLOPE x / LENGTH).
+
+With VRFLN from the end of the preceding section, the ratio between downslope flow and vertical flow out of layer N is
+
+* (8) DSFLN / VRFLN = THICKN x sin DSLOPE x cos DSLOPE / (DRAIN x LENGTH).
+
+The curve of sin DSLOPE x cos DSLOPE is a parabola from 0 to a maximum at 45 deg.; this curve is nearly linear at 0.017 x DSLOPE(deg.) up to 30 deg. So for layer N, (8) becomes
+
+* (9) DSFL / VRFL = 0.017 x THICK x DSLOPE / (DRAIN x LENGTH).
+
+The four values on the right side are all parameters and do not change during a run; so the ratio of DSFL to VRFL is fixed and really needs only its own value to describe it. Because DSLOPE, LENGTH, and DRAIN are pretty arbitrary anyway, I suggest setting LENGTH = 10 m and DSLOPE = 10 deg., and then, with THICK given, adjusting DRAIN to produce the desired DSFL and intermediate recession. The thickness of the lower layers can be changed to adjust the delay in DSFL and VRFL from them; thicker layers mean more delay. With a lowest THICK of 1000 mm, DRAIN = 0.017 produces DSFL = VRFL, a 50:50 split. Note that if there is little or no groundwater (GSC << 1), then both DSFL and VRFL become streamflow immediately and the difference is irrelevant. 
+
+The input arguments to the function are:
+
+Input   |Description
+--------|---------------------------------------
+DSLOPE  |slope for soil water flow (radians)
+LENGTH  |slope length (for DSFLI), (m)
+THICK[] |layer thicknesses (mm)
+STONEF[]|stone volume fraction (unitless)
+PSIM[]  |matric soil water potential (kPa)
+RHOWG   |density of water times acceleration of gravity (kPa/mm)
+KK[]    |hydraulic conductivity (mm/d)
+
+Three locals are defined:
+
+* LL - LENGTH  (mm)
+* GRAD - downslope potential gradient (kPa/mm)
+* ARATIO - outflow area / map area
+
+Instrinsic functions are SIN and COS to calculate the function. The output of this function is:
+
+* DSFLI[] - downslope flow rate from layer (mm/d)
+
+There is no water uptake into dry soil because of no free water at the outflow face.
+
+```{r}
+DSLOP<-function(i){
+    #local
+    LL<-0 
+    GRAD <-0
+    ARATIO  <-0
+    #
+    LL <- 1000 * LENGTH
+    GRAD <- RHOWG * sin(DSLOPE) + (2 * PSIM[i] / LL) * cos(DSLOPE)
+    ARATIO <- THICK[i] * (1 - STONEF[i]) * cos(DSLOPE) / LL
+    DSFLi <- KK[i] * ARATIO * GRAD / RHOWG
+    if (DSFLi < 0)  DSFLi <- 0
+return(DSFLi)
+}
+```
+
+### Function GWATER
+GWATER is called each iteration time-step to obtain seepage loss (SEEP) and groundwater flow rate (GWFL). Groundwater is assumed to be a first order reservoir; the rate of groundwater discharge is a constant fraction (GSC) of groundwater storage (GWAT). SEEP ia a constant fraction (GSP) of this discharge; the remainder becomes GWFL. So
+
+* SEEP = GWAT x GSC x GSP
+
+* GWFL = GWAT x GSC x (1 - GSP).
+
+GWAT is prevented from going below zero by reducing GWFL and SEEP proportionally. Setting GSP equal to zero eliminates seepage loss. Setting GSC to zero passes water immediately through GWAT so there is effectively no groundwater storage.
+
+GWAT is updated in B90 at the end of each iteration as
+
+* GWATnew = GWAT + (VRFLI (NLAYER) - GWFL - SEEP) x DTI
+
+where VRFLI(NLAYER) is the drainage from the bottom soil layer, and DTI is the iteration time step. 
+
+The following table includes the input:
+
+Input |Description
+------|--------------------------------------------
+GWAT  |groundwater storage below soil layers (mm)
+GSC   |discharge from GWAT, fraction of groundwater storage (1/d)
+GSP   |fraction of discharge to seepage
+DT    |time step for interval (d)
+VRFLN |vertical drainage rate from lowest layer (mm/d)
+
+The output of GWATER is:
+
+* GWFL - streamflow from groundwater discharge (mm/d)
+* SEEP - deep seepage loss from groundwater (mm/d)
+
+```{r}
+GWATER<-function(GWAT, GSC, GSP, DT, VRFLN){
+    if (GSC < 0.00000001){
+      SEEP <- GSP * VRFLN
+      GWFL <- VRFLN - SEEP
+    }else{
+      SEEP <- GWAT * GSC * GSP
+      GWFL <- GWAT * GSC * (1 - GSP)
+      if (GWAT / DT - (GWFL + SEEP) < 0){
+        SEEP <- GSP * GWAT / DT
+        GWFL <- (1 - GSP) * GWAT / DT
+      }
+    }
+return(list(GWFL, SEEP))
+}
+```
+
+### Function INFLOW
+In this routine, infiltrating water (SLFL) is allocated to soil water in each layer (INFLIi) and to bypass flow from each layer (BYFLIi). The fraction of SLFL going to each layer (INFRACi) is constant and is obtained in subroutine [Function INFPAR](#function-infpar). This fraction is separated into water to bypass flow (BYFLIi) and water to the soil matrix (INFLIi) by the bypass flow fraction (BYFRACi) from subroutine [Function BYFLFR](#function-byflfr). The routine then calculates net inflow to each layer, including withdrawal by transpiration and soil evaporation. INFLOW is called once each iteration time step and then is called once again if subroutine [Function ITER](#function-iter) produces a new, shorter, iteration time step.
+
+The INFLOW routine is passed through once for each layer, working from the bottom up, preventing oversaturation of any layer. The total water allocated to layer i is: INFIL = INFRACi x SLFL. Bypass flow rate is: BYFLIi = BYFRACi * INFIL and the infiltration to soil matrix water in the layer is INFLIi = INFIL - BYFLIi.
+
+INFLOW next determines the maximum inflow rate (MAXINi), to the layer that can be allowed in the iteration time-step. The vertical flow to the next layer down (VRFLIi) (which may be negative), the transpiration withdrawal (TRANIi), and the downslope flow (DSFLIi) are fixed. So
+
+* MAXINi = (SWATMXi - SWATIi) / DTI + VRFLIi + DSFLIi + TRANIi
+
+where DTI is the iteration time step.
+
+If VRFLIi-1 + INFLIi exceeds MAXIN, then oversaturation will occur. If BYFRACi > 0, INFLIi is first reduced toward zero, then, if necessary, VRFLIi-1 is reduced, or even made negative if VRFLIi is negative. BYFLIi is increased by the amount that INFLIi is reduced. If BYFRACi = 0, VRFLIi-1 is reduced or even made negative. INFLOW finally calculates the net water flux rate, NTFLIi into each soil layer:
+
+* NTFLI(I%) = VV(I% - 1) + INFLI(I%) - VV(I%) - DSFLI(I%) - TRANI(I%)
+
+where VV is the final value of VRFLI.
+
+In the top layer, soil evaporation withdrawal is also added to MAXIN. Because there is no VRFLI(0) to reduce, excess water becomes negative INFLI(1) and increases BYFLI(1).
+
+The modified values of VRFLIi are output from the INFLOW routine as variable VV because the original VRFLIi are needed again if the iteration time step (DTI) is reduced. 
+
+The input arguments to the function are:
+
+Input   |Description
+--------|--------------------------------------------------
+NLAYER  |number of soil layers being used (max. of 20)
+DTI     |time step for iteration interval (d)
+INFRAC()|fraction of infiltration to each layer
+BYFRAC()|fraction of layer infiltration to bypass flow
+SLFL    |input rate to soil surface (mm/d)
+DSFLI() |downslope flow rate from layer (mm/d)
+TRANI() |transpiration rate from layer (mm/d)
+SLVP    |evaporation rate from soil (mm/d)
+SWATMX()|maximum water storage for layer (mm)
+SWATI() |water volume in layer (mm)
+VRFLI() |vertical drainage rate from layer (mm/d)
+
+Locals of this function are:
+
+* Dim i% - index variable for layer number
+* INFIL - water reaching layer, SLFL * INFRAC(i%) (mm/d)
+* MAXIN - maximum allowed rate of input of water to layer (mm/d)
+* INFLi <- INFLI
+
+##### For i>1
+A maxmimum inflow rate must be defined (MAXIN) and calculated. So if VRFLI[i - 1] + INFLi[i] exceeds the maximum inflow rate, there is oversaturation. Then an adjustment must follow to prevent it. If VRFLI[i - 1] is smaller than MAXIN, INFLI will be reduced and  BYFLI increases. Else shift all INFLI to BYFLI and reduce VRFLI(i% - 1). And if BYFRAC is not > than zero, then no bypass flow is allowed. VRFLI(i%-1) is reduced then and INFLI(i%) stays unchanged. In case that VRFLI[i - 1] + INFLi[i] are not bigger than MAXIN, BYFLI and INFLI are unchanged and VV[i-1] gets the value of VRFLI[i-1].
+
+##### For i=1
+In this case MAXIN is defined another way than for i>1. If INFLi[1] exceeds MAXIN, then increase BYFLI(1) to prevent oversaturation. After all this the net flow rate into layer is calculated.
+
+The resulting output of the function contains values for:
+
+* VV() - modified VRFLI (mm/d)
+* BYFLI() - bypass flow rate from layer (mm/d)
+* INFLI() - infiltration rate into layer (mm/d)
+* NTFLI() - net flow rate into layer (mm/d)
+
+```{r}
+INFLOW<-function(){
+    #local
+    #Dim i% 
+    INFIL<-0 
+    MAXIN<-0
+    INFLi<-INFLI
+    #
+    for(i in seq(NLAYER,1,-1)){
+      INFIL <- SLFL * INFRAC[i]
+      BYFLI[i] <- BYFRAC[i] * INFIL
+      INFLi[i] <- INFIL - BYFLI[i]
+      if (i == NLAYER)
+        {VV[i] <- VRFLI[i]
+           }
+      if (i > 1) {
+       MAXIN <- (SWATMX[i] - SWATI[i]) / DTI + VV[i] + DSFLI[i] + TRANI[i]
+      
+        if (VRFLI[i - 1] + INFLi[i] > MAXIN) {
+          if (BYFRAC[i] > 0) {
+            if (VRFLI[i - 1] < MAXIN) {
+              BYFLI[i] <- BYFLI[i] + INFLi[i] - (MAXIN - VRFLI[i - 1])
+              INFLi[i] <- MAXIN - VRFLI[i - 1]
+              VV[i-1] <- VRFLI[i-1]
+            }else{
+              BYFLI[i] <- BYFLI[i] + INFLi[i]
+              INFLi[i] <- 0
+              VV[i-1] <- MAXIN
+            }
+          }else{
+            VV[i-1] <- MAXIN - INFLi[i]
+          }
+        }else{
+          VV[i-1] <- VRFLI[i-1]
+        }
+       NTFLI[i] <- VV[i-1] + INFLi[i] - VV[i] - DSFLI[i] - TRANI[i]
+
+      }else{
+      # i% = 1
+        MAXIN <- (SWATMX[1] - SWATI[1]) / DTI + VV[1] + DSFLI[1] + TRANI[1] + SLVP
+        if (INFLi[1] > MAXIN) {
+          BYFLI[1] <- BYFLI[1] + INFLi[1] - MAXIN
+          INFLi[1] <- MAXIN
+        }
+        NTFLI[1] <- INFLi[1] - VV[1] - DSFLI[1] - TRANI[1] - SLVP
+      }
+    }
+   INFLI<- INFLi
+return(list(VV, INFLI, BYFLI, NTFLI))
+}
+```
+
+### Function INFPAR
+Subroutine INFPAR calculates parameters needed for INFL from input parameters.
+
+Classic infiltration of water into homogeneous soil generates a sharp horizontal wetting front. Infiltration into forest soils is usually much more irregular, with generally vertical cracks and channels assisting rapid movement of water to deeper horizons. A theory of such macropore assisted vertical infiltration is being worked out [Beven and Clarke, 1986](./literature.html), but is generally too complicated for BROOK90.
+
+In BROOK90, the water supply to the soil surface (SLFL) is distributed immediately to soil layers 1 through ILAYER, where ILAYER is the number of layers down to and including input parameter IDEPTH . The fraction of water, Fi, infiltrating by macropores past depth zi is assumed to be an exponential function of depth
+
+* Fi = 1 - (zi / THICKT) ^ INFEXP
+
+where THICKT is the thickness of layers 1 through ILAYER, INFEXP is an input parameter, and ^ denotes exponentiation. Subroutine INFPAR thus calculates the fraction of SLFL going to each layer (INFRACi) as
+
+* INFRACi = (THICKAi / THICKT) ^ INFEXP - (THICKAi-1 / THICKT) ^ INFEXP
+
+where THICKAi is the accumulated depth to the bottom of layer i. Current knowledge suggests that deepest macropore infiltration occurs at the beginning of intense rain on dry soil. The hydraulic conductivity of the soil matrix is then low, so water tends to remain in vertical macropores to greater depth. As the soil around the macropores wets, input water moves more quickly into the matrix so the depth of macropore infiltration decreases. Consequently INFEXP ought to depend on the wetness of the layers and on the SLFL rate and duration, but there is essentially no quantitative information on this so INFEXP and INFRACi are constant in BROOK90. 
+
+When INFEXP is 0, INFRAC(1) = 1 and INFRACi = 0 for all other layers, so infiltration is the classic wetting front form. As INFEXP is increased more water goes directly to deeper layers. When INFEXP is 1, SLFL is distributed uniformly with depth; when INFEXP exceeds 1, more water goes to the deeper than to the shallower layers. With INFEXP = 0 storm water can take a day or more to begin to drain from the deepest soil layer; together with SRFL or BYFL this can produce double-peaked hydrographs. When INFEXP = 1 for uniform wetting, some water is infiltrated directly to the deeper layers and thus drains more quickly. 
+
+The function INFPAR calculates the infiltration parameters with the following input parameters. It is modified for Version 4, June 2, 1999.
+
+Input   |Description
+--------|-----------------------------------------------
+INFEXP  |infiltration exponent (0 water all to top, 1 uniform with depth, >1.0=more water at bottom than at top)
+IDEPTH  |depth over which infiltration is distributed
+NLAYER% |number of soil layers being used
+THICK   |layer thicknesses (mm)
+
+In the function some locals are defined:
+
+* THICKT - total thickness of ILAYERs (mm)
+* THICKA - accumulated thickness downward (mm)
+
+Both are used together with the infiltration exponent INFEXP to caluclate the fraction of infiltration to each layer. The output of this subroutine is:
+
+* ILAYER% - number of layers over which infiltration is distributed
+* INFRAC() - fraction of infiltration to each layer
+
+```{r}
+INFPAR<-function(INFEXP, IDEPTH, NLAYER, THICK){
+#local
+THICKT<-0 
+THICKA<-rep(0,ML)
+#
+if (INFEXP <= 0 || IDEPTH == 0) {
+  ILAYER <- 1  # probably not used
+  INFRAC[1] <- 1
+  for (i in seq(2,NLAYER,1)){
+    INFRAC[i] <- 0
+  }
+}else{
+# must have at least one layer
+  THICKT <- THICK[1]
+  ILAYER <- 1
+  for (i in 2:NLAYER){
+    if (THICKT + 0.5 * THICK[i] <= IDEPTH){
+      ILAYER <- ILAYER + 1
+      THICKT <- THICKT + THICK[i]
+    }else{
+      i<-NLAYER
+    }
+  }
+  THICKA[1] <- 0
+  for(i in 1:NLAYER){
+    if (i <= ILAYER) {
+      
+      if(i==1){
+        THICKA[i] <- THICK[i]
+        INFRAC[i] <- (THICKA[i] / THICKT) ^ INFEXP - (0 / THICKT) ^ INFEXP
+      }else{
+        THICKA[i] <- THICKA[i - 1] + THICK[i]
+        INFRAC[i] <- (THICKA[i] / THICKT) ^ INFEXP - (THICKA[i - 1] / THICKT) ^ INFEXP
+      }
+    }else{
+      INFRAC[i] <- 0
+    }
+  }  
+}
+return(list(ILAYER, INFRAC))
+}
+
+```
+
+### Function ITER
+The initial estimate of DTI, made in [MSBITERATE](./b90v4_sub.html), is the lesser of parameter DTIMAX and the time remaining in the precipitation interval. DTIMAX is the maximum allowed iteration time step. After calling [Function INFLOW](#function-inflow) with this initial DTI, and then FDPSIDW for each layer, [MSBITERATE](./b90v4_sub.html) calls ITER. ITER calculates the resulting change in water content and potential and tests to see if the changes in any layer have been too large; if so, a shorter DTINEW is chosen and returned from ITER. INFLOW is then called again to obtain final values of NTFLIi.
+
+Oscillation, or overshoot, is reduced in ITER by reducing DTI so that the potential difference between adjacent layers does not change sign during the iteration time step. For Euler integration
+
+* &Psi;inew = &Psi;i + Ai &Delta;t 
+
+where &Psi;i is the initial total potential of the layer, &Psi;inew is the final potential, &Delta;t is the first approximation for DTI, and
+
+* Ai = d&Psi;i / dt = d&Psi;i x dSi / dt x dSi = Ni x d&Psi;w / Sxi x dWi
+
+where Si is the total water content of the horizon, dSi/dt is Ni (NTFLI), which is the net inflow rate to the layer, Wi is the saturation fraction (WETNESi), and Sxi is the saturated water content (SWATMXi). d&Psi;i/dWi is calculated as function FDPSIDW (in module [KPT](./kpt.html)) before entering ITER. Strictly speaking, the derivatives are partial derivatives with respect to time.
+
+The maximum &Delta;t allowed (DTINEW) is found by setting &Psi;inew = &Psi;i+1new, which gives
+
+* DTINEW = -(&Psi;i - &Psi;i+1) / (Ai - Ai+1).
+
+Parameter DPSIMX is the maximum vertical potential difference that is considered to be effectively zero. There is no vertical flow between layers whose potentials differ by less than DPSIMX and the DTINEW criterion above is not applied. This reduces oscillation initiated by flows that are the product of large conductivities and large time steps but small gradients. In a later version this should probably be changed to a limit on the potential gradient rather than on the potential difference.
+
+I recommend setting DPSIMX to 0.01 kPa. Initially I used 0.5 kPa, but this prevents flow betwen layers when it should be occurring, thus forcing oscillation. Oscillation (integration) problems increase as layer thicknesses become more different. Even though some oscillation occurs between iterations, the daily flows are remarkably robust (insensitive to integration parameters).
+
+Parameter DSWMAX limits the change in the soil water content in an iteration. DSWMAX is the maximum allowed change in WETNES or saturation fraction for any layer in percent. Subroutine ITER calculates the new DTI to prevent this criterion from being exceeded as
+
+* DTINEW = 0.01 x DSWMAX x SWATMXi / NTFLIi.
+
+This limitation causes the largest number of iterations per precipitation interval when heavy rain falls on dry soil with top-down wetting.
+
+Subroutine ITER finds the minimum value of DTINEW by the above criteria and returns it. 
+
+The input parameters to this function are:
+
+Input   |Description
+--------|-----------------------------------------------------------------
+NLAYER% |number of soil layers to be used in model
+DTI     |time step for iteration interval (d)
+DPSIDW()|rate of change of total potential with water content (kPa/mm)
+NTFLI() |net flow rate into layer (mm/d)
+SWATMX()|maximum water storage for layer (mm)
+PSITI() |total potential (kPa)
+DSWMAX  |maximum change allowed in SWATI (percent of SWATMX(i))
+DPSIMX  |maximum potential difference considered "equal" (kPa)
+
+Locals in this subroutine are:
+
+* A
+* temp
+* TT - new potential difference between layers
+* PP - original potential difference between layers
+
+After defining these, the first approximation to new total potential is calculated. Then a test follows to check if DTI should be reduced. DTINEW recieves the value of DTI and DTINEW will be calcualted using RMIN to prevent too large a change in water content. Also oscillation of the potential gradient has to be prevented. So if i < NLAYER, the total potential difference at beginning of iteration PP and the first approximation to the total potential difference at the end of iteration TT are computed. And if the absolutes of PP and TT exceed DPSIMX and the signs of both are different, then DTINEW will be calculated new.
+
+Instrinsic to use the function are ABS and SGN and the external functions RMAX and RMIN are needed. Then the generated output is:
+
+* DTINEW - second estimate of DTI
+
+```{r}
+ITER<-function(NLAYER, DTI, DPSIDW, NTFLI, SWATMX, PSITI, DSWMAX, DPSIMX){
+#local
+A<- rep(0,50)
+temp<-rep(0,50)
+TT  <-0 
+PP<-0
+#
+for ( i in 1:NLAYER){
+    A[i] <- NTFLI[i] * DPSIDW[i] / SWATMX[i]
+    temp[i] <- PSITI[i] + A[i] * DTI
+}
+DTINEW <- DTI
+for( i in 1:NLAYER){
+  DTINEW <- RMINF(DTINEW, 0.01 * DSWMAX * SWATMX[i] / RMAXF(0.000001, abs(NTFLI[i])))
+  if (i < NLAYER) {
+    PP <- PSITI[i] - PSITI[i + 1]
+    TT <- temp[i] - temp[i + 1]
+    if ((abs(TT) > DPSIMX) && (abs(PP) > DPSIMX) && (sign(TT) != sign(PP))){
+      DTINEW <- RMINF(DTINEW, -PP / (A[i] - A[i + 1]))
+    }
+  }
+}
+return(DTINEW)
+}
+```
+
+### Function RTDEN
+Subroutine RTDEN is called once at the beginning of a run to calculate the relative root density in each soil layer (RELDEN) from the Canopy Parameter array ROOTDEN. The routine first separates the ROOTDEN array into a thickness array (RTHICK) and a relative density array (RDEN). Then it does some confusing programming working from the top down to reallocate the roots from the specified root layers to the soil layers specified in Soil Parameters. This allows the vertical root distribution to be described independently of the soil layers that are used in BROOK90 simulation.
+
+The total mass of fine roots per unit land area is given as the separate Canopy parameter MXRTLN, so only the relative distribution is involved in routine RTDEN. 
+
+This function calculates the relative root density in every stonefree volume in the layers of the soil. It is written for Version 4, June 2, 1999.
+
+The input here is:
+
+Input     |Description
+----------|-----------------------------------------------------------------------------
+ROOTDEN() |array (1-50) of root layer thickness and root density per unit stonefree volume
+NLAYER%   |number of soil layers being used
+THICK     |soil layer thicknesses (mm)
+
+There are three dimensions used in RTDEN:
+
+* Dim i% - soil layer
+* Dim J% - root layer
+* Dim DONE - as Integer
+
+Additional these locals are defined for the calculation:
+
+* RTHICK - root layer thickness
+* RDEN - relative root density in layer
+* RREMAIN - remaining thickness of root layer
+* TREMAIN - remaining thickness of soil layer
+
+The function gives the following output:
+
+* RELDEN - relative root density per unit stonefree volume for soil layer
+
+```{r}
+RTDEN<-function(ROOTDEN, NLAYER, THICK){
+  
+RTHICK<-rep(0,ML) 
+RDEN<-rep(0,ML)
+RREMAIN<-0
+TREMAIN<-0
+
+for( J in 1:ML){
+  RTHICK[J] <- ROOTDEN[2 * J - 1]
+  RDEN[J] <- ROOTDEN[2 * J]
+}
+DONE <- FALSE
+j <- 1
+RREMAIN <- RTHICK[j]
+for( i in 1:NLAYER){ # new soil layer
+# accumulate RELDEN as total root length in soil layer
+  RELDEN[i] <- 0
+  if (!DONE){
+    TREMAIN <- THICK[i]
+    while(RREMAIN < TREMAIN && j < ML-1){
+# remaining root layer thickness < remaining soil layer thickness
+      RELDEN[i] <- RELDEN[i] + RDEN[j] * RREMAIN
+      TREMAIN <- TREMAIN - RREMAIN
+      j <- j + 1
+      if( j == ML){
+        DONE <- TRUE
+      }
+      RREMAIN <- RTHICK[j]
+    }
+# remaining root layer thickness >= remaining soil layer thickness
+    if(!DONE){
+       RELDEN[i] <- RELDEN[i] + RDEN[j] * TREMAIN
+       RREMAIN <- RREMAIN - TREMAIN
+    }
+  }
+# convert back to unit volume basis
+RELDEN[i] <- RELDEN[i] / THICK[i]
+}
+return(RELDEN)
+}
+```
+
+### Function SRFLFR
+As a lumped parameter model, BROOK90 can only keep track of the spatial mean water content of a watershed. When source area flow (SRFL) is simulated, BROOK90 uses the concept of a variable source area, but there is no provision for separate water budgets on the source area and the remaining "upland" area. Therefore users should be cautious when comparing measured soil water solely from "upland" locations with simulated soil water when the concept of SRFL from source areas is used to simulate streamflow. The upland locations will be dryer than the watershed average.
+
+In BROOK90 all water reaching the surface of source areas is assumed to become streamflow immediately, so streamflow from the source areas (SRFL) is
+
+* SRFL = (SAFRAC + IMPERV) x (RNET + SMLT)
+
+where IMPERV is a fixed fraction of the area that is always impervious or always source area, and the source area fraction of the surface area (SAFRAC) is an exponential function of soil wetness in the upper layers of soil. RNET + SMLT is the water input to the soil surface. The SRFL equation is in [MSBITERATE](./b90v4_sub.html); Infiltration (SLFL) is then obtained in MSBITERATE as
+
+* SLFL = RNET + SMLT - SRFL.
+
+The number of soil layers used in the determination of SAFRAC is the number of layers down to and including the parameter QDEPTH. Decreasing QDEPTH makes SAFRAC depend more on the more rapid wetting and drying of the surface, but there is no way of deciding a priori what QDEPTH should be for any particular system. At least using the number of layers in the root zone is a consistent choice.
+
+SAFRAC is obtained each iteration timestep (before INFL is added) as
+
+* SAFRAC = QFFC ^ [1 - ( 1 / QFPAR) x (SUM - SWATQF) / (SWATQX - SWATQF)]
+
+where QFFC and QFPAR are parameters and SUM is the total water content of the layers down through QDEPTH. SWATQF and SWATQX are the total water content of the layers at field capacity and saturation, respectively; these are determined in subroutine SRFPAR. QFFC is the value of SAFRAC at field capacity (SUM = SWATQF), and QFPAR is the fraction of the water content between field capacity and saturation at which SAFRAC reaches its maximum allowed value of 1.
+
+Increasing QFFC raises SRFL at all wetnesses; increasing QFPAR raises SRFL below field capacity and lowers SRFL above field capacity. These parameters are discussed further in section [Function BYFLFR](#function-byflfr).
+
+A value of QFPAR less than 1 is somewhat anachronistic because it says that the ground surface acts as if it were all saturated when the top soil layer is not saturated. This may arise because of the assumption that the source area mechanism is the only stormflow generator.
+
+When QFPAR = 0, SAFRAC is 0 when the average wetness down to QDEPTH is below the average field capacity, and is 1 if field capacity is exceeded, thus preventing any further infiltration. QFFC is ignored. With a single soil layer, this produces a classic "bucket" model, with the leakiness of the bucket determined by DRAIN. With multiple layers, QDEPTH equal total depth, DRAIN = 0, QFPAR = 0, and BYPAR = 0, water infiltrates until the total water content in the whole soil is at field capacity, then all excess becomes SRFL.
+
+When QFPAR = 1, SAFRAC reaches 1 when the layers down to QDEPTH is saturated. A very large QFPAR produces a constant SAFRAC of QFFC.
+
+Note that SAFRAC is calculated from soil water prior to the input of water for the time step. 
+
+The input to this function SRFLFR is:
+
+Input   |Description
+--------|-------------------------------
+QLAYER% |number of soil layers for SRFL
+SWATI() |water volume by layer (mm)
+SWATQX  |maximum water storage for layers 1 through QLAYER%
+QFPAR   |quickflow parameter, 0 for bucket
+SWATQF  |water storage at field capacity for layers 1 through QLAYER% (mm)
+QFFC    |SRFL fraction at field capacity
+
+Two locals are included in SRFLFR:
+
+* SUM - soil water in layers 1 through QLAYER%
+* safra
+
+The function has the output:
+
+* safra - source area fraction
+
+```{r}
+SRFLFR<-function(){
+#local
+SUM<-0
+safra<-0
+#
+for( i in  1:QLAYER){
+  SUM <- SUM + SWATI[i]
+}
+if( QFPAR > 0.01){
+  safra <- QFFC ^ (1 - (1 / QFPAR) * (SUM - SWATQF) / (SWATQX - SWATQF))
+  if (safra > 1) {safra <- 1}
+}else{ # bucket over QLAYERs
+  if (SUM >= SWATQF){
+      safra <- 1
+  }else{
+      safra <- 0
+  }
+}
+return(safra)
+}
+```
+
+### Function SRFPAR
+Subroutine SRFPAR calculates the total water in layers down through QDEPTH at field capacity (SWATQF) and at saturation (SWATQX) from input parameters at the beginning of a run. These parameters are used in subroutine [Function SRFLFR](#function-srflfr) to calculate SRFL.
+
+Input for SRFPAR is:
+
+Input   |Description
+--------|------------------------------------------
+QDEPTH  |soil depth for SRFL calculation, 0 to prevent SRFL
+NLAYER% |number of soil layers to be used
+THETAF()|volumetric water content of layer at field capacity
+THICK() |layer thickness (mm)
+STONEF()|stone volume fraction of layer
+SWATMX()|maximum water storage for layer (mm)
+
+The only local is THICKT. There are three outputs calculated:
+
+* QLAYER% - number of soil layers for SRFL
+* SWATQX - maximum water storage for layers 1 through QLAYER% (mm)
+* SWATQF - water storage at field capacity for layers 1 through QLAYER% (mm)
+
+If QDEPTH is zero, then there is no SRFL with QLAYER% = 0. SWATQX and SWATQF are then not used. 
+Else QLAYER is calculated, depending on THICKT. When the number of soil layers for SRFL is computed, SWATQX and SWATQF are calculated for each layer. 
+
+```{r}
+SRFPAR<-function(QDEPTH, NLAYER, THETAF, THICK, STONEF, SWATMX){
+#local
+THICKT<-0
+#
+if( QDEPTH == 0 ){
+  QLAYER <- 0
+  SWATQX <- 0
+  SWATQF <- 0
+  return(list( QLAYER, SWATQX, SWATQF))
+}
+QLAYER <- 1
+THICKT <- THICK[1]
+for( i in  2:NLAYER){
+  if( THICKT + 0.5 * THICK[i] <= QDEPTH){
+    THICKT <- THICKT + THICK[i]
+    QLAYER <- QLAYER+ 1
+  }else{
+    i<-NLAYER
+  }
+}
+  SWATQX <- 0
+  SWATQF <- 0
+  for( i in  1:QLAYER){
+    SWATQX <- SWATQX + SWATMX[i]
+    SWATQF <- SWATQF + THETAF[i] * THICK[i] * (1 - STONEF[i])
+  }
+return(list( QLAYER, SWATQX, SWATQF))
+}
+```
+
+### Function VERT
+Subroutine VERT is called for each layer to obtain the vertical flow rate between layers as the product of a hydraulic conductivity times a gradient. [Haverkamp and Vauclin, 1979](./literature.html) and [Schnabel and Richie, 1984](./literature.html) have studied the appropriate averaging of the hydraulic conductivities of adjacent layers in finite difference approximations. Both found that the geometric mean (K1 K2) 0.5 is preferable to other simple averaging methods although they both used adjacent layers of identical thickness.
+
+The hydraulic conductivity for drainage from a layer (KKMEANi ) is calculated as the geometric mean regardless of layer thickness
+
+* KKMEANi = exp((ln(KKi) + ln(KKi+1)) / 2)
+
+where KKi is the hydraulic conductivity of layer i. KKMEANi is prevented from exceeding the saturated conductivity of either layer.
+
+The potential gradient is
+
+* GRADi = (PSITi - PSITi+1) / RMIN(THICKi, THICKi+1)
+
+where PSITi is the total soil water potential. The interlayer conductivity and gradient thus behaves as if both layers have the thickness of the thinner layer, corresponding to an assumption that the interface cannot "see" any difference in layer thicknesses. This seems to do well in moving an appropriate amount of water even when the layer thicknesses and conductivities differ greatly.
+
+From Darcy's Law, the vertical flux out of layer i (VRFLi) is
+
+* VRFLi = (GRADi x KKMEANi / RHOWG) x (1 - (STONEFi + STONEFi+1) / 2).
+
+where RHOWG is the constant product of the density of water and the acceleration of gravity. The correction for stone fraction (STONEFi) reduces the cross-sectional area for flow by the average stone fraction of the two layers.
+
+Vertical flux from the lowest soil layer, VRFLN ,is calculated in [MSBITERATE](./b90v4_sub.html) using a gravity unit gradient (GRADN / RHOWG = 1) and is proportional to the hydraulic conductivity of that layer corrected for stone fraction. Use of the gravity gradient is equivalent to assuming that the lowest layer has another layer below it at the same matric potential. This drainage from the soil profile to groundwater can be restricted by the parameter DRAIN, which can range from 1 down to zero. So
+
+* VRFLN = DRAIN x KKMEANi x (1 - STONEFN).
+
+If DRAIN is set to zero to simulate an impermeable lower boundary, and the downslope flow is set to zero by DSLOPE equal 0, and there is no evaporation, then the soil profile will become saturated. 
+
+Function VERT is modified at March 17, 2001 to change KKMEAN. 
+
+The input to VERT is:
+
+Input |Description
+------|-------------------------------------
+KK    |hydraulic conductivity for upper layer (mm/d)
+KK1   |hydraulic conductivity for lower layer (mm/d)
+KSAT  |saturated hydraulic conductivity of upper layer (mm/d)
+KSAT1 |saturated hydraulic conductivity of lower layer (mm/d)
+THICK |thickness of upper layer (mm)
+THICK1|thickness of lower layer (mm)
+PSIT  |total potential of upper layer (kPa)
+PSIT1 |total potential of lower layer (kPa)
+STONEF|stone volume fraction of upper layer (unitless)
+STONE1|stone volume fraction of lower layer (unitless)
+RHOWG |density of water times gravity acceleration (kPa/mm)
+i     |Layer
+
+* VERT(KK[i], KK[i+1], KSAT[i], KSAT[i+1], THICK[i], THICK[i+1], PSITI[i], PSITI[i+1], STONEF[i], STONEF[i+1], RHOWG, VRFLI[i],i)
+* flow rate = gradient x cond   / rhog
+* mm/day    = kPa/mm   x mm/day / kPa/mm
+
+The function calculates the locals:
+
+* GRAD - potential gradient, positive downward (kPa/mm)
+* KKMEAN - geometric mean conductivity
+
+KKMEAN is used to average the hydraulic conductivity between two layers. It has to be limited to lesser satureated conductivity if it exceeds KSAT [i] or KSAT [i+1]. In previous versions KKMEAN was calculated like this: 
+
+* Version 4.2 and 4.3 
+    + KKMEAN = Exp((THICK x Log(KK) + THICK1 x Log(KK1)) / (THICK + THICK1))
+* Version 4.1 and 3.25a and earlier
+    + KKMEAN = Exp((THICK1 x Log(KK) + THICK x Log(KK1)) / (THICK + THICK1))
+
+Also GRAD was calculated different through Version 4.3a:
+
+* GRAD = (PSIT - PSIT1) / ((THICK + THICK1) / 2!)
+
+The output of function VERT is:
+
+* VRFLi - vertical drainage rate from layer i (mm/d)
+
+```{r}
+VERT<-function(i){
+#local
+GRAD <-0
+KKMEAN<-0
+#
+KKMEAN <- exp((log(KK[i]) + log(KK[i+1])) / 2)
+if (KKMEAN > KSAT[i])  KKMEAN <- KSAT[i]
+if (KKMEAN > KSAT[i+1])  KKMEAN <- KSAT[i+1]
+GRAD <- (PSITI[i] - PSITI[i+1]) / RMINF(THICK[i], THICK[i+1])
+VRFLi <- (GRAD * KKMEAN / RHOWG) * (1 - (STONEF[i] + STONEF[i+1]) / 2)
+
+return(VRFLi)
+}
+```

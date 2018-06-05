@@ -1,0 +1,189 @@
+---
+title: "AXX"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "3 Mai 2018"
+output: html_document
+---
+
+### AXX - Auxiliary Routines
+This script contains different helping routines making the programm work.
+
+### Contents
+
+* [Function ACCUM](#function-accum)
+* [Function ACCUMI](#function-accumi)
+* [Function ACOSF](#function-acosf)
+* [Function ASINF](#function-asinf)
+* [Function RMAXF](#function-rmaxf)
+* [Function RMINF](#function-rminf)
+* [Function SUMI](#function-sumi)
+* [Function ZERO](#function-zero)
+* [Function ZEROA](#function-zeroa)
+
+### Function ACCUM
+Subroutine ACCUM (Module AXX.BAS) adds variable An to variable Bn for n = 1 to 5. 
+
+It works as an accumulator and adds Aj to Bj. The input arguments are A1, A2, A3, A4, A5, B1, B2, B3, B4, B5 and the output is B1, B2, B3, B4 and B5.
+
+```{r}
+ACCUM <-function(A1, A2, A3, A4, A5, B1, B2, B3, B4, B5){
+B1 <- B1 + A1
+B2 <- B2 + A2
+B3 <- B3 + A3
+B4 <- B4 + A4
+B5 <- B5 + A5
+return(list(B1, B2, B3, B4, B5))
+}
+```
+
+### Function ACCUMI
+Subroutine ACCUMI (Module AXX.BAS) adds array value An(i) to array value Bn(i) for n = 1 to 5 and i = 1 to N. 
+
+This is an accumulator for array components; it adds Aj(i) to Bj(i) for each i up to n. The input is N, A1, A2, A3, A4, A5, B1, B2, B3, B4, B5 and the output is B1, B2, B3, B4, B5.
+
+```{r}
+ACCUMI<-function (N, A1, A2, A3, A4, A5, B1, B2, B3, B4, B5){
+  B1 <- B1 + A1
+  B2 <- B2 + A2
+  B3 <- B3 + A3
+  B4 <- B4 + A4
+  B5 <- B5 + A5
+#for( i in 1:N){
+#  B1[i] <- B1[i] + A1[i]
+#  B2[i] <- B2[i] + A2[i]
+#  B3[i] <- B3[i] + A3[i]
+#  B4[i] <- B4[i] + A4[i]
+#  B5[i] <- B5[i] + A5[i]
+#}
+return(list(B1, B2, B3, B4, B5))
+}
+```
+
+### Function ACOSF
+This function turns arc cosine in radians from 0 to &pi;. The input is T and the output ACOS. These are not intrinsic functions in Visual Basic. 
+
+```{r}
+ACOSF<-function (T){
+TA<-0
+AC<-0
+TA <- abs(T)
+if (TA > 1) {
+
+}
+if (TA < 0.7) {
+  AC <- 1.570796 - atan(TA / (1 - TA * TA)^(1/2))
+}else{
+  AC <- atan((1 - TA * TA)^(1/2) / TA)
+}
+if (T < 0) {
+  ACOS <- 3.141593 - AC
+}else{
+  ACOS <- AC
+}
+return(ACOS) #acos(T))
+}
+```
+
+### Function ASINF
+The function ASINF turns arc sine in radians from -&pi;/2 to &pi;/2. The input here is temp and the output ASIN.
+
+```{r}
+ASINF<-function (temp){
+TA<-0
+TA <- abs(temp)
+if(TA > 1){
+#  
+}
+if (TA < 0.7) {
+  ASIN <- sign(temp) * (atan(TA / (1 - TA * TA)^(1/2)))
+}else{
+  ASIN <- sign(temp) * (1.570796 - atan((1 - TA * TA)^(1/2) / TA))
+}
+return(ASIN)#asin(temp))
+}
+```
+
+### Function RMAXF
+Functions RMAX and RMIN (Module AXX.BAS) take the maximum and the minimum, respectively, of a pair of real values. These are not intrinsic functions in Visual Basic.
+
+RMAXF calculates the real single precision maximum. Input arguments are T1 and T2 and the output is RMAX. 
+
+```{r}
+RMAXF <-function(T1, T2){
+if (T1 < T2) {
+  RMAX <- T2
+}else{
+  RMAX <- T1
+}
+return(RMAX)
+}
+```
+
+### Function RMINF
+RMINF calculates the real single precision minimum. Input arguments are T1 and T2 and the output is RMIN.
+
+```{r}
+RMINF<-function (T1, T2){
+if (T1 > T2) {
+RMIN <- T2
+}else{
+RMIN <- T1
+}
+return(RMIN)
+}
+```
+
+### Function SUMI
+Subroutine SUMI (Module AXX.BAS) sums all N values in array An into variable Bn for n = 1 to 6. 
+
+This is an array summer. It sums A(i) for i = 1,n with result in B. The input contains N, A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6. The resulting output is B[1], B[2], B[3], B[4], B[5], B[6].
+
+```{r}
+SUMI<-function (N, A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6){
+B<-rep(0,N)
+for( i in 1:N){
+B[1] <- B[1] + A1[i]
+B[2] <- B[2] + A2[i]
+B[3] <- B[3] + A3[i]
+B[4] <- B[4] + A4[i]
+B[5] <- B[5] + A5[i]
+B[6] <- B[6] + A6[i]
+}
+return(list(B[1], B[2], B[3], B[4], B[5], B[6]))
+}
+```
+
+### Function ZERO
+Subroutine ZERO (Module AXX.BAS) sets each of six variables to zero. 
+
+This function zeroes variables. V1, V2, V3, V4, V5, V6 are input and output arguments.
+
+```{r}
+ZERO<-function (V1, V2, V3, V4, V5, V6){
+  V1 <- 0
+  V2 <- 0
+  V3 <- 0
+  V4 <- 0
+  V5 <- 0
+  V6 <- 0
+    return(list(V1, V2, V3, V4, V5, V6))
+}
+```
+
+### Function ZEROA
+Subroutine ZEROA (Module AXX.BAS) sets all values in four equal-sized arrays to zero. 
+
+ZEROA zeroes arrays. The input is N,A1,A2,A3,A4 and the resulting output of the function A1,A2,A3,A4.
+
+```{r}
+ZEROA <-function(N,A1,A2,A3,A4){
+#zeroes arrays
+#for( i in 1:N){
+  A1<-rep(0,ML)
+  A2<-rep(0,ML)
+  A3<-rep(0,ML)
+  A4<-rep(0,ML)
+#}
+return(list(A1,A2,A3,A4))
+}
+```
