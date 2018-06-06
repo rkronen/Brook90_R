@@ -29,10 +29,6 @@ First the script of the main programm [MainProg.Rmd](./MainProg.Rmd) has to be r
 rmarkdown::render('MainProg.Rmd')
 ```
 
-```{r eval=FALSE}
-rmarkdown::render('MainProg.Rmd')
-```
-
 The program initializations starts if it is New Run or Rerun. Settings for the time are done, like number of days per month, interval times and zeroed vectors are set. The Year dates are changed from two-digit year to four-digit. The DOY is set with the help of [Function DOYF](./B90V4_sub.Rmd) with the input DOM, MONTHN and DAYMO and number of days for february depending on leap year or not. The time step for precipitation interval is calculated and zero accumulators are called. Some neccesary values are calculated or unlisted from functions:
 
 * initial values
