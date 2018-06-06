@@ -111,16 +111,16 @@ Subroutine MSUBSETVARS contains subroutines that calulate derived variables for 
 
 In MSBSETVARS the defined functions of the other scripts will be executed:
 
-* solar parameters depending on DOY, [Function SUNDS](./sun.html)
-* canopy parameters depending on DOY, [Function CANOPY](./pet.html)
-* roughness parameters depending on SNOW > or < than 0, [Function ROUGH](./pet.html)
-* extracted plant resistance components, [Function PLNTRES](./evp.html)
-* [Function WEATHER](./pet.html) executed to show calculated weather data
-* Function for fraction of precipitation as SFAL [Function SNOFRAC](./sno.html)
-    + if SNOW > 0: snowpack temperature at beginning of day calculated and potential snow evaporation with the help of [Function SNOVAP](./sno.html)
-    + else: calculation of soil evaporation resistance with [Function FRSS](./pet.html)
+* solar parameters depending on DOY, [Function SUNDS](./SUN.Rmd)
+* canopy parameters depending on DOY, [Function CANOPY](./PET.Rmd)
+* roughness parameters depending on SNOW > or < than 0, [Function ROUGH](./PET.Rmd)
+* extracted plant resistance components, [Function PLNTRES](./EVP.Rmd)
+* [Function WEATHER](./PET.Rmd) executed to show calculated weather data
+* Function for fraction of precipitation as SFAL [Function SNOFRAC](./SNO.Rmd)
+    + if SNOW > 0: snowpack temperature at beginning of day calculated and potential snow evaporation with the help of [Function SNOVAP](./SNO.Rmd)
+    + else: calculation of soil evaporation resistance with [Function FRSS](./PET.Rmd)
     + depending on SNOW different values for: TSNOW, PSNVP, ALBEDO, RSS
-* [Function SNOENRGY](./sno.html) executed to show snow surface energy balance (even if SNOW = 0 in case of snow during day)
+* [Function SNOENRGY](./SNO.Rmd) executed to show snow surface energy balance (even if SNOW = 0 in case of snow during day)
 
 ```{r}
 MSBSETVARS<-function(){
@@ -185,9 +185,9 @@ SNOEN<<-SNOENRGY(TSNOW, TA, DAYLEN, CCFAC, MELFAC, SLFDAY, LAI, SAI, LAIMLT, SAI
 ```
 
 ### Function MSBPREINT
-In this function the precipitation intervall is converted from mm to mm/d. There are different calculations if there is one or more than one precipitation intervall a day. Snow and rain interception are calculated in a different way in both cases. After this the rain and snow throughfall can be calculated. The transpiration has to be reduced for fraction of precipitation interval that canopy is wet. If there is no snow, soil evaporation is weighted for WETFR. When only new snow is there CC and SNOWLQ are assumed to be zero. The snow accumulation and melt is calculated with the [Function SNOWPACK](./sno.html).
+In this function the precipitation intervall is converted from mm to mm/d. There are different calculations if there is one or more than one precipitation intervall a day. Snow and rain interception are calculated in a different way in both cases. After this the rain and snow throughfall can be calculated. The transpiration has to be reduced for fraction of precipitation interval that canopy is wet. If there is no snow, soil evaporation is weighted for WETFR. When only new snow is there CC and SNOWLQ are assumed to be zero. The snow accumulation and melt is calculated with the [Function SNOWPACK](./SNO.Rmd).
 
-In subroutine MSBPREINT, precipitation is separated into rain and snow using SNOFRC. If NPINT = 1, subroutine [INTER24](./evp.html) is called twice, once for snow interception and once for rain interception; this routine uses the monthly parameter DURATN, which is the average storm duration in hours. If NPINT > 1, subroutine [INTER](./evp.html) is used instead, and the precipitation is assumed to occur over the whole precipitation interval. Transpiration (TRAN) for the interval is summed over layers and reduced by the fraction of time the canopy is wet; soil evaporation (SLVP) is GIR when the canopy is wet and GER when it is dry. If a snowpack exists, subroutine [SNOWPACK](./sno.html) is called to use SNOEN and the rain and snow throughfall to calculate snowmelt (SMLT), cold content (CC), and liquid water content of the snow. Net rain to the soil surface (RNET) is rain throughfall (RTHR) minus rain absorbed by the snowpack (RSNO). Water reaching the ground surface is RNET + SMLT. 
+In subroutine MSBPREINT, precipitation is separated into rain and snow using SNOFRC. If NPINT = 1, subroutine [INTER24](./EVP.Rmd) is called twice, once for snow interception and once for rain interception; this routine uses the monthly parameter DURATN, which is the average storm duration in hours. If NPINT > 1, subroutine [INTER](./EVP.Rmd) is used instead, and the precipitation is assumed to occur over the whole precipitation interval. Transpiration (TRAN) for the interval is summed over layers and reduced by the fraction of time the canopy is wet; soil evaporation (SLVP) is GIR when the canopy is wet and GER when it is dry. If a snowpack exists, subroutine [SNOWPACK](./SNO.Rmd) is called to use SNOEN and the rain and snow throughfall to calculate snowmelt (SMLT), cold content (CC), and liquid water content of the snow. Net rain to the soil surface (RNET) is rain throughfall (RTHR) minus rain absorbed by the snowpack (RSNO). Water reaching the ground surface is RNET + SMLT. 
 
 ```{r}
 MSBPREINT<-function(){
@@ -282,13 +282,13 @@ Net throughfall (RNET) plus snowmelt (SMLT) may:
 3. go immediately to streamflow via vertical macropore flow followed by downslope pipe flow (BYFLI), or
 4. go immediately to streamflow via impaction on a variable saturated source area (SRFL). 
 
-The fraction of area acting as a saturated source area (SAFRAC) is obtained in subroutine [SRFLFR](./wat.html). Source area flow (SRFL) is obtained as SAFRAC plus impervious area (IMPERV) times RNET + SMLT. Infiltration rate (SLFL) is RNET + SMLT - SRFL. The fraction of infiltration to each layer that bypasses the layer and becomes an output via bypass flow (BYFLI) is calculated in subroutine [BYFLFR](./wat.html). For each layer, the downslope flow rate by matrix flow (DSFLI) is obtained from subroutine [DSLOP](./wat.html). In general, one or more of SRFL, BYFL, and DSFL will be set to zero by the user.
+The fraction of area acting as a saturated source area (SAFRAC) is obtained in subroutine [SRFLFR](./WAT.Rmd). Source area flow (SRFL) is obtained as SAFRAC plus impervious area (IMPERV) times RNET + SMLT. Infiltration rate (SLFL) is RNET + SMLT - SRFL. The fraction of infiltration to each layer that bypasses the layer and becomes an output via bypass flow (BYFLI) is calculated in subroutine [BYFLFR](./WAT.Rmd). For each layer, the downslope flow rate by matrix flow (DSFLI) is obtained from subroutine [DSLOP](./WAT.Rmd). In general, one or more of SRFL, BYFL, and DSFL will be set to zero by the user.
 
-If the water potential difference between layers is less than the parameter DPSIMX, vertical flow (VRFLI) is zero; otherwise subroutine [VERT](./wat.html) obtains VRFLI between layers from a weighted hydraulic conductivity and the water potential difference between the layers. For the bottom layer, outflow to groundwater is the hydraulic conductivity of the layer times a parameter (DRAIN), which can vary from 0 to 1. This assumes a gravity potential gradient.
+If the water potential difference between layers is less than the parameter DPSIMX, vertical flow (VRFLI) is zero; otherwise subroutine [VERT](./WAT.Rmd) obtains VRFLI between layers from a weighted hydraulic conductivity and the water potential difference between the layers. For the bottom layer, outflow to groundwater is the hydraulic conductivity of the layer times a parameter (DRAIN), which can vary from 0 to 1. This assumes a gravity potential gradient.
 
-Subroutine [INFLOW](./wat.html) is called to get net inflow into each layer (NTFLI) using parameter DTIMAX as a first approximation for iteration time step. The rate of change of matric potential with water content (DPSIDW) from function FDPSIDW is used with NTFLI in subroutine [ITER](./wat.html) to obtain the maximum iteration time step (DTI) allowed by two parameters. The parameters are DPSIMX and the maximum allowed change in soil water content (DSWMAX). INFLOW is called again with the new DTI to get the final NTFLI, VRFLI, BYFLI, and matric uptake (INFLI).
+Subroutine [INFLOW](./wat.html) is called to get net inflow into each layer (NTFLI) using parameter DTIMAX as a first approximation for iteration time step. The rate of change of matric potential with water content (DPSIDW) from function FDPSIDW is used with NTFLI in subroutine [ITER](./WAT.Rmd) to obtain the maximum iteration time step (DTI) allowed by two parameters. The parameters are DPSIMX and the maximum allowed change in soil water content (DSWMAX). INFLOW is called again with the new DTI to get the final NTFLI, VRFLI, BYFLI, and matric uptake (INFLI).
 
-Groundwater discharge to streamflow (GWFL) and deep seepage (SEEP) are obtained from subroutine [GWATER](./wat.html). GWFL is simulated as a fixed fraction of groundwater each day and SEEP is a fixed fraction of GWFL. 
+Groundwater discharge to streamflow (GWFL) and deep seepage (SEEP) are obtained from subroutine [GWATER](./WAT.Rmd). GWFL is simulated as a fixed fraction of groundwater each day and SEEP is a fixed fraction of GWFL. 
 
 ```{r}
 MSBITERATE<-function(){
@@ -378,7 +378,7 @@ Subroutine MSBDAYNIGHT contains routines that calculate the five components of e
 
 Interception and snow evaporation are reduced later if their sources disappear. These evaporation values are obtained separately for daytime and nightime, then combined into a daily values.
 
-Potential evaporation rates are obtained using the [Shuttleworth and Wallace (1985)](./literature.html) modification of the Penman-Monteith approach. Daily solar radiation is corrected for slope, is allocated to the daytime, and is converted to average daytime rate. Subroutine [SUN](./sun.html) calculates available energy (net radiation minus SHEAT=0) at the top (AA) and at the bottom (ASUBS) of the canopy, using a Beers Law extinction coefficient. The three aerodynamic resistances (RAA, RAC, RAS) needed by the Shuttleworth-Wallace method are obtained in subroutine [SWGRA](./pet.html), using algorithms of [Shuttleworth and Gurney (1990)](./literature.html). These resistances depend on leaf area index (LAI), which can vary seasonally, and on canopy height, which determines stem area index (SAI). The canopy surface resistance to transpiration (RSC) for the daytime is obtained in subroutine [SRSC](./pet.html); it depends on maximum leaf conductance, reduced for humidity, temperature, and light penetration. At night RSC is the reciprocal of leaf area index (LAI) times minimum leaf conductance (GLMIN). Soil evaporation resistance (RSS) depends on soil water potential in the top soil layer. Subroutine [Shuttleworth and Wallace (1985)](./literature.html) uses AA, ASUBS, RSC, RSS, RAA, RAC, RAS and the vapor pressure deficit (VPD) to calculate potential transpiration (PTR) and the associated ground or soil evaporation (GER) as given by [SWPE](./pet.html). Subroutine SWPE is then called again with RSC = 0 to give the intercepted evaporation rate and its associated soil evaporation (PIR and GIR). Subroutine [TBYLAYER](./evp.html) obtains actual transpiration by layer (TRANI). Actual transpiration is the lesser of potential transpiration and a soil water supply rate determined by the resistance to liquid water flow in the plants and on root distribution and soil water potential in the soil layers. If the actual transpiration is less than the potential, a new, higher GER is calculated by subroutine [SWGE](./pet.html). After the MSBDAYNIGHT day-night loop, these evaporation rates are weighted for daytime and nighttime according to daylength (DAYLEN), and the daily average rates are then used in later calculations.
+Potential evaporation rates are obtained using the [Shuttleworth and Wallace (1985)](./Literature.Rmd) modification of the Penman-Monteith approach. Daily solar radiation is corrected for slope, is allocated to the daytime, and is converted to average daytime rate. Subroutine [SUN](./SUN.Rmd) calculates available energy (net radiation minus SHEAT=0) at the top (AA) and at the bottom (ASUBS) of the canopy, using a Beers Law extinction coefficient. The three aerodynamic resistances (RAA, RAC, RAS) needed by the Shuttleworth-Wallace method are obtained in subroutine [SWGRA](./PET.Rmd), using algorithms of [Shuttleworth and Gurney (1990)](./Literature.Rmd). These resistances depend on leaf area index (LAI), which can vary seasonally, and on canopy height, which determines stem area index (SAI). The canopy surface resistance to transpiration (RSC) for the daytime is obtained in subroutine [SRSC](./pet.html); it depends on maximum leaf conductance, reduced for humidity, temperature, and light penetration. At night RSC is the reciprocal of leaf area index (LAI) times minimum leaf conductance (GLMIN). Soil evaporation resistance (RSS) depends on soil water potential in the top soil layer. Subroutine [Shuttleworth and Wallace (1985)](./Literature.Rmd) uses AA, ASUBS, RSC, RSS, RAA, RAC, RAS and the vapor pressure deficit (VPD) to calculate potential transpiration (PTR) and the associated ground or soil evaporation (GER) as given by [SWPE](./PET.Rmd). Subroutine SWPE is then called again with RSC = 0 to give the intercepted evaporation rate and its associated soil evaporation (PIR and GIR). Subroutine [TBYLAYER](./EVP.Rmd) obtains actual transpiration by layer (TRANI). Actual transpiration is the lesser of potential transpiration and a soil water supply rate determined by the resistance to liquid water flow in the plants and on root distribution and soil water potential in the soil layers. If the actual transpiration is less than the potential, a new, higher GER is calculated by subroutine [SWGE](./PET.Rmd). After the MSBDAYNIGHT day-night loop, these evaporation rates are weighted for daytime and nighttime according to daylength (DAYLEN), and the daily average rates are then used in later calculations.
 
 This function is used for day-night separation. Parameters and variables are calculated depending on if it is daytime or nighttime. 
 
@@ -536,11 +536,10 @@ FLOWD <<- SRFLD + BYFLD + DSFLD + GWFLD
 ```
 
 ### Function paccum
-PACCUM is used at the end of each iteration interval to integrate subsurface flow rates to amounts over a precipitation interval. These amounts are accumulated over a day by DACCUM, a month by MACCUM, and a year by YACCUM. Above-ground flow rates are integrated in DACCUM at the end of each precipitation interval, and are accumulated in MACCUM and YACCUM. Subroutines [ACCUM](./axx.html) and [ACCUMI](./axx.html) are called to do the accumulations for several variables or layer arrays at a time. 
-
+PACCUM is used at the end of each iteration interval to integrate subsurface flow rates to amounts over a precipitation interval. These amounts are accumulated over a day by DACCUM, a month by MACCUM, and a year by YACCUM. Above-ground flow rates are integrated in DACCUM at the end of each precipitation interval, and are accumulated in MACCUM and YACCUM. Subroutines [ACCUM](./AXX.Rmd) and [ACCUMI](./AXX.Rmd) are called to do the accumulations for several variables or layer arrays at a time. 
 Paccum accumulates the different flows over the precip interval (below ground only) and it is zeroed by ZPINT.INC. Note that TRANI() are constant over the precipitation interval.
 
-With the help of the external [Function SUMI](./axx.html) the flows are summed for precip interval from components and then the different flows are unlisted.
+With the help of the external [Function SUMI](./AXX.Rmd) the flows are summed for precip interval from components and then the different flows are unlisted.
 
 ```{r}
 paccum<-function(){
@@ -567,7 +566,7 @@ TRANP<<-unlist(sumii[4])
 ```
 
 ### Function yaccum
-In this function the flows are accumulated over year. It is zeroed by ZYEAR.INC. Therefor the functions ACCUMI, ACCUM and SUMI from AXX are necessary ([Function ACCUMI, ACCUM, SUMI](./axx.html)). The SUMI-function sums flows for year from components.
+In this function the flows are accumulated over year. It is zeroed by ZYEAR.INC. Therefor the functions ACCUMI, ACCUM and SUMI from AXX are necessary ([Function ACCUMI, ACCUM, SUMI](./AXX.Rmd)). The SUMI-function sums flows for year from components.
 
 ```{r}
 yaccum<-function(){
@@ -679,7 +678,7 @@ TRAND<<-unlist(summii[4])
 ```
 
 ### Function zpint
-Subroutines ZPINT, ZDAY, ZMONTH, ZYEAR (Module B90V4.BAS) call [ZERO](./axx.html) and [ZEROA](./axx.html) to initialize variables and arrays that must be accumulated over a precipitation interval, day, month, and year, respectively.
+Subroutines ZPINT, ZDAY, ZMONTH, ZYEAR (Module B90V4.BAS) call [ZERO](./AXX.Rmd) and [ZEROA](./AXX.Rmd) to initialize variables and arrays that must be accumulated over a precipitation interval, day, month, and year, respectively.
 
 zpint is used for zero precip interval accumulators.
 

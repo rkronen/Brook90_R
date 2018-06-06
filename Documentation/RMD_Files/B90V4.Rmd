@@ -2,7 +2,7 @@
 title: "B90V4"
 author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
 date: "11 Mai 2018"
-output: Documentation
+output: html_document
 ---
 
 ### B90V4 - BROOK90 Version 4
@@ -23,7 +23,7 @@ This Code is modified for Version 4, June 3, 1999. The Symbol ^^ shows variables
 * [Plotted data](#plotted-data)
 
 ### Programm initialisations
-First the script of the main programm (MainProg.Rmd) has to be rendered to run the script of B90V4.Rmd in R-Markdown.
+First the script of the main programm [MainProg.Rmd](./MainProg.Rmd) has to be rendered to run the script of B90V4.Rmd in R-Markdown.
 
 ```{r include=FALSE}
 rmarkdown::render('MainProg.Rmd')
@@ -33,7 +33,7 @@ rmarkdown::render('MainProg.Rmd')
 rmarkdown::render('MainProg.Rmd')
 ```
 
-The program initializations starts if it is New Run or Rerun. Settings for the time are done, like number of days per month, interval times and zeroed vectors are set. The Year dates are changed from two-digit year to four-digit. The DOY is set with the help of [Function DOYF](./b90v4_sub.html) with the input DOM, MONTHN and DAYMO and number of days for february depending on leap year or not. The time step for precipitation interval is calculated and zero accumulators are called. Some neccesary values are calculated or unlisted from functions:
+The program initializations starts if it is New Run or Rerun. Settings for the time are done, like number of days per month, interval times and zeroed vectors are set. The Year dates are changed from two-digit year to four-digit. The DOY is set with the help of [Function DOYF](./B90V4_sub.Rmd) with the input DOM, MONTHN and DAYMO and number of days for february depending on leap year or not. The time step for precipitation interval is calculated and zero accumulators are called. Some neccesary values are calculated or unlisted from functions:
 
 * initial values
 * soil water parameters and initial variables
@@ -153,7 +153,7 @@ if((runflag == 0) || (runflag == 1)){
 ```
 
 ### Parameter initializations
-Parameter initializations are done for New Run, Rerun and Continue Run. First some parameters are converted. Then the equivalent slope for radiation calculations is extracted with the help of [Function EQUIVSLP](./sun.html). Other initialized parameters are:
+Parameter initializations are done for New Run, Rerun and Continue Run. First some parameters are converted. Then the equivalent slope for radiation calculations is extracted with the help of [Function EQUIVSLP](./SUN.Rmd). Other initialized parameters are:
 
 * infiltration parameters
 * source area parameters

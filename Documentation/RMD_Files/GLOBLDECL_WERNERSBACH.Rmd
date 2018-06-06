@@ -208,7 +208,7 @@ LF      |0.335    |heat of fusion of water (MJ m-2 mm-1)
 LS      |2.824    |latent heat of sublimation of snow (MJ m-2 mm-1)
 RHOWG   |0.00981  |density of water times gravity acceleration (MPa/m or kPa/mm)
 SIGMA   |5.67E-8  |Stefan-Boltzmann constant (W m-2 K-4)
-SC      |1367     |solar constant, value from [Lean (1991)](./literature.html),(W/m2)
+SC      |1367     |solar constant, value from [Lean (1991)](./Literature.Rmd),(W/m2)
 K       |0.4      |vonKarman constant
 PI      |3.1416   |Pi
 

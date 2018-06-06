@@ -8,7 +8,7 @@ output: html_document
 ### KPT - SOIL WATER PROPERTIES
 The KPT-script includes functions for soil water parameters and initial variables, matric potential from wetness and soil water variables.
 
-This section uses both the standard algebraic notation for soil water variables as in [Clapp and Hornberger (1978)](./literature.html) and the BROOK90 variable names. The correspondence is
+This section uses both the standard algebraic notation for soil water variables as in [Clapp and Hornberger (1978)](./Literature.Rmd) and the BROOK90 variable names. The correspondence is
 
 * &theta; - THETA 
 * W - WETNES
@@ -28,7 +28,7 @@ This section uses both the standard algebraic notation for soil water variables 
 * T - THICK; 
 * S - STONEF
 
-Functional relationships among soil-water content, &theta;, matric potential, &Psi;, and hydraulic conductivity, K, are required  	for any simulation that moves water through the soil. There is a rather vast literature on this subject, though much of it emphasizes agricultural soils rather than natural soils, which are less disturbed and higher in organic matter. BROOK90 uses a modification of the [Campbell (1974)](./literature.html) expressions with the near-saturation interpolation of [Clapp and Hornberger (1978)](./literature.html). 
+Functional relationships among soil-water content, &theta;, matric potential, &Psi;, and hydraulic conductivity, K, are required  	for any simulation that moves water through the soil. There is a rather vast literature on this subject, though much of it emphasizes agricultural soils rather than natural soils, which are less disturbed and higher in organic matter. BROOK90 uses a modification of the [Campbell (1974)](./Literature.Rmd) expressions with the near-saturation interpolation of [Clapp and Hornberger (1978)](./Literature.Rmd). 
 
 The wetness, W, or saturation fraction, is defined as the fraction of the pore space that is filled with water, or
 
@@ -36,7 +36,7 @@ The wetness, W, or saturation fraction, is defined as the fraction of the pore s
 
 where &theta;s is the saturated water content, or porosity, and &theta;r is the "residual water content".
 
-The classic expressions of [Brooks and Corey (1964)](./literature.html) are
+The classic expressions of [Brooks and Corey (1964)](./Literature.Rmd) are
 
 * (2) &Psi; = &Psi;s W-b
 
@@ -46,9 +46,9 @@ where b is a parameter and &Psi;s is the potential to which the curve extrapolat
 
 where Ks is the saturated hydraulic conductivity.
 
-With the assumption that &theta;r is usually so small it can be set to zero, these equations are usually attributed to [Campbell (1974)](./literature.html). [Wösten and vanGenuchten (1988)](./literature.html) state that &theta;r can be set to zero "without significantly affecting the accuracy of the results". The Campbell form (&theta;r = 0) is used in BROOK90 and by [Clapp and Hornberger (1978)](./literature.html).
+With the assumption that &theta;r is usually so small it can be set to zero, these equations are usually attributed to [Campbell (1974)](./Literature.Rmd). [Wösten and vanGenuchten (1988)](./Literature.Rmd) state that &theta;r can be set to zero "without significantly affecting the accuracy of the results". The Campbell form (&theta;r = 0) is used in BROOK90 and by [Clapp and Hornberger (1978)](./Literature.Rmd).
 
-Equation (2) fails as the soil approaches saturation, that is, as W approaches 1, because &Psi; at saturation must be 0, not &Psi;s. In this "near saturation region", [Clapp and Hornberger (1978)](./literature.html) suggest that the parabolic expression
+Equation (2) fails as the soil approaches saturation, that is, as W approaches 1, because &Psi; at saturation must be 0, not &Psi;s. In this "near saturation region", [Clapp and Hornberger (1978)](./Literature.Rmd) suggest that the parabolic expression
 
 * (4) &Psi; = -m (W - n) (1 - W)
 
@@ -57,11 +57,11 @@ provides an appropriate approximation, and holds above an inflection wetness, Wi
 * (5) m = -&Psi;i [1 / (1 - Wi) - b / Wi] / (1 - Wi)
 * (6) n = 2 Wi - 1 + (b &Psi;i / m Wi)
 
-where &Psi;i is &Psi; at Wi obtained from (2). They suggest that Wi can be taken as 0.92 for all soils, but varying it allows a closer agreement with the [vanGenuchten (1980)](./literature.html) equation. However, Wi must be greater than b/(1+b). (Note that in [Clapp and Hornberger (1978)](./literature.html) &Psi; is always positive whereas here &Psi; is inherently negative.) Equation (3) does not inflect but holds up to Ks at &theta;s .
+where &Psi;i is &Psi; at Wi obtained from (2). They suggest that Wi can be taken as 0.92 for all soils, but varying it allows a closer agreement with the [vanGenuchten (1980)](./Literature.Rmd) equation. However, Wi must be greater than b/(1+b). (Note that in [Clapp and Hornberger (1978)](./Literature.Rmd) &Psi; is always positive whereas here &Psi; is inherently negative.) Equation (3) does not inflect but holds up to Ks at &theta;s .
 
-The more complicated expressions of [vanGenuchten (1980)](./literature.html)are frequently used as an alternative to the Brooks-Corey equations. Conversion of parameters between the two forms can be accomplished [Ma and others (1999)](./literature.html) but are less satisfactory because of the abrupt break at saturation in the Brooks-Corey expression. The Clapp-Hornberger curve shape should agree better with vanGenuchten than Brooks-Corey does, especially if Wi is allowed to vary, but I do not know of any direct comparison. Substitution of other relationships, such as van Genuchten in BROOK90 could conceptually be done but would require significant reprogramming. More sophisticated relations such as vanGenuchten hardly seem warranted given spatial variation, hysteresis, and the extra computer time required [Ross (1992)](./literature.html).
+The more complicated expressions of [vanGenuchten (1980)](./Literature.Rmd)are frequently used as an alternative to the Brooks-Corey equations. Conversion of parameters between the two forms can be accomplished [Ma and others (1999)](./Literature.Rmd) but are less satisfactory because of the abrupt break at saturation in the Brooks-Corey expression. The Clapp-Hornberger curve shape should agree better with vanGenuchten than Brooks-Corey does, especially if Wi is allowed to vary, but I do not know of any direct comparison. Substitution of other relationships, such as van Genuchten in BROOK90 could conceptually be done but would require significant reprogramming. More sophisticated relations such as vanGenuchten hardly seem warranted given spatial variation, hysteresis, and the extra computer time required [Ross (1992)](./Literature.Rmd).
 
-The use of &Psi;s and Ks in (2) and (3) has been questioned (e.g. [Yates and others (1992)](./literature.html)). Especially in forest soils, any field measurement of Ks will actually be a measure of macropore and pipe flow and probably is not directly related to the unsaturated or matrix flow properties. Therefore these equations are modified in BROOK90 to replace &Psi;s and Ks with &Psi;f and Kf at some unsaturated water content, &theta;f . Then &theta;s becomes the only parameter that affects the near saturation region. The modified equations are
+The use of &Psi;s and Ks in (2) and (3) has been questioned (e.g. [Yates and others (1992)](./Literature.Rmd)). Especially in forest soils, any field measurement of Ks will actually be a measure of macropore and pipe flow and probably is not directly related to the unsaturated or matrix flow properties. Therefore these equations are modified in BROOK90 to replace &Psi;s and Ks with &Psi;f and Kf at some unsaturated water content, &theta;f . Then &theta;s becomes the only parameter that affects the near saturation region. The modified equations are
 
 * (7) &Psi; = &Psi;f (W / Wf) -b
 * (8) K = Kf (W / Wf) 2b+3
@@ -182,7 +182,7 @@ The gravity potential, &Psi;g, is measured negatively down from zero at the soil
 
 * &Psi;g(i) = &Psi;g(i-1) - &rho;wg [T(i-1) + T(i)] / 2.
 
-The saturated hydraulic conductivity, Ks, is needed in subroutine [VERT](./wat.html) to prevent excessive conductivities. It is
+The saturated hydraulic conductivity, Ks, is needed in subroutine [VERT](./WAT.Rmd) to prevent excessive conductivities. It is
 
 * Ks = Kf (1 / Wf) 2b+3
 

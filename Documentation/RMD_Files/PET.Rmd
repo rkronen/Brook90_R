@@ -15,13 +15,13 @@ This script includes functions for the topics of:
 * Penman-Monteith transpiration rate equation
 * closed canopy parameters
 * canopy surface resistance
-* [Shuttleworth and Wallace (1985)](./literature.html) ground evaporation when transpiration known
+* [Shuttleworth and Wallace (1985)](./Literature.Rmd) ground evaporation when transpiration known
 * atmospheric resistances RAA, RAC, and RAS
-* [Shuttleworth and Wallace (1985)](./literature.html) transpiration and ground evaporation
+* [Shuttleworth and Wallace (1985)](./Literature.Rmd) transpiration and ground evaporation
 * weather
 * ratio of wind speed at reference height (above canopy) to wind speed at weather station
 
-A common approach to estimating evaporation calculates a potential evaporation (PE) from weather variables, and then reduces actual evaporation below PE in response to soil drying. PE quantifies what the evaporation rate would be in the absence of any limitation of liquid water supply to the evaporating surfaces. It is thus an upper limit to the evaporation rate. Actual evaporation falls below the potential rate whenever liquid water supply to the plant leaves or to the soil surface cannot maintain the PE rate. Changing knowledge of limitations on evaporation has produced a variety of definitions of PE, which are related to the methods chosen to calculate it ([Shuttleworth (1991)](./literature.html)). 
+A common approach to estimating evaporation calculates a potential evaporation (PE) from weather variables, and then reduces actual evaporation below PE in response to soil drying. PE quantifies what the evaporation rate would be in the absence of any limitation of liquid water supply to the evaporating surfaces. It is thus an upper limit to the evaporation rate. Actual evaporation falls below the potential rate whenever liquid water supply to the plant leaves or to the soil surface cannot maintain the PE rate. Changing knowledge of limitations on evaporation has produced a variety of definitions of PE, which are related to the methods chosen to calculate it ([Shuttleworth (1991)](./Literature.Rmd)). 
 
 BROOK90 separates evaporation into two pathways and five processes controlled by five resistances to vapor transfer:
 
@@ -60,7 +60,7 @@ Actual projected leaf area index, Lp (LAI), is
 
 where MAXLAI is the maximum LAI for the year, RELLAI(DOY) is the relative LAI for the doy as obtained with [Function INTERP](#function-interp) from the RELLAI parameter array, DENSEF is a thinning parameter between zero and one (see below). The use of RATIO assumes that LAI is distributed uniformly with height. LAI is prevented from being less than 0.00001 to avoid zero divides; this can cause small amounts of transpiration, which may be ignored.
 
-Actual projected stem area index Sp (SAI), is assumed proportional to HEIGHT following [Federer et al. (1996)](./literature.html), so
+Actual projected stem area index Sp (SAI), is assumed proportional to HEIGHT following [Federer et al. (1996)](./Literature.Rmd), so
 
 * SAI = CS x HEIGHT x DENSEF
 
@@ -145,7 +145,7 @@ return(c(HEIGHT, LAI, SAI, RTLEN, RPLANT))
 ```
 
 ### Function ESAT
-The subroutine ESAT calculates the saturated vapor pressure (kPa), e*, from temperature (°C), T, and calculates &Delta;. The equations of [Murray (1967)](./literature.html) are used.
+The subroutine ESAT calculates the saturated vapor pressure (kPa), e*, from temperature (°C), T, and calculates &Delta;. The equations of [Murray (1967)](./Literature.Rmd) are used.
 
 The input to ESAT is:
 
@@ -175,11 +175,11 @@ return(c(Es, DELTa))
 ### Function FRSS
 FRSS returns the Shuttleworth-Wallace soil surface resistance, rss (RSS), which must increase with drying of the surface. BROOK90 currently uses only the top soil layer to calculate RSS, no matter what its thickness. The model assumes that the ratio of matric potential (PSIM) to matric potential at field capacity (PSIF) in the surface layer is the controlling variable.
 
-The value of RSSA is poorly known; BROOK90 suggests using the Shuttleworth-Wallace value of 500 s/m; soil evaporation (SLVP) will be inversely proportional to this value. Using RSSB = 1 makes SLVP inversely proportional to PSIM in the top layer. Certainly more investigation is required before changing these values for any soil surfaces. A valid relationship is yet to be developed even for bare soil ([van de Griend and Owe (1994)](./literature.html)).
+The value of RSSA is poorly known; BROOK90 suggests using the Shuttleworth-Wallace value of 500 s/m; soil evaporation (SLVP) will be inversely proportional to this value. Using RSSB = 1 makes SLVP inversely proportional to PSIM in the top layer. Certainly more investigation is required before changing these values for any soil surfaces. A valid relationship is yet to be developed even for bare soil ([van de Griend and Owe (1994)](./Literature.Rmd)).
 
 Currently in BROOK90 the presence of intercepted rain (INTR) does not affect RSS. That is, the soil surface is not assumed to be saturated during and after storms. An alternative would be to make RSS = 0 when INTR > 0.
 
-When there is SNOW, RSS is set to zero, which affects calculated transpiration and interception rates, but there is no soil evaporation and snow evaporation is calculated using subroutine [SNOVAP](./sno.html). This leaves something to be desired, but the whole situation with melting and evaporating snow as well as transpiration is a complicated mess.
+When there is SNOW, RSS is set to zero, which affects calculated transpiration and interception rates, but there is no soil evaporation and snow evaporation is calculated using subroutine [SNOVAP](./SNO.Rmd). This leaves something to be desired, but the whole situation with melting and evaporating snow as well as transpiration is a complicated mess.
 
 When the parameter RSSA is set to 0 there is no soil evaporation (SLVP). 
 
@@ -276,7 +276,7 @@ return(Pm)
 ```
 
 ### Function ROUGH
-ROUGH obtains the roughness parameter, z0, and the zero-plane displacement, d, based on canopy height, h, the projected leaf area index, Lp, and the projected stem area index, Sp. The methods used follow [Shuttleworth and Gurney (1990)](./literature.html) with some modifications. [Shuttleworth and Gurney (1990)](./literature.html) defined plant canopies as either "closed" or "sparse" based on whether Lp is greater or less than some arbitrary value Lpc, which they take as 4. Following [Federer et al. (1996)](./literature.html), BROOK90 defines a closed canopy as having Lp + Sp greater than Lpc + Spc, where Spc is taken as cs h, as described in the previous section. Spc is not reduced by DENSEF. RATIO is (Lp + Sp) / (Lpc + Spc) (this RATIO differs from RATIO in subroutine [Function CANOPY](#function-canopy). When RATIO is greater than or equal to 1, the canopy is "closed" and z0 and d are the values for a closed canopy. 
+ROUGH obtains the roughness parameter, z0, and the zero-plane displacement, d, based on canopy height, h, the projected leaf area index, Lp, and the projected stem area index, Sp. The methods used follow [Shuttleworth and Gurney (1990)](./Literature.Rmd) with some modifications. [Shuttleworth and Gurney (1990)](./Literature.Rmd) defined plant canopies as either "closed" or "sparse" based on whether Lp is greater or less than some arbitrary value Lpc, which they take as 4. Following [Federer et al. (1996)](./Literature.Rmd), BROOK90 defines a closed canopy as having Lp + Sp greater than Lpc + Spc, where Spc is taken as cs h, as described in the previous section. Spc is not reduced by DENSEF. RATIO is (Lp + Sp) / (Lpc + Spc) (this RATIO differs from RATIO in subroutine [Function CANOPY](#function-canopy). When RATIO is greater than or equal to 1, the canopy is "closed" and z0 and d are the values for a closed canopy. 
 
 ROUGH is used to get the closed canopy parameters. The following table includes the input to ROUGH:
 
@@ -298,7 +298,7 @@ Z0GS (roughness parameter of soil surface, m) is an input and output argument. L
 * RATIO - (LAI + SAI) / (LAI + SAI for closed canopy)
 * XX
 
-Intrinsic functions for ROUGH are LOG and EXP. Z0C is calculated depending on HEIGHT. Z0 and DISP are depending on RATIO. If Ratio is >= 1 then it is calculated for closed canopy else for sparse canopy modified from [Shuttleworth and Gurney (1990)](./literature.html). The resulting output of ROUGH is:
+Intrinsic functions for ROUGH are LOG and EXP. Z0C is calculated depending on HEIGHT. Z0 and DISP are depending on RATIO. If Ratio is >= 1 then it is calculated for closed canopy else for sparse canopy modified from [Shuttleworth and Gurney (1990)](./Literature.Rmd). The resulting output of ROUGH is:
 
 * Z0C - roughness length for closed canopy (m)
 * DISPC - zero-plane displacement for closed canopy (m)
@@ -336,7 +336,7 @@ return(list(Z0GS, Z0C, DISPC, Z0, DISP, ZA))
 ```
 
 ### Function SRSC
-This routine obtains the canopy surface resistance, rsc, which is the classic canopy resistance in the Penman-Monteith equation, using the [Jarvis (1976)](./literature.html) expression for the factors that control the individual leaf resistance, r, and its reciprocal the leaf conductance, g. 
+This routine obtains the canopy surface resistance, rsc, which is the classic canopy resistance in the Penman-Monteith equation, using the [Jarvis (1976)](./Literature.Rmd) expression for the factors that control the individual leaf resistance, r, and its reciprocal the leaf conductance, g. 
 
 The input arguments are:
 
@@ -368,7 +368,7 @@ In SRSC defined as local are:
 * GSC - canopy conductance, m/s
 
 Intrinsic to receive an output are LOG and EXP. First the solar radiation limitation integrated down through canopy
-([Stewart (1988)](./literature.html) and [Saugier and Katerji (1991)](./literature.html)) and then the vapor deficit limitation is done ([Lohammar et al. (1980)](./literature.html)). A temperature limitation follows and then the canopy surface resistance RSC (s/m) is the output of SRSC calculated as a reciprocal of GSC.
+([Stewart (1988)](./Literature.Rmd) and [Saugier and Katerji (1991)](./Literature.Rmd)) and then the vapor deficit limitation is done ([Lohammar et al. (1980)](./Literature.Rmd)). A temperature limitation follows and then the canopy surface resistance RSC (s/m) is the output of SRSC calculated as a reciprocal of GSC.
 
 ```{r}
 SRSC<-function(RAD, TA, VPD, LAI, SAI, GLMIN, GLMAX, R5, CVPD, RM, CR, TL, T1, T2, TH){
@@ -426,7 +426,7 @@ ARATE |actual transpiration rate, mm/d
 Local determined variables are:
 
 * RS
-* RA - as in [Shuttleworth and Wallace (1985)](./literature.html)
+* RA - as in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
 * LE - total latent heat flux density (W/m2)
 * LEC - actual transpiration latent heat flux density (W/m2)
 
@@ -452,15 +452,15 @@ return(ERATE)
 ```
 
 ### Function SWGRA
-The three SW aerodynamic resistances, raa, ras, and rac are obtained in subroutine SWGRA by the methods of [Shuttleworth and Gurney (1990)](./literature.html). 
+The three SW aerodynamic resistances, raa, ras, and rac are obtained in subroutine SWGRA by the methods of [Shuttleworth and Gurney (1990)](./Literature.Rmd). 
 
 The friction velocity, USTAR, is first obtained from the classic logarithmic wind profile as
 
 * u* = k ua / ln [(za - d) / z0]
 
-where ua is the wind speed at the reference height za, z0 is the surface roughness parameter, d is the zero-plane displacement, and k is the von Karman constant. The roughness parameter is a measure of the turbulence-inducing properties of the surface. The zero-plane displacement, d, arises because the height of the effective canopy surface is above the ground surface that is taken as zero height. Both z0 and d are obtained in subroutine [Function ROUGH](#function-rough). This USTAR equation strictly only applies for neutral atmospheric stability. Corrections for non-neutral stability are well-known ([Brutsaert (1982)](./literature.html)), but are not usually considered where the objective is to evaluate PE for periods of a day and are not used in BROOK90.
+where ua is the wind speed at the reference height za, z0 is the surface roughness parameter, d is the zero-plane displacement, and k is the von Karman constant. The roughness parameter is a measure of the turbulence-inducing properties of the surface. The zero-plane displacement, d, arises because the height of the effective canopy surface is above the ground surface that is taken as zero height. Both z0 and d are obtained in subroutine [Function ROUGH](#function-rough). This USTAR equation strictly only applies for neutral atmospheric stability. Corrections for non-neutral stability are well-known ([Brutsaert (1982)](./Literature.Rmd)), but are not usually considered where the objective is to evaluate PE for periods of a day and are not used in BROOK90.
 
-[Shuttleworth and Gurney (1990)](./literature.html) assume that the classic logarithmic wind profile applies above the canopy and that an exponential profile applies within the canopy. As the canopy becomes sparser, they further assume that the effective source height of the energy fluxes remains at the same height as for a closed canopy, Dc = z0c + dc; these values are obtained in subroutine [Function ROUGH](#function-rough). 
+[Shuttleworth and Gurney (1990)](./Literature.Rmd) assume that the classic logarithmic wind profile applies above the canopy and that an exponential profile applies within the canopy. As the canopy becomes sparser, they further assume that the effective source height of the energy fluxes remains at the same height as for a closed canopy, Dc = z0c + dc; these values are obtained in subroutine [Function ROUGH](#function-rough). 
 
 For the calculation this input is needed:
 
@@ -480,7 +480,7 @@ NN    |wind/diffusivity extinction coefficient
 LAI   |projected leaf area index
 SAI   |projected stem area index
 
-As local defined are USTAR, KH, UH and RB. LOG and EXP are intrinsic in this function too. The Shuttleworth-Gurney RB equation is strictly for one side of flat leaves. When RHOTP > 2, LWIDTH is small (needles) and so RAC is small. Their equation should have NN in numerator (see [Choudhury and Monteith (1988)](./literature.html)). Note LAI is prevented from being less than 1E-5. The resulting output of SWGRA is:
+As local defined are USTAR, KH, UH and RB. LOG and EXP are intrinsic in this function too. The Shuttleworth-Gurney RB equation is strictly for one side of flat leaves. When RHOTP > 2, LWIDTH is small (needles) and so RAC is small. Their equation should have NN in numerator (see [Choudhury and Monteith (1988)](./Literature.Rmd)). Note LAI is prevented from being less than 1E-5. The resulting output of SWGRA is:
 
 * RAA - boundary layer resistance (s/m)
 * RAC - leaf-air resistance (s/m)
@@ -507,7 +507,7 @@ return(list(RAA, RAC, RAS))
 ```
 
 ### Function SWPE
-[Shuttleworth and Wallace (1985)](./literature.html) (SW) modified the Penman-Monteith method to account separately for the different water vapor and sensible heat pathways from the soil and from the leaves. Instead of the two resistances of [Function PM](#function-pm), rc and ra,SW define five: rsc, raa, rac, ras, and rss. Resistances rsc and rac are in the transpiration pathway while rss and ras are in the soil evaporation pathway and raa is common to both. The canopy surface resistance, rsc, is the resistance to movement of water vapor out of the leaves. The resistance rac restricts vapor movement from the leaf surfaces to the effective source height for water vapor in the canopy. The resistance between the source height and a reference height above the canopy is raa, which corresponds to ra in [Function PM](#function-pm). The reference height is that at which air temperature, humidity, and wind speed are known. The resistance to movement of water vapor from inside the soil to the soil surface is rss. The resistance to vapor movement from the soil surface to the source height is ras. The resistances rac, ras, and raa are assumed also to apply to sensible heat transfer. 
+[Shuttleworth and Wallace (1985)](./Literature.Rmd) (SW) modified the Penman-Monteith method to account separately for the different water vapor and sensible heat pathways from the soil and from the leaves. Instead of the two resistances of [Function PM](#function-pm), rc and ra,SW define five: rsc, raa, rac, ras, and rss. Resistances rsc and rac are in the transpiration pathway while rss and ras are in the soil evaporation pathway and raa is common to both. The canopy surface resistance, rsc, is the resistance to movement of water vapor out of the leaves. The resistance rac restricts vapor movement from the leaf surfaces to the effective source height for water vapor in the canopy. The resistance between the source height and a reference height above the canopy is raa, which corresponds to ra in [Function PM](#function-pm). The reference height is that at which air temperature, humidity, and wind speed are known. The resistance to movement of water vapor from inside the soil to the soil surface is rss. The resistance to vapor movement from the soil surface to the source height is ras. The resistances rac, ras, and raa are assumed also to apply to sensible heat transfer. 
 
 The outputs Ec (PRATE) and Es (ERATE) from SWPE are in units of mm/d whereas Lv&rho;w E in (1) is output as W m-2 from [Function PM](#function-pm). The conversion is ETOM * WTOMJ.
 
@@ -532,9 +532,9 @@ Many locals need to be defined in this function:
 * RA
 * PMS
 * PMC
-* D0 - vapor pressure deficit, as in [Shuttleworth and Wallace (1985)](./literature.html)
+* D0 - vapor pressure deficit, as in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
 * CCS
-* CCC - as CC and CS in [Shuttleworth and Wallace (1985)](./literature.html)
+* CCC - as CC and CS in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
 * LE - total latent heat flux density (W/m2)
 
 After defining them, their values will be calculated with equatations because they are needed to get PRATE and ERATE. The external [Function PM](#function-pm) is necessary and then the output of this function is:
@@ -573,11 +573,11 @@ return(list(PRATE, ERATE))
 ### Function WEATHER
 WEATHER includes all adjustments of input weather data, including separation into daytime and nighttime values.
 
-If daily solar radiation (SOLRAD) is input as zero, it is estimated as 0.55 * I0HDAY, or 55% of the potential solar radiation for the doy and location. The 0.55 value is an overall generalization for the United States, where values range from 0.50 in the east to 0.60 in the west ([U.S. Department of Commerce (1968)](./literature.html)).
+If daily solar radiation (SOLRAD) is input as zero, it is estimated as 0.55 * I0HDAY, or 55% of the potential solar radiation for the doy and location. The 0.55 value is an overall generalization for the United States, where values range from 0.50 in the east to 0.60 in the west ([U.S. Department of Commerce (1968)](./Literature.Rmd)).
 
 If vapor pressure (EA) is input as zero, it is estimated as the saturated vapor pressure at the minimum daily temperatire (TMIN) using subroutine ESAT.
 
-If daily average wind speed at a weather station (UW) is input as zero, it is estimated as 3 m s-1. This is a surprisingly good approximation for most weather stations in the United States at all seasons of the year ([U.S. Departement of Commerce (1968)](./literature.html)). For other default values, enter the value as UA for each day in the data file. Note: measured values of zero wind speed should be entered as 0.1. 
+If daily average wind speed at a weather station (UW) is input as zero, it is estimated as 3 m s-1. This is a surprisingly good approximation for most weather stations in the United States at all seasons of the year ([U.S. Departement of Commerce (1968)](./Literature.Rmd)). For other default values, enter the value as UA for each day in the data file. Note: measured values of zero wind speed should be entered as 0.1. 
 
 The average temperature for the day (TA) is taken as the average of the input maximum and minimum temperatures (TMAX and TMIN). Daytime (TADTM) and nighttime (TANTM) average temperatures are calculated by assuming a sine wave variation between TMAX and TMIN.
 

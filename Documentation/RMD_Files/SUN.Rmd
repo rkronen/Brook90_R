@@ -25,9 +25,9 @@ Estimates of available energy above and below the canopy are made in subroutine 
 
 When there is snow on the ground, albedo is the parameter ALBSN, otherwise it is the parameter ALB.
 
-Estimation of net longwave radiation has been the subject of much research. BROOK90 uses [Brutsaert's (1982)](./literature.html) equation for effective clear sky emissivity (EFFEM).
+Estimation of net longwave radiation has been the subject of much research. BROOK90 uses [Brutsaert's (1982)](./Literature.Rmd) equation for effective clear sky emissivity (EFFEM).
 
-The longwave equations and parameters are taken from [Brutsaert (1982)](./literature.html) and the net radiation extinction from [Shuttleworth and Wallace (1985)](./literature.html). 
+The longwave equations and parameters are taken from [Brutsaert (1982)](./Literature.Rmd) and the net radiation extinction from [Shuttleworth and Wallace (1985)](./Literature.Rmd). 
 
 The needed input is shown in the following table:
 
@@ -55,7 +55,7 @@ In the function will be calculated:
 * LNGNET - net longwave radiation (W/m2)
 * RN - net radiation (W/m2)
 
-For EFFEM, the [Brutsaert (1982)](./literature.html) equation for effective clear sky emissivity will be used, because it's the most central. SIGMA is the Stefan-Boltzmann constant. 
+For EFFEM, the [Brutsaert (1982)](./Literature.Rmd) equation for effective clear sky emissivity will be used, because it's the most central. SIGMA is the Stefan-Boltzmann constant. 
 
 With the help of this values the output of the function will be calculated:
 
@@ -92,7 +92,7 @@ return(list(RN, AA, ASUBS))
 ### Function EQUIVSLP
 In BROOK90 subroutine EQUIVSLP is called once to obtain parameters that depend on latitude, slope, and aspect of the surface being simulated.
 
-The equivalent slope is defined as the location on the earth's surface where a horizontal surface is parallel to the given sloping surface. Following [Swift (1976)](./literature.html), L1 is the latitude of this "equivalent slope" (which is actually a horizontal surface), and L2 is the difference in hour angle (longitude) between the two locations. For any given slope and aspect, L1 and L2 need be found only once; they do not change over time. So they are calculated in EQUIVSLP at the beginning of B90, as:
+The equivalent slope is defined as the location on the earth's surface where a horizontal surface is parallel to the given sloping surface. Following [Swift (1976)](./Literature.Rmd), L1 is the latitude of this "equivalent slope" (which is actually a horizontal surface), and L2 is the difference in hour angle (longitude) between the two locations. For any given slope and aspect, L1 and L2 need be found only once; they do not change over time. So they are calculated in EQUIVSLP at the beginning of B90, as:
 
 * L1 = ASIN [COS(SLOPE) x SIN(LAT) + SIN(SLOPE) x COS(LAT) x COS(ASPECT)]
 * L2 = ATAN {SIN(SLOPE) x SIN(ASPECT) / [COS(SLOPE) x COS(LAT) - SIN(SLOPE) x SIN(LAT) x COS(ASPECT)]}
@@ -139,9 +139,9 @@ SUNDS requires the solar constant (SCD), which is the radiation (W/m2) on a surf
 
 * SCD = SC / (1 - .0167 x COS(.0172 x (DOY - 3))) ^ 2
 
-where SC is the solar constant at the mean earth-sun distance ([Swift (1976)](./literature.html)). SC is set to 1367 W/m2 ([Lean (1991)](./literature.html)) and can not be changed.
+where SC is the solar constant at the mean earth-sun distance ([Swift (1976)](./Literature.Rmd)). SC is set to 1367 W/m2 ([Lean (1991)](./Literature.Rmd)) and can not be changed.
 
-The declination of the sun (DEC) is the angle by which the sun is above or below the plane of the earth's equator. DEC is zero at the equinoxes and +23.5° or -23.5 at the solstices. [Swift (1976)](./literature.html) gives the solar declination (radians) as:
+The declination of the sun (DEC) is the angle by which the sun is above or below the plane of the earth's equator. DEC is zero at the equinoxes and +23.5° or -23.5 at the solstices. [Swift (1976)](./Literature.Rmd) gives the solar declination (radians) as:
 
 * DEC = ASIN {0.39785 x SIN [4.86961 + 0.017203 x DOY + 0.033446 x SIN (6.224111 + 0.017202 x DOY)]}
 
@@ -254,7 +254,7 @@ if (TWORIS == 1) {   # two sunrises
 ```
 
 ### Function FUNC3
-The daily integral of potential insolation on a slope (I0SDAY, MJ/m2) is given by [Swift (1976)](./literature.html) as:
+The daily integral of potential insolation on a slope (I0SDAY, MJ/m2) is given by [Swift (1976)](./Literature.Rmd) as:
 
 * I0SDAY = WTOMJ x SCD x FUNC3 (DEC, L2, L1, T3, T2)
 
@@ -262,11 +262,11 @@ where
 
 * FUNC3 = (&pi;/ 2) {SIN(DEC) x SIN(L1) x (T3 - T2) + COS(DEC) x COS(L1) x [ SIN(T3 + L2) - SIN(T2 + L2)]} 
 
-is a program function and T2 and T3 are the hour angles of sunrise and sunset on the slope, which are obtained from [Function HAFDAY](#function-hafday) using the latitude of the equivalent slope. FUNC3 has units of d-1 and WTOMJ is the conversion factor 0.0864 (MJ m-2 d-1) / (W m-2). The actual [Function SUNDS](#function-sunds) algorithm is more complicated than this because it must consider the possibility of two sunrises and sunsets on the slope in one day. The details of the algorithm are given by [Swift (1976)](./literature.html). Note that this algorithm assumes that the "opposing slope" is horizontal. In reality in mountainous terrain, the potential insolation is further reduced by any distant terrain that obscures the horizon more than the given slope itself does. The calculation of such obscuration is difficult and is outside the scope of BROOK90.
+is a program function and T2 and T3 are the hour angles of sunrise and sunset on the slope, which are obtained from [Function HAFDAY](#function-hafday) using the latitude of the equivalent slope. FUNC3 has units of d-1 and WTOMJ is the conversion factor 0.0864 (MJ m-2 d-1) / (W m-2). The actual [Function SUNDS](#function-sunds) algorithm is more complicated than this because it must consider the possibility of two sunrises and sunsets on the slope in one day. The details of the algorithm are given by [Swift (1976)](./Literature.Rmd). Note that this algorithm assumes that the "opposing slope" is horizontal. In reality in mountainous terrain, the potential insolation is further reduced by any distant terrain that obscures the horizon more than the given slope itself does. The calculation of such obscuration is difficult and is outside the scope of BROOK90.
 
 The daily integral of potential insolation on a horizontal surface (I0HDAY, MJ/m2) is found from the I0SDAY equation with L1 = LAT, L2 = 0, and T3 and T2 for a horizontal surface at LAT. The daylength (DAYLEN), which is the fraction of a day that the sun is above a horizontal horizon, is HAFDAY / &pi; where [Function HAFDAY](#function-hafday) is used with L = LAT. SLFDAY is the ratio of I0SDAY to I0HDAY. [SUNDS](#function-sunds) outputs DAYLEN, I0HDAY, and SLFDAY. 
 
-FUNC3 is a function to calculate the daily integration for slope after [Swift (1976)](./literature.html), d. The necessary input data are:
+FUNC3 is a function to calculate the daily integration for slope after [Swift (1976)](./Literature.Rmd), d. The necessary input data are:
 
 Input |Description
 ------|----------------
