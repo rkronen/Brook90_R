@@ -697,7 +697,7 @@ return(list( QLAYER, SWATQX, SWATQF))
 ```
 
 ### Function VERT
-Subroutine VERT is called for each layer to obtain the vertical flow rate between layers as the product of a hydraulic conductivity times a gradient. [Haverkamp and Vauclin, 1979](./Literature.Rmd) and [Schnabel and Richie, 1984](./Literature.Rmd) have studied the appropriate averaging of the hydraulic conductivities of adjacent layers in finite difference approximations. Both found that the geometric mean (K1 K2) 0.5 is preferable to other simple averaging methods although they both used adjacent layers of identical thickness.
+Subroutine VERT is called for each layer to obtain the vertical flow rate between layers as the product of a hydraulic conductivity times a gradient. [Haverkamp and Vauclin (1979)](./Literature.Rmd) and [Schnabel and Richie (1984)](./Literature.Rmd) have studied the appropriate averaging of the hydraulic conductivities of adjacent layers in finite difference approximations. Both found that the geometric mean (K1 K2) 0.5 is preferable to other simple averaging methods although they both used adjacent layers of identical thickness.
 
 The hydraulic conductivity for drainage from a layer (KKMEANi ) is calculated as the geometric mean regardless of layer thickness
 

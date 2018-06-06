@@ -101,7 +101,7 @@ with fixes for negative or zero denominator in L2, where SLOPE (ESLOPE), ASPECT,
 
 The input of the function is included in the next table:
 
-Input||Description
+Input |Description
 ------|-------------------------
 LAT   |latitude (radians (S neg))
 SLOPE |slope (radians)
