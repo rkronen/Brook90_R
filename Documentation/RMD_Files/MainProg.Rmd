@@ -45,7 +45,7 @@ UWD <- 3.0
 
 ```
 
-If it is needed, change catchment parameters in GLOBELDEC.R. 
+If it is needed, change catchment parameters. 
 
 It is important to define your scriptpath to upload the necessary scripts including the variables and to run the programm. The following table shows the description of the scriptnames. 
 
