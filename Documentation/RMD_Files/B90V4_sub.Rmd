@@ -39,7 +39,7 @@ This script contains some subroutines which are necessary to run the programm.
 * [Function DOYF](#function-doyf)
 
 ### Function subdatafileline
-This function extracts every column of the MData-matrix to give every part of the date and the meteorological data an own value and puts the data into a row. The year value is changed from a two-digit year to a four-digit year.
+This function extracts every column of the "MData"-matrix to give every part of the date and the meteorological data an own value and puts the data into a row. The year value is changed from a two-digit year to a four-digit year.
 
 ```{r}
 subdatafileline<-function(row){
@@ -65,7 +65,7 @@ MESFL <<- MData[[10]][row]
 ```
 
 ### Function subprfileline
-The same as in subdatafileline will be done with the precipitation matrix MhhData.
+The same as in subdatafileline will be done with the precipitation matrix "MhhData".
 
 ```{r}
 subprfileline<-function(row){
@@ -86,7 +86,9 @@ MESFLP <<- MhhData[[6]][row]
 ```
 
 ### Function subprfilelineStatPrecip
-This function does almost the same as function subprfileline. This function has an additional input. It is precip, a datset of R itself: the average amount of precipitation (rainfall) in inches for each of 70 United States (and Puerto Rico) cities. PREINT gets not the data of MhhData, it receives the values of precip.
+This function does almost the same as function subprfileline. This function has an additional input. It is "precip"", a datset of R itself: the average amount of precipitation (rainfall) in inches for each of 70 United States (and Puerto Rico) cities.
+
+PREINT gets not the data of MhhData, it receives the values of precip.
 
 ```{r}
 subprfilelineStatPrecip<-function(row,precip){
@@ -107,7 +109,7 @@ subprfilelineStatPrecip<-function(row,precip){
 ```
 
 ### Function MSBSETVARS
-Subroutine MSUBSETVARS contains subroutines that calulate derived variables for the day. SUNDS, CANOPY, ROUGH, and PLNTRES are called to get solar, canopy structure, roughness, and plant resistance variables that depend on day of the year. Subsurface heat flux (SHEAT) is always set to zero. Subroutine WEATHER estimates missing values, modifies input data as necessary, corrects weather station wind speed to wind speed above the canopy, and determines daytime and nighttime temperatures and wind speeds. Subroutine SNOFRAC determines the fraction of daily precipitation that is snow (SNOFRC). If there is no snow on the ground, the soil evaporation resistance (RSS) is obtained as function FRSS. When there is snow on the ground, the snowpack temperature (TSNOW) is calculated from cold content (CC). Subroutine SNOVAP then estimates the snow evaporation rate. Subroutine SNOENRGY obtains the energy available for snowmelt (SNOEN) from mean daily temperature. The factor is modified for canopy cover as determined by LAI and SAI. Snow evaporation or condensation depends on the aerodynamic resistances and the vapor gradient; however, an arbitrary reduction factor is required.
+Subroutine MSUBSETVARS contains subroutines that calulate derived variables for the day. SUNDS, CANOPY, ROUGH and PLNTRES are called to get solar, canopy structure, roughness, and plant resistance variables that depend on day of the year. Subsurface heat flux (SHEAT) is always set to zero. Subroutine WEATHER estimates missing values, modifies input data as necessary, corrects weather station wind speed to wind speed above the canopy, and determines daytime and nighttime temperatures and wind speeds. Subroutine SNOFRAC determines the fraction of daily precipitation that is snow (SNOFRC). If there is no snow on the ground, the soil evaporation resistance (RSS) is obtained as function FRSS. When there is snow on the ground, the snowpack temperature (TSNOW) is calculated from cold content (CC). Subroutine SNOVAP then estimates the snow evaporation rate. Subroutine SNOENRGY obtains the energy available for snowmelt (SNOEN) from mean daily temperature. The factor is modified for canopy cover as determined by LAI and SAI. Snow evaporation or condensation depends on the aerodynamic resistances and the vapor gradient; however, an arbitrary reduction factor is required.
 
 In MSBSETVARS the defined functions of the other scripts will be executed:
 
@@ -282,7 +284,7 @@ Net throughfall (RNET) plus snowmelt (SMLT) may:
 3. go immediately to streamflow via vertical macropore flow followed by downslope pipe flow (BYFLI), or
 4. go immediately to streamflow via impaction on a variable saturated source area (SRFL). 
 
-The fraction of area acting as a saturated source area (SAFRAC) is obtained in subroutine [SRFLFR](./WAT.Rmd). Source area flow (SRFL) is obtained as SAFRAC plus impervious area (IMPERV) times RNET + SMLT. Infiltration rate (SLFL) is RNET + SMLT - SRFL. The fraction of infiltration to each layer that bypasses the layer and becomes an output via bypass flow (BYFLI) is calculated in subroutine [BYFLFR](./WAT.Rmd). For each layer, the downslope flow rate by matrix flow (DSFLI) is obtained from subroutine [DSLOP](./WAT.Rmd). In general, one or more of SRFL, BYFL, and DSFL will be set to zero by the user.
+The fraction of area acting as a saturated source area (SAFRAC) is obtained in subroutine [SRFLFR](./WAT.Rmd). Source area flow (SRFL) is obtained as SAFRAC plus impervious area (IMPERV) times RNET + SMLT. Infiltration rate (SLFL) is RNET + SMLT - SRFL. The fraction of infiltration to each layer that bypasses the layer and becomes an output via bypass flow (BYFLI) is calculated in subroutine [BYFLFR](./WAT.Rmd). For each layer, the downslope flow rate by matrix flow (DSFLI) is obtained from subroutine [DSLOP](./WAT.Rmd). In general, one or more of SRFL, BYFL and DSFL will be set to zero by the user.
 
 If the water potential difference between layers is less than the parameter DPSIMX, vertical flow (VRFLI) is zero; otherwise subroutine [VERT](./WAT.Rmd) obtains VRFLI between layers from a weighted hydraulic conductivity and the water potential difference between the layers. For the bottom layer, outflow to groundwater is the hydraulic conductivity of the layer times a parameter (DRAIN), which can vary from 0 to 1. This assumes a gravity potential gradient.
 
@@ -678,7 +680,7 @@ TRAND<<-unlist(summii[4])
 ```
 
 ### Function zpint
-Subroutines ZPINT, ZDAY, ZMONTH, ZYEAR (Module B90V4.BAS) call [ZERO](./AXX.Rmd) and [ZEROA](./AXX.Rmd) to initialize variables and arrays that must be accumulated over a precipitation interval, day, month, and year, respectively.
+Subroutines ZPINT, ZDAY, ZMONTH, ZYEAR (Module B90V4.BAS) call [ZERO](./AXX.Rmd) and [ZEROA](./AXX.Rmd) to initialize variables and arrays that must be accumulated over a precipitation interval, day, month and year, respectively.
 
 zpint is used for zero precip interval accumulators.
 
