@@ -145,7 +145,7 @@ return(c(HEIGHT, LAI, SAI, RTLEN, RPLANT))
 ```
 
 ### Function ESAT
-The subroutine ESAT calculates the saturated vapor pressure (kPa), e*, from temperature (°C), T, and calculates &Delta;. The equations of [Murray (1967)](./Literature.Rmd) are used.
+The subroutine ESAT calculates the saturated vapor pressure (kPa) e*, from temperature (°C) T, and calculates &Delta;. The equations of [Murray (1967)](./Literature.Rmd) are used.
 
 The input to ESAT is:
 
@@ -454,7 +454,7 @@ return(ERATE)
 ### Function SWGRA
 The three SW aerodynamic resistances, raa, ras, and rac are obtained in subroutine SWGRA by the methods of [Shuttleworth and Gurney (1990)](./Literature.Rmd). 
 
-The friction velocity, USTAR, is first obtained from the classic logarithmic wind profile as
+The friction velocity ,USTAR, is first obtained from the classic logarithmic wind profile as
 
 * u* = k ua / ln [(za - d) / z0]
 
