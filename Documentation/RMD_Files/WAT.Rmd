@@ -335,7 +335,7 @@ return(list(VV, INFLI, BYFLI, NTFLI))
 ### Function INFPAR
 Subroutine INFPAR calculates parameters needed for INFL from input parameters.
 
-Classic infiltration of water into homogeneous soil generates a sharp horizontal wetting front. Infiltration into forest soils is usually much more irregular, with generally vertical cracks and channels assisting rapid movement of water to deeper horizons. A theory of such macropore assisted vertical infiltration is being worked out [Beven and Clarke, 1986](./Literature.Rmd), but is generally too complicated for BROOK90.
+Classic infiltration of water into homogeneous soil generates a sharp horizontal wetting front. Infiltration into forest soils is usually much more irregular, with generally vertical cracks and channels assisting rapid movement of water to deeper horizons. A theory of such macropore assisted vertical infiltration is being worked out ([Beven and Clarke, 1986](./Literature.Rmd)), but is generally too complicated for BROOK90.
 
 In BROOK90, the water supply to the soil surface (SLFL) is distributed immediately to soil layers 1 through ILAYER, where ILAYER is the number of layers down to and including input parameter IDEPTH . The fraction of water, Fi, infiltrating by macropores past depth zi is assumed to be an exponential function of depth
 
