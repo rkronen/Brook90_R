@@ -128,7 +128,7 @@ $(document).ready(function () {
 
 <div id="wat---water-movement-in-soil" class="section level3">
 <h3>WAT - Water movement in soil</h3>
-<p>BROOK90 does not try to account for all possible paths of water movement through soil, which is a very complicated subject (<a href="./literature.html">McDonnel, 1990</a>). As a lumped parameter model it does not move water laterally between subareas. However, it does simulate several different pathways of water movement over or through the soil to streamflow and groundwater (see <a href="http://www.ecoshift.net/brook/flowchrt.html">Flow Chart</a>):</p>
+<p>BROOK90 does not try to account for all possible paths of water movement through soil, which is a very complicated subject (<a href="./Literature.Rmd">McDonnel, 1990</a>). As a lumped parameter model it does not move water laterally between subareas. However, it does simulate several different pathways of water movement over or through the soil to streamflow and groundwater (see <a href="http://www.ecoshift.net/brook/flowchrt.html">Flow Chart</a>):</p>
 <ol style="list-style-type: decimal">
 <li>snowmelt and throughfall on impervious areas goes directly to streamflow (SRFL)</li>
 <li>snowmelt and precipitation on variable saturated source areas goes directly to streamflow (SRFL)</li>
@@ -561,7 +561,7 @@ return(list(VV, INFLI, BYFLI, NTFLI))
 <div id="function-infpar" class="section level3">
 <h3>Function INFPAR</h3>
 <p>Subroutine INFPAR calculates parameters needed for INFL from input parameters.</p>
-<p>Classic infiltration of water into homogeneous soil generates a sharp horizontal wetting front. Infiltration into forest soils is usually much more irregular, with generally vertical cracks and channels assisting rapid movement of water to deeper horizons. A theory of such macropore assisted vertical infiltration is being worked out <a href="./literature.html">Beven and Clarke, 1986</a>, but is generally too complicated for BROOK90.</p>
+<p>Classic infiltration of water into homogeneous soil generates a sharp horizontal wetting front. Infiltration into forest soils is usually much more irregular, with generally vertical cracks and channels assisting rapid movement of water to deeper horizons. A theory of such macropore assisted vertical infiltration is being worked out (<a href="./Literature.Rmd">Beven and Clarke, 1986</a>), but is generally too complicated for BROOK90.</p>
 <p>In BROOK90, the water supply to the soil surface (SLFL) is distributed immediately to soil layers 1 through ILAYER, where ILAYER is the number of layers down to and including input parameter IDEPTH . The fraction of water, Fi, infiltrating by macropores past depth zi is assumed to be an exponential function of depth</p>
 <ul>
 <li>Fi = 1 - (zi / THICKT) ^ INFEXP</li>
@@ -657,7 +657,7 @@ return(list(ILAYER, INFRAC))
 </div>
 <div id="function-iter" class="section level3">
 <h3>Function ITER</h3>
-<p>The initial estimate of DTI, made in <a href="./b90v4_sub.html">MSBITERATE</a>, is the lesser of parameter DTIMAX and the time remaining in the precipitation interval. DTIMAX is the maximum allowed iteration time step. After calling <a href="#function-inflow">Function INFLOW</a> with this initial DTI, and then FDPSIDW for each layer, <a href="./b90v4_sub.html">MSBITERATE</a> calls ITER. ITER calculates the resulting change in water content and potential and tests to see if the changes in any layer have been too large; if so, a shorter DTINEW is chosen and returned from ITER. INFLOW is then called again to obtain final values of NTFLIi.</p>
+<p>The initial estimate of DTI, made in <a href="./B90V4_sub.Rmd">MSBITERATE</a>, is the lesser of parameter DTIMAX and the time remaining in the precipitation interval. DTIMAX is the maximum allowed iteration time step. After calling <a href="#function-inflow">Function INFLOW</a> with this initial DTI, and then FDPSIDW for each layer, <a href="./B90V4_sub.Rmd">MSBITERATE</a> calls ITER. ITER calculates the resulting change in water content and potential and tests to see if the changes in any layer have been too large; if so, a shorter DTINEW is chosen and returned from ITER. INFLOW is then called again to obtain final values of NTFLIi.</p>
 <p>Oscillation, or overshoot, is reduced in ITER by reducing DTI so that the potential difference between adjacent layers does not change sign during the iteration time step. For Euler integration</p>
 <ul>
 <li>Ψinew = Ψi + Ai Δt</li>
@@ -666,7 +666,7 @@ return(list(ILAYER, INFRAC))
 <ul>
 <li>Ai = dΨi / dt = dΨi x dSi / dt x dSi = Ni x dΨw / Sxi x dWi</li>
 </ul>
-<p>where Si is the total water content of the horizon, dSi/dt is Ni (NTFLI), which is the net inflow rate to the layer, Wi is the saturation fraction (WETNESi), and Sxi is the saturated water content (SWATMXi). dΨi/dWi is calculated as function FDPSIDW (in module <a href="./kpt.html">KPT</a>) before entering ITER. Strictly speaking, the derivatives are partial derivatives with respect to time.</p>
+<p>where Si is the total water content of the horizon, dSi/dt is Ni (NTFLI), which is the net inflow rate to the layer, Wi is the saturation fraction (WETNESi), and Sxi is the saturated water content (SWATMXi). dΨi/dWi is calculated as function FDPSIDW (in module <a href="./KPT.Rmd">KPT</a>) before entering ITER. Strictly speaking, the derivatives are partial derivatives with respect to time.</p>
 <p>The maximum Δt allowed (DTINEW) is found by setting Ψinew = Ψi+1new, which gives</p>
 <ul>
 <li>DTINEW = -(Ψi - Ψi+1) / (Ai - Ai+1).</li>
@@ -856,7 +856,7 @@ return(RELDEN)
 <ul>
 <li>SRFL = (SAFRAC + IMPERV) x (RNET + SMLT)</li>
 </ul>
-<p>where IMPERV is a fixed fraction of the area that is always impervious or always source area, and the source area fraction of the surface area (SAFRAC) is an exponential function of soil wetness in the upper layers of soil. RNET + SMLT is the water input to the soil surface. The SRFL equation is in <a href="./b90v4_sub.html">MSBITERATE</a>; Infiltration (SLFL) is then obtained in MSBITERATE as</p>
+<p>where IMPERV is a fixed fraction of the area that is always impervious or always source area, and the source area fraction of the surface area (SAFRAC) is an exponential function of soil wetness in the upper layers of soil. RNET + SMLT is the water input to the soil surface. The SRFL equation is in <a href="./B90V4_sub.Rmd">MSBITERATE</a>; Infiltration (SLFL) is then obtained in MSBITERATE as</p>
 <ul>
 <li>SLFL = RNET + SMLT - SRFL.</li>
 </ul>
@@ -1012,7 +1012,7 @@ return(list( QLAYER, SWATQX, SWATQF))
 </div>
 <div id="function-vert" class="section level3">
 <h3>Function VERT</h3>
-<p>Subroutine VERT is called for each layer to obtain the vertical flow rate between layers as the product of a hydraulic conductivity times a gradient. <a href="./literature.html">Haverkamp and Vauclin, 1979</a> and <a href="./literature.html">Schnabel and Richie, 1984</a> have studied the appropriate averaging of the hydraulic conductivities of adjacent layers in finite difference approximations. Both found that the geometric mean (K1 K2) 0.5 is preferable to other simple averaging methods although they both used adjacent layers of identical thickness.</p>
+<p>Subroutine VERT is called for each layer to obtain the vertical flow rate between layers as the product of a hydraulic conductivity times a gradient. <a href="./Literature.Rmd">Haverkamp and Vauclin (1979)</a> and <a href="./Literature.Rmd">Schnabel and Richie (1984)</a> have studied the appropriate averaging of the hydraulic conductivities of adjacent layers in finite difference approximations. Both found that the geometric mean (K1 K2) 0.5 is preferable to other simple averaging methods although they both used adjacent layers of identical thickness.</p>
 <p>The hydraulic conductivity for drainage from a layer (KKMEANi ) is calculated as the geometric mean regardless of layer thickness</p>
 <ul>
 <li>KKMEANi = exp((ln(KKi) + ln(KKi+1)) / 2)</li>
@@ -1028,7 +1028,7 @@ return(list( QLAYER, SWATQX, SWATQF))
 <li>VRFLi = (GRADi x KKMEANi / RHOWG) x (1 - (STONEFi + STONEFi+1) / 2).</li>
 </ul>
 <p>where RHOWG is the constant product of the density of water and the acceleration of gravity. The correction for stone fraction (STONEFi) reduces the cross-sectional area for flow by the average stone fraction of the two layers.</p>
-<p>Vertical flux from the lowest soil layer, VRFLN ,is calculated in <a href="./b90v4_sub.html">MSBITERATE</a> using a gravity unit gradient (GRADN / RHOWG = 1) and is proportional to the hydraulic conductivity of that layer corrected for stone fraction. Use of the gravity gradient is equivalent to assuming that the lowest layer has another layer below it at the same matric potential. This drainage from the soil profile to groundwater can be restricted by the parameter DRAIN, which can range from 1 down to zero. So</p>
+<p>Vertical flux from the lowest soil layer, VRFLN ,is calculated in <a href="./B90V4_sub.Rmd">MSBITERATE</a> using a gravity unit gradient (GRADN / RHOWG = 1) and is proportional to the hydraulic conductivity of that layer corrected for stone fraction. Use of the gravity gradient is equivalent to assuming that the lowest layer has another layer below it at the same matric potential. This drainage from the soil profile to groundwater can be restricted by the parameter DRAIN, which can range from 1 down to zero. So</p>
 <ul>
 <li>VRFLN = DRAIN x KKMEANi x (1 - STONEFN).</li>
 </ul>
