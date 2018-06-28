@@ -19,6 +19,7 @@ The documenation of all scripts is done with R-Markdown. The main programm is us
 * [Start Brook90](#start-brook90)
 * [Load all variables](#load-all-variables)
 * [Load meteorological and precipitation file](#load-meteorological-and-precipitation-file)
+* [Change catchment parameters](#change-catchment-parameters)
 
 ### Start Brook90
 Before loading all variables into Brook90 you have to remove all objects except functions with the following command.
@@ -44,8 +45,6 @@ RRD <- 0.55
 UWD <- 3.0
 
 ```
-
-If it is needed, change catchment parameters. 
 
 It is important to define your scriptpath to upload the necessary scripts including the variables and to run the programm. The following table shows the description of the scriptnames. 
 
@@ -91,7 +90,6 @@ column  |Meteorological file      | Precipitation file
 9       |Precipitation (mm)       |/
 10      |Measured streamflow (mm) |/
 
-To upload the scripts with the variables and the datasets use "Run from source" for the script "MainProg.R". If this is done the model can be started. The file "B90V4.R" has to be opened and started with "Run from source" to run BROOK90 in R.
 
 ```{r}
 meteoFile <-read.table(file.path(SCRIPTPATH,"data_input_WB_1999_point.txt"))
@@ -100,3 +98,181 @@ MData<-matrix(meteoFile)
 precFile <-read.table(file.path(SCRIPTPATH,"P_WBG_0060_Minuten_1999_point.txt"))
 MhhData<-matrix(precFile)
 ```
+
+### Change catchment parameters
+If the files of the catchment parameters are located in a different folder, a new scriptpath has to be defined.
+
+```{r}
+SCRIPTPATH_catchment<-"c:\\Users\\LM\\Documents\\BROOK90\\Data"
+```
+
+#### Canopy
+The canopy-file includes 18 parameters and the root density (ROOTDEN), with 25 pairs of root layer thickness (mm) and relative root density per unit volume. The first and third row of ROOTDEN are the root layer thickness and second and fourth row contain the relative root density per unit volume.
+
+If changes need to be done, change them in the textfile "canopy.txt" or use your on file with the same formatting.
+
+```{r}
+canopy_file <- read.table(file.path(SCRIPTPATH_catchment,"canopy.txt"), header = FALSE, fill=TRUE , dec = "." , sep = ",", strip.white = TRUE)
+
+#canopy parameters
+canopy_varname <- as.character(canopy_file[,1])
+canopy_varvalue <- as.character(canopy_file [,2])
+quant_canopy <- 18
+
+for (i in 1:quant_canopy){
+  a <- unlist(canopy_varname[i])
+  b <- as.numeric(unlist(canopy_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#ROOTDEN
+roota <- strsplit(canopy_varname[20],"[ ]+")
+rootb <- unlist(roota)
+rootc <- as.numeric(rootb)
+rootaa <- strsplit(canopy_varname[22],"[ ]+")
+rootbb <- unlist(rootaa)
+rootcc <- as.numeric(rootbb)
+root_a <- c(rootc,rootcc)
+root_a[is.na(root_a)] <- 0
+
+rootd <- strsplit(canopy_varname[21],"[ ]+")
+roote <- unlist(rootd)
+rootf <- as.numeric(roote)
+rootdd <- strsplit(canopy_varname[23],"[ ]+")
+rootee <- unlist(rootdd)
+rootff <- as.numeric(rootee)
+root_b <- c(rootf,rootff)
+root_b[is.na(root_b)] <- 0
+
+rootden <- as.vector(rbind(root_a,root_b)) 
+assign(canopy_varname[19],rootden)
+
+rm(roota,rootb,rootc,rootd,roote,rootf,rootaa,rootbb,rootcc,root_a,rootdd,rootee,rootff,root_b,quant_canopy,canopy_varvalue,canopy_varname,rootden)
+```
+
+#### Fixed
+This file contains 43 parameters that can be changed in the textfile.
+
+```{r}
+fixed_file <-read.table(file.path(SCRIPTPATH_catchment,"fixed.txt"), header = FALSE, fill=TRUE, sep = "," , dec = "." , row.names = 1)
+
+fixed_varname <- rownames(fixed_file)
+fixed_varvalue <- fixed_file [,c(1)]
+
+quant_fixed = length(fixed_varname) - 1
+
+for (i in 1:quant_fixed){
+  a <- unlist(fixed_varname[i])
+  b <- unlist(fixed_varvalue[i])
+  assign(a,b)
+  rm(a,b)
+}
+
+rm(fixed_varname,fixed_varvalue,quant_fixed)
+```
+
+#### Flow Standard
+Different flow parameters are included in this file. All 13 values can be changed if it is necessary.
+
+```{r}
+flow_file <-read.table(file.path(SCRIPTPATH_catchment,"flow_standard.txt"), header = FALSE, fill=TRUE, sep = "," , dec = "." , row.names = 1)
+
+flow_varname <- rownames(flow_file)
+flow_varvalue <- flow_file [,c(1)]
+
+quant_flow = length(flow_varname) - 1
+
+for (i in 1:quant_flow){
+  a <- unlist(flow_varname[i])
+  b <- unlist(flow_varvalue[i])
+  assign(a,b)
+  rm(a,b)
+}
+
+rm(flow_varname,flow_varvalue,quant_flow)
+```
+
+#### Initial
+The initial file contains 4 parameters and PSIMIN, the initial matric soil water potential for layer, with 25 layers.
+
+```{r}
+initial_file <-read.table(file.path(SCRIPTPATH_catchment,"initial.txt"),header = FALSE,fill=TRUE,sep = ",",dec = ".",row.names = 1)
+
+initial_varname <- rownames(initial_file)
+initial_varvalue <- as.character(initial_file [,1])
+quant_initial <- 4
+
+for (i in 1:quant_initial){
+  a <- unlist(initial_varname[i])
+  b <- as.numeric(unlist(initial_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#PSIMIN
+PSIMIN <- as.numeric(initial_varvalue[6:30])
+
+rm(initial_varname,initial_varvalue,quant_initial)
+```
+
+#### Location
+The location-file has a little bit more complicated structure, 5 parameters at the beginning, the average duration of daily precip by month (DURATN), ten pairs of DOY and relative canopy height (RELHT) and ten pairs of DOY and relative LAI (RELLAI). But they can be easily changed in the file.
+
+```{r}
+location_file <-read.table(file.path(SCRIPTPATH_catchment,"location.txt"), header = FALSE, fill=TRUE, sep = "," , dec = ".", strip.white = TRUE)
+
+location_varname <- as.character(location_file[,1])
+location_varvalue <- as.character(location_file [,2])
+quant_location <- 5
+
+for (i in 1:quant_location){
+  a <- unlist(location_varname[i])
+  b <- as.numeric(unlist(location_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#DURATN
+duratna <- strsplit(location_varvalue[6],"[ ]+")
+duratnb <- unlist(duratna)
+duratn<- as.numeric(duratnb)
+assign(location_varname[6],duratn)
+
+rm(duratna,duratnb,duratn)
+
+#RELHT
+hta <- strsplit(location_varvalue[7],"[ ]+")
+htb<- unlist(hta)
+ht_a <- suppressWarnings(as.numeric(htb))
+ht_a[is.na(ht_a)] <- 0
+
+htc <- strsplit(location_varname[8],"[ ]+")
+htd <- unlist(htc)
+ht_b <- suppressWarnings(as.numeric(htd))
+ht_b[is.na(ht_b)] <- 0
+
+relht <- as.vector(rbind(ht_a,ht_b)) 
+assign(location_varname[7],relht)
+
+rm(hta,htb,htc,htd,ht_a,ht_b,relht)
+
+#RELLAI
+laia <- strsplit(location_varvalue[9],"[ ]+")
+laib<- unlist(laia)
+lai_a <- suppressWarnings(as.numeric(laib))
+lai_a[is.na(lai_a)] <- 0
+
+laic <- strsplit(location_varname[10],"[ ]+")
+laid <- unlist(laic)
+lai_b <- suppressWarnings(as.numeric(laid))
+lai_b[is.na(lai_b)] <- 0
+
+rellai <- as.vector(rbind(lai_a,lai_b)) 
+assign(location_varname[9],rellai)
+
+rm(laia,laib,laic,laid,lai_a,lai_b,rellai)
+rm(location_varname,location_varvalue,quant_location)
+```
+
+To upload the scripts with the variables and the datasets use "Run from source" for the script "MainProg.R". If this is done the model can be started. The file "B90V4.R" has to be opened and started with "Run from source" to run BROOK90 in R.
