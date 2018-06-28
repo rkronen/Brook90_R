@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ### Manual
-This manual describes how to run the BROOK90 R implementation based on the model by Federer, what files are necessary to download and what changes need to be done.
+This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done.
 
 #### 1. Overview of available files
 These files are available for usage:
