@@ -139,6 +139,7 @@ $(document).ready(function () {
 <li><a href="#start-brook90">Start Brook90</a></li>
 <li><a href="#load-all-variables">Load all variables</a></li>
 <li><a href="#load-meteorological-and-precipitation-file">Load meteorological and precipitation file</a></li>
+<li><a href="#change-catchment-parameters">Change catchment parameters</a></li>
 </ul>
 </div>
 <div id="start-brook90" class="section level3">
@@ -189,7 +190,6 @@ $(document).ready(function () {
 SUBDAYDATA &lt;- FALSE
 RRD &lt;- 0.55
 UWD &lt;- 3.0</code></pre>
-<p>If it is needed, change catchment parameters.</p>
 <p>It is important to define your scriptpath to upload the necessary scripts including the variables and to run the programm. The following table shows the description of the scriptnames.</p>
 <table>
 <thead>
@@ -318,12 +318,175 @@ source(file.path(SCRIPTPATH,&quot;B90V4_sub.R&quot;))</code></pre>
 </tr>
 </tbody>
 </table>
-<p>To upload the scripts with the variables and the datasets use “Run from source” for the script “MainProg.R”. If this is done the model can be started. The file “B90V4.R” has to be opened and started with “Run from source” to run BROOK90 in R.</p>
 <pre class="r"><code>meteoFile &lt;-read.table(file.path(SCRIPTPATH,&quot;data_input_WB_1999_point.txt&quot;))
 MData&lt;-matrix(meteoFile)
 
 precFile &lt;-read.table(file.path(SCRIPTPATH,&quot;P_WBG_0060_Minuten_1999_point.txt&quot;))
 MhhData&lt;-matrix(precFile)</code></pre>
+</div>
+<div id="change-catchment-parameters" class="section level3">
+<h3>Change catchment parameters</h3>
+<p>If the files of the catchment parameters are located in a different folder, a new scriptpath has to be defined.</p>
+<pre class="r"><code>SCRIPTPATH_catchment&lt;-&quot;c:\\Users\\LM\\Documents\\BROOK90\\Data&quot;</code></pre>
+<div id="canopy" class="section level4">
+<h4>Canopy</h4>
+<p>The canopy-file includes 18 parameters and the root density (ROOTDEN), with 25 pairs of root layer thickness (mm) and relative root density per unit volume. The first and third row of ROOTDEN are the root layer thickness and second and fourth row contain the relative root density per unit volume.</p>
+<p>If changes need to be done, change them in the textfile “canopy.txt” or use your on file with the same formatting.</p>
+<pre class="r"><code>canopy_file &lt;- read.table(file.path(SCRIPTPATH_catchment,&quot;canopy.txt&quot;), header = FALSE, fill=TRUE , dec = &quot;.&quot; , sep = &quot;,&quot;, strip.white = TRUE)
+
+#canopy parameters
+canopy_varname &lt;- as.character(canopy_file[,1])
+canopy_varvalue &lt;- as.character(canopy_file [,2])
+quant_canopy &lt;- 18
+
+for (i in 1:quant_canopy){
+  a &lt;- unlist(canopy_varname[i])
+  b &lt;- as.numeric(unlist(canopy_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#ROOTDEN
+roota &lt;- strsplit(canopy_varname[20],&quot;[ ]+&quot;)
+rootb &lt;- unlist(roota)
+rootc &lt;- as.numeric(rootb)
+rootaa &lt;- strsplit(canopy_varname[22],&quot;[ ]+&quot;)
+rootbb &lt;- unlist(rootaa)
+rootcc &lt;- as.numeric(rootbb)
+root_a &lt;- c(rootc,rootcc)
+root_a[is.na(root_a)] &lt;- 0
+
+rootd &lt;- strsplit(canopy_varname[21],&quot;[ ]+&quot;)
+roote &lt;- unlist(rootd)
+rootf &lt;- as.numeric(roote)
+rootdd &lt;- strsplit(canopy_varname[23],&quot;[ ]+&quot;)
+rootee &lt;- unlist(rootdd)
+rootff &lt;- as.numeric(rootee)
+root_b &lt;- c(rootf,rootff)
+root_b[is.na(root_b)] &lt;- 0
+
+rootden &lt;- as.vector(rbind(root_a,root_b)) 
+assign(canopy_varname[19],rootden)
+
+rm(roota,rootb,rootc,rootd,roote,rootf,rootaa,rootbb,rootcc,root_a,rootdd,rootee,rootff,root_b,quant_canopy,canopy_varvalue,canopy_varname,rootden)</code></pre>
+</div>
+<div id="fixed" class="section level4">
+<h4>Fixed</h4>
+<p>This file contains 43 parameters that can be changed in the textfile.</p>
+<pre class="r"><code>fixed_file &lt;-read.table(file.path(SCRIPTPATH_catchment,&quot;fixed.txt&quot;), header = FALSE, fill=TRUE, sep = &quot;,&quot; , dec = &quot;.&quot; , row.names = 1)
+
+fixed_varname &lt;- rownames(fixed_file)
+fixed_varvalue &lt;- fixed_file [,c(1)]
+
+quant_fixed = length(fixed_varname) - 1
+
+for (i in 1:quant_fixed){
+  a &lt;- unlist(fixed_varname[i])
+  b &lt;- unlist(fixed_varvalue[i])
+  assign(a,b)
+  rm(a,b)
+}
+
+rm(fixed_varname,fixed_varvalue,quant_fixed)</code></pre>
+</div>
+<div id="flow-standard" class="section level4">
+<h4>Flow Standard</h4>
+<p>Different flow parameters are included in this file. All 13 values can be changed if it is necessary.</p>
+<pre class="r"><code>flow_file &lt;-read.table(file.path(SCRIPTPATH_catchment,&quot;flow_standard.txt&quot;), header = FALSE, fill=TRUE, sep = &quot;,&quot; , dec = &quot;.&quot; , row.names = 1)
+
+flow_varname &lt;- rownames(flow_file)
+flow_varvalue &lt;- flow_file [,c(1)]
+
+quant_flow = length(flow_varname) - 1
+
+for (i in 1:quant_flow){
+  a &lt;- unlist(flow_varname[i])
+  b &lt;- unlist(flow_varvalue[i])
+  assign(a,b)
+  rm(a,b)
+}
+
+rm(flow_varname,flow_varvalue,quant_flow)</code></pre>
+</div>
+<div id="initial" class="section level4">
+<h4>Initial</h4>
+<p>The initial file contains 4 parameters and PSIMIN, the initial matric soil water potential for layer, with 25 layers.</p>
+<pre class="r"><code>initial_file &lt;-read.table(file.path(SCRIPTPATH_catchment,&quot;initial.txt&quot;),header = FALSE,fill=TRUE,sep = &quot;,&quot;,dec = &quot;.&quot;,row.names = 1)
+
+initial_varname &lt;- rownames(initial_file)
+initial_varvalue &lt;- as.character(initial_file [,1])
+quant_initial &lt;- 4
+
+for (i in 1:quant_initial){
+  a &lt;- unlist(initial_varname[i])
+  b &lt;- as.numeric(unlist(initial_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#PSIMIN
+PSIMIN &lt;- as.numeric(initial_varvalue[6:30])
+
+rm(initial_varname,initial_varvalue,quant_initial)</code></pre>
+</div>
+<div id="location" class="section level4">
+<h4>Location</h4>
+<p>The location-file has a little bit more complicated structure, 5 parameters at the beginning, the average duration of daily precip by month (DURATN), ten pairs of DOY and relative canopy height (RELHT) and ten pairs of DOY and relative LAI (RELLAI). But they can be easily changed in the file.</p>
+<pre class="r"><code>location_file &lt;-read.table(file.path(SCRIPTPATH_catchment,&quot;location.txt&quot;), header = FALSE, fill=TRUE, sep = &quot;,&quot; , dec = &quot;.&quot;, strip.white = TRUE)
+
+location_varname &lt;- as.character(location_file[,1])
+location_varvalue &lt;- as.character(location_file [,2])
+quant_location &lt;- 5
+
+for (i in 1:quant_location){
+  a &lt;- unlist(location_varname[i])
+  b &lt;- as.numeric(unlist(location_varvalue[i]))
+  assign(a,b)
+  rm(a,b)
+}
+
+#DURATN
+duratna &lt;- strsplit(location_varvalue[6],&quot;[ ]+&quot;)
+duratnb &lt;- unlist(duratna)
+duratn&lt;- as.numeric(duratnb)
+assign(location_varname[6],duratn)
+
+rm(duratna,duratnb,duratn)
+
+#RELHT
+hta &lt;- strsplit(location_varvalue[7],&quot;[ ]+&quot;)
+htb&lt;- unlist(hta)
+ht_a &lt;- suppressWarnings(as.numeric(htb))
+ht_a[is.na(ht_a)] &lt;- 0
+
+htc &lt;- strsplit(location_varname[8],&quot;[ ]+&quot;)
+htd &lt;- unlist(htc)
+ht_b &lt;- suppressWarnings(as.numeric(htd))
+ht_b[is.na(ht_b)] &lt;- 0
+
+relht &lt;- as.vector(rbind(ht_a,ht_b)) 
+assign(location_varname[7],relht)
+
+rm(hta,htb,htc,htd,ht_a,ht_b,relht)
+
+#RELLAI
+laia &lt;- strsplit(location_varvalue[9],&quot;[ ]+&quot;)
+laib&lt;- unlist(laia)
+lai_a &lt;- suppressWarnings(as.numeric(laib))
+lai_a[is.na(lai_a)] &lt;- 0
+
+laic &lt;- strsplit(location_varname[10],&quot;[ ]+&quot;)
+laid &lt;- unlist(laic)
+lai_b &lt;- suppressWarnings(as.numeric(laid))
+lai_b[is.na(lai_b)] &lt;- 0
+
+rellai &lt;- as.vector(rbind(lai_a,lai_b)) 
+assign(location_varname[9],rellai)
+
+rm(laia,laib,laic,laid,lai_a,lai_b,rellai)
+rm(location_varname,location_varvalue,quant_location)</code></pre>
+<p>To upload the scripts with the variables and the datasets use “Run from source” for the script “MainProg.R”. If this is done the model can be started. The file “B90V4.R” has to be opened and started with “Run from source” to run BROOK90 in R.</p>
+</div>
 </div>
 
 

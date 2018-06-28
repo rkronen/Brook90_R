@@ -129,7 +129,7 @@ $(document).ready(function () {
 <div id="kpt---soil-water-properties" class="section level3">
 <h3>KPT - SOIL WATER PROPERTIES</h3>
 <p>The KPT-script includes functions for soil water parameters and initial variables, matric potential from wetness and soil water variables.</p>
-<p>This section uses both the standard algebraic notation for soil water variables as in <a href="./literature.html">Clapp and Hornberger (1978)</a> and the BROOK90 variable names. The correspondence is</p>
+<p>This section uses both the standard algebraic notation for soil water variables as in <a href="./Literature.html">Clapp and Hornberger (1978)</a> and the BROOK90 variable names. The correspondence is</p>
 <ul>
 <li>θ - THETA</li>
 <li>W - WETNES</li>
@@ -152,7 +152,7 @@ $(document).ready(function () {
 <li>T - THICK;</li>
 <li>S - STONEF</li>
 </ul>
-<p>Functional relationships among soil-water content, θ, matric potential, Ψ, and hydraulic conductivity, K, are required for any simulation that moves water through the soil. There is a rather vast literature on this subject, though much of it emphasizes agricultural soils rather than natural soils, which are less disturbed and higher in organic matter. BROOK90 uses a modification of the <a href="./literature.html">Campbell (1974)</a> expressions with the near-saturation interpolation of <a href="./literature.html">Clapp and Hornberger (1978)</a>.</p>
+<p>Functional relationships among soil-water content, θ, matric potential, Ψ, and hydraulic conductivity, K, are required for any simulation that moves water through the soil. There is a rather vast literature on this subject, though much of it emphasizes agricultural soils rather than natural soils, which are less disturbed and higher in organic matter. BROOK90 uses a modification of the <a href="./Literature.html">Campbell (1974)</a> expressions with the near-saturation interpolation of <a href="./Literature.html">Clapp and Hornberger (1978)</a>.</p>
 <p>The wetness, W, or saturation fraction, is defined as the fraction of the pore space that is filled with water, or</p>
 <ul>
 <li><ol style="list-style-type: decimal">
@@ -160,7 +160,7 @@ $(document).ready(function () {
 </ol></li>
 </ul>
 <p>where θs is the saturated water content, or porosity, and θr is the “residual water content”.</p>
-<p>The classic expressions of <a href="./literature.html">Brooks and Corey (1964)</a> are</p>
+<p>The classic expressions of <a href="./Literature.html">Brooks and Corey (1964)</a> are</p>
 <ul>
 <li><ol start="2" style="list-style-type: decimal">
 <li>Ψ = Ψs W-b</li>
@@ -173,8 +173,8 @@ $(document).ready(function () {
 </ol></li>
 </ul>
 <p>where Ks is the saturated hydraulic conductivity.</p>
-<p>With the assumption that θr is usually so small it can be set to zero, these equations are usually attributed to <a href="./literature.html">Campbell (1974)</a>. <a href="./literature.html">Wösten and vanGenuchten (1988)</a> state that θr can be set to zero “without significantly affecting the accuracy of the results”. The Campbell form (θr = 0) is used in BROOK90 and by <a href="./literature.html">Clapp and Hornberger (1978)</a>.</p>
-<p>Equation (2) fails as the soil approaches saturation, that is, as W approaches 1, because Ψ at saturation must be 0, not Ψs. In this “near saturation region”, <a href="./literature.html">Clapp and Hornberger (1978)</a> suggest that the parabolic expression</p>
+<p>With the assumption that θr is usually so small it can be set to zero, these equations are usually attributed to <a href="./Literature.html">Campbell (1974)</a>. <a href="./Literature.html">Wösten and vanGenuchten (1988)</a> state that θr can be set to zero “without significantly affecting the accuracy of the results”. The Campbell form (θr = 0) is used in BROOK90 and by <a href="./Literature.html">Clapp and Hornberger (1978)</a>.</p>
+<p>Equation (2) fails as the soil approaches saturation, that is, as W approaches 1, because Ψ at saturation must be 0, not Ψs. In this “near saturation region”, <a href="./Literature.html">Clapp and Hornberger (1978)</a> suggest that the parabolic expression</p>
 <ul>
 <li><ol start="4" style="list-style-type: decimal">
 <li>Ψ = -m (W - n) (1 - W)</li>
@@ -189,9 +189,9 @@ $(document).ready(function () {
 <li>n = 2 Wi - 1 + (b Ψi / m Wi)</li>
 </ol></li>
 </ul>
-<p>where Ψi is Ψ at Wi obtained from (2). They suggest that Wi can be taken as 0.92 for all soils, but varying it allows a closer agreement with the <a href="./literature.html">vanGenuchten (1980)</a> equation. However, Wi must be greater than b/(1+b). (Note that in <a href="./literature.html">Clapp and Hornberger (1978)</a> Ψ is always positive whereas here Ψ is inherently negative.) Equation (3) does not inflect but holds up to Ks at θs .</p>
-<p>The more complicated expressions of <a href="./literature.html">vanGenuchten (1980)</a>are frequently used as an alternative to the Brooks-Corey equations. Conversion of parameters between the two forms can be accomplished <a href="./literature.html">Ma and others (1999)</a> but are less satisfactory because of the abrupt break at saturation in the Brooks-Corey expression. The Clapp-Hornberger curve shape should agree better with vanGenuchten than Brooks-Corey does, especially if Wi is allowed to vary, but I do not know of any direct comparison. Substitution of other relationships, such as van Genuchten in BROOK90 could conceptually be done but would require significant reprogramming. More sophisticated relations such as vanGenuchten hardly seem warranted given spatial variation, hysteresis, and the extra computer time required <a href="./literature.html">Ross (1992)</a>.</p>
-<p>The use of Ψs and Ks in (2) and (3) has been questioned (e.g. <a href="./literature.html">Yates and others (1992)</a>). Especially in forest soils, any field measurement of Ks will actually be a measure of macropore and pipe flow and probably is not directly related to the unsaturated or matrix flow properties. Therefore these equations are modified in BROOK90 to replace Ψs and Ks with Ψf and Kf at some unsaturated water content, θf . Then θs becomes the only parameter that affects the near saturation region. The modified equations are</p>
+<p>where Ψi is Ψ at Wi obtained from (2). They suggest that Wi can be taken as 0.92 for all soils, but varying it allows a closer agreement with the <a href="./Literature.html">vanGenuchten (1980)</a> equation. However, Wi must be greater than b/(1+b). (Note that in <a href="./Literature.html">Clapp and Hornberger (1978)</a> Ψ is always positive whereas here Ψ is inherently negative.) Equation (3) does not inflect but holds up to Ks at θs .</p>
+<p>The more complicated expressions of <a href="./Literature.html">vanGenuchten (1980)</a>are frequently used as an alternative to the Brooks-Corey equations. Conversion of parameters between the two forms can be accomplished <a href="./Literature.html">Ma and others (1999)</a> but are less satisfactory because of the abrupt break at saturation in the Brooks-Corey expression. The Clapp-Hornberger curve shape should agree better with vanGenuchten than Brooks-Corey does, especially if Wi is allowed to vary, but I do not know of any direct comparison. Substitution of other relationships, such as van Genuchten in BROOK90 could conceptually be done but would require significant reprogramming. More sophisticated relations such as vanGenuchten hardly seem warranted given spatial variation, hysteresis, and the extra computer time required <a href="./Literature.html">Ross (1992)</a>.</p>
+<p>The use of Ψs and Ks in (2) and (3) has been questioned (e.g. <a href="./Literature.html">Yates and others (1992)</a>). Especially in forest soils, any field measurement of Ks will actually be a measure of macropore and pipe flow and probably is not directly related to the unsaturated or matrix flow properties. Therefore these equations are modified in BROOK90 to replace Ψs and Ks with Ψf and Kf at some unsaturated water content, θf . Then θs becomes the only parameter that affects the near saturation region. The modified equations are</p>
 <ul>
 <li><ol start="7" style="list-style-type: decimal">
 <li>Ψ = Ψf (W / Wf) -b</li>
@@ -366,7 +366,7 @@ $(document).ready(function () {
 <ul>
 <li>Ψg(i) = Ψg(i-1) - ρwg [T(i-1) + T(i)] / 2.</li>
 </ul>
-<p>The saturated hydraulic conductivity, Ks, is needed in subroutine <a href="./wat.html">VERT</a> to prevent excessive conductivities. It is</p>
+<p>The saturated hydraulic conductivity, Ks, is needed in subroutine <a href="./WAT.html">VERT</a> to prevent excessive conductivities. It is</p>
 <ul>
 <li>Ks = Kf (1 / Wf) 2b+3</li>
 </ul>

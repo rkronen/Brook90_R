@@ -146,8 +146,8 @@ $(document).ready(function () {
 <p>AVAILEN calculates net radiation minus soil heat flux at the top and the bottom of the canopy, separately for daytime and for nighttime.</p>
 <p>Estimates of available energy above and below the canopy are made in subroutine AVAILEN. Available energy is net radiation minus subsurface heat flux (SHEAT), and is the energy available for partitioning into heating the air and evaporating water. SHEAT is set to zero in code in MSBSETVARS.</p>
 <p>When there is snow on the ground, albedo is the parameter ALBSN, otherwise it is the parameter ALB.</p>
-<p>Estimation of net longwave radiation has been the subject of much research. BROOK90 uses <a href="./literature.html">Brutsaert’s (1982)</a> equation for effective clear sky emissivity (EFFEM).</p>
-<p>The longwave equations and parameters are taken from <a href="./literature.html">Brutsaert (1982)</a> and the net radiation extinction from <a href="./literature.html">Shuttleworth and Wallace (1985)</a>.</p>
+<p>Estimation of net longwave radiation has been the subject of much research. BROOK90 uses <a href="./Literature.html">Brutsaert’s (1982)</a> equation for effective clear sky emissivity (EFFEM).</p>
+<p>The longwave equations and parameters are taken from <a href="./Literature.html">Brutsaert (1982)</a> and the net radiation extinction from <a href="./Literature.html">Shuttleworth and Wallace (1985)</a>.</p>
 <p>The needed input is shown in the following table:</p>
 <table style="width:62%;">
 <colgroup>
@@ -220,7 +220,7 @@ $(document).ready(function () {
 <li>LNGNET - net longwave radiation (W/m2)</li>
 <li>RN - net radiation (W/m2)</li>
 </ul>
-<p>For EFFEM, the <a href="./literature.html">Brutsaert (1982)</a> equation for effective clear sky emissivity will be used, because it’s the most central. SIGMA is the Stefan-Boltzmann constant.</p>
+<p>For EFFEM, the <a href="./Literature.html">Brutsaert (1982)</a> equation for effective clear sky emissivity will be used, because it’s the most central. SIGMA is the Stefan-Boltzmann constant.</p>
 <p>With the help of this values the output of the function will be calculated:</p>
 <ul>
 <li>AA - available energy (W/m2)</li>
@@ -253,7 +253,7 @@ return(list(RN, AA, ASUBS))
 <div id="function-equivslp" class="section level3">
 <h3>Function EQUIVSLP</h3>
 <p>In BROOK90 subroutine EQUIVSLP is called once to obtain parameters that depend on latitude, slope, and aspect of the surface being simulated.</p>
-<p>The equivalent slope is defined as the location on the earth’s surface where a horizontal surface is parallel to the given sloping surface. Following <a href="./literature.html">Swift (1976)</a>, L1 is the latitude of this “equivalent slope” (which is actually a horizontal surface), and L2 is the difference in hour angle (longitude) between the two locations. For any given slope and aspect, L1 and L2 need be found only once; they do not change over time. So they are calculated in EQUIVSLP at the beginning of B90, as:</p>
+<p>The equivalent slope is defined as the location on the earth’s surface where a horizontal surface is parallel to the given sloping surface. Following <a href="./Literature.html">Swift (1976)</a>, L1 is the latitude of this “equivalent slope” (which is actually a horizontal surface), and L2 is the difference in hour angle (longitude) between the two locations. For any given slope and aspect, L1 and L2 need be found only once; they do not change over time. So they are calculated in EQUIVSLP at the beginning of B90, as:</p>
 <ul>
 <li>L1 = ASIN [COS(SLOPE) x SIN(LAT) + SIN(SLOPE) x COS(LAT) x COS(ASPECT)]</li>
 <li>L2 = ATAN {SIN(SLOPE) x SIN(ASPECT) / [COS(SLOPE) x COS(LAT) - SIN(SLOPE) x SIN(LAT) x COS(ASPECT)]}</li>
@@ -264,7 +264,7 @@ return(list(RN, AA, ASUBS))
 <thead>
 <tr class="header">
 <th>Input</th>
-<th></th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
@@ -309,8 +309,8 @@ return(list(L1, L2))
 <ul>
 <li>SCD = SC / (1 - .0167 x COS(.0172 x (DOY - 3))) ^ 2</li>
 </ul>
-<p>where SC is the solar constant at the mean earth-sun distance (<a href="./literature.html">Swift (1976)</a>). SC is set to 1367 W/m2 (<a href="./literature.html">Lean (1991)</a>) and can not be changed.</p>
-<p>The declination of the sun (DEC) is the angle by which the sun is above or below the plane of the earth’s equator. DEC is zero at the equinoxes and +23.5° or -23.5 at the solstices. <a href="./literature.html">Swift (1976)</a> gives the solar declination (radians) as:</p>
+<p>where SC is the solar constant at the mean earth-sun distance (<a href="./Literature.html">Swift (1976)</a>). SC is set to 1367 W/m2 (<a href="./Literature.html">Lean (1991)</a>) and can not be changed.</p>
+<p>The declination of the sun (DEC) is the angle by which the sun is above or below the plane of the earth’s equator. DEC is zero at the equinoxes and +23.5° or -23.5 at the solstices. <a href="./Literature.html">Swift (1976)</a> gives the solar declination (radians) as:</p>
 <ul>
 <li>DEC = ASIN {0.39785 x SIN [4.86961 + 0.017203 x DOY + 0.033446 x SIN (6.224111 + 0.017202 x DOY)]}</li>
 </ul>
@@ -490,7 +490,7 @@ if (TWORIS == 1) {   # two sunrises
 </div>
 <div id="function-func3" class="section level3">
 <h3>Function FUNC3</h3>
-<p>The daily integral of potential insolation on a slope (I0SDAY, MJ/m2) is given by <a href="./literature.html">Swift (1976)</a> as:</p>
+<p>The daily integral of potential insolation on a slope (I0SDAY, MJ/m2) is given by <a href="./Literature.html">Swift (1976)</a> as:</p>
 <ul>
 <li>I0SDAY = WTOMJ x SCD x FUNC3 (DEC, L2, L1, T3, T2)</li>
 </ul>
@@ -498,9 +498,9 @@ if (TWORIS == 1) {   # two sunrises
 <ul>
 <li>FUNC3 = (π/ 2) {SIN(DEC) x SIN(L1) x (T3 - T2) + COS(DEC) x COS(L1) x [ SIN(T3 + L2) - SIN(T2 + L2)]}</li>
 </ul>
-<p>is a program function and T2 and T3 are the hour angles of sunrise and sunset on the slope, which are obtained from <a href="#function-hafday">Function HAFDAY</a> using the latitude of the equivalent slope. FUNC3 has units of d-1 and WTOMJ is the conversion factor 0.0864 (MJ m-2 d-1) / (W m-2). The actual <a href="#function-sunds">Function SUNDS</a> algorithm is more complicated than this because it must consider the possibility of two sunrises and sunsets on the slope in one day. The details of the algorithm are given by <a href="./literature.html">Swift (1976)</a>. Note that this algorithm assumes that the “opposing slope” is horizontal. In reality in mountainous terrain, the potential insolation is further reduced by any distant terrain that obscures the horizon more than the given slope itself does. The calculation of such obscuration is difficult and is outside the scope of BROOK90.</p>
+<p>is a program function and T2 and T3 are the hour angles of sunrise and sunset on the slope, which are obtained from <a href="#function-hafday">Function HAFDAY</a> using the latitude of the equivalent slope. FUNC3 has units of d-1 and WTOMJ is the conversion factor 0.0864 (MJ m-2 d-1) / (W m-2). The actual <a href="#function-sunds">Function SUNDS</a> algorithm is more complicated than this because it must consider the possibility of two sunrises and sunsets on the slope in one day. The details of the algorithm are given by <a href="./Literature.html">Swift (1976)</a>. Note that this algorithm assumes that the “opposing slope” is horizontal. In reality in mountainous terrain, the potential insolation is further reduced by any distant terrain that obscures the horizon more than the given slope itself does. The calculation of such obscuration is difficult and is outside the scope of BROOK90.</p>
 <p>The daily integral of potential insolation on a horizontal surface (I0HDAY, MJ/m2) is found from the I0SDAY equation with L1 = LAT, L2 = 0, and T3 and T2 for a horizontal surface at LAT. The daylength (DAYLEN), which is the fraction of a day that the sun is above a horizontal horizon, is HAFDAY / π where <a href="#function-hafday">Function HAFDAY</a> is used with L = LAT. SLFDAY is the ratio of I0SDAY to I0HDAY. <a href="#function-sunds">SUNDS</a> outputs DAYLEN, I0HDAY, and SLFDAY.</p>
-<p>FUNC3 is a function to calculate the daily integration for slope after <a href="./literature.html">Swift (1976)</a>, d. The necessary input data are:</p>
+<p>FUNC3 is a function to calculate the daily integration for slope after <a href="./Literature.html">Swift (1976)</a>, d. The necessary input data are:</p>
 <table>
 <thead>
 <tr class="header">
