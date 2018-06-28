@@ -125,9 +125,9 @@ $(document).ready(function () {
 </div>
 
 
-<div id="manual" class="section level3">
-<h3>Manual</h3>
-<p>This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R scripts.</p>
+<div id="manual-for-the-use-of-the-brook90-r-implementation" class="section level3">
+<h3>Manual for the Use of the BROOK90 R Implementation</h3>
+<p>This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.</p>
 <div id="overview-of-available-files" class="section level4">
 <h4>1. Overview of available files</h4>
 <p>These files are available for usage:</p>
@@ -164,13 +164,13 @@ $(document).ready(function () {
 </div>
 <div id="run-the-programm" class="section level4">
 <h4>3. Run the Programm</h4>
-<p>To run the programm in R, the MainProg.R script has to be opened. Necessary changes that have to be done are:</p>
+<p>To run the programm in R, the MainProg.R script has to be opened. Important changes that have to be done are:</p>
 <ul>
-<li>change the SCRIPTPATH, where the scripts are located on your computer</li>
-<li>put the data (meteorological and precipitatin data, .txt files) and R-Codes in the same folder</li>
+<li>put the data (meteorological and precipitatin data, .txt files) and R-Codes in the same folder, if it is not done yet</li>
+<li>change the SCRIPTPATH, where the R-scripts are located on your computer</li>
 <li>change the names of your input data (meteoFile, precFile), if you are not using the example</li>
 <li>change SCRIPTPATH_catchment, where the data of catchment parameters are located</li>
-<li>change catchment parameters in these files if necessary:
+<li>change catchment parameters in these files, if necessary:
 <ul>
 <li>canopy.txt</li>
 <li>fixed.txt</li>

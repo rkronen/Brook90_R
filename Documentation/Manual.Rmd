@@ -5,8 +5,8 @@ date: "15 Juni 2018"
 output: html_document
 ---
 
-### Manual
-This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R scripts.
+### Manual for the Use of the BROOK90 R Implementation
+This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.
 
 #### 1. Overview of available files
 These files are available for usage:
@@ -28,13 +28,13 @@ These files are available for usage:
 As the second step the files can be downloaded and unpacked. 
 
 #### 3. Run the Programm
-To run the programm in R, the MainProg.R script has to be opened. Necessary changes that have to be done are:
+To run the programm in R, the MainProg.R script has to be opened. Important changes that have to be done are:
 
-* change the SCRIPTPATH, where the scripts are located on your computer
-* put the data (meteorological and precipitatin data, .txt files) and R-Codes in the same folder
+* put the data (meteorological and precipitatin data, .txt files) and R-Codes in the same folder, if it is not done yet
+* change the SCRIPTPATH, where the R-scripts are located on your computer
 * change the names of your input data (meteoFile, precFile), if you are not using the example
 * change SCRIPTPATH_catchment, where the data of catchment parameters are located
-* change catchment parameters in these files if necessary:
+* change catchment parameters in these files, if necessary:
     + canopy.txt
     + fixed.txt
     + flow_standart.txt
