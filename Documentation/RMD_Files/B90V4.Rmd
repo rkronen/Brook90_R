@@ -23,7 +23,7 @@ This Code is modified for Version 4, June 3, 1999. The Symbol ^^ shows variables
 * [Plotted data](#plotted-data)
 
 ### Programm initialisations
-First the script of the main programm [MainProg.Rmd](./MainProg.Rmd) has to be rendered to run the script of B90V4.Rmd in R-Markdown.
+First the script of the main programm [MainProg](./MainProg.Rmd) has to be rendered to run the script of B90V4.Rmd in R-Markdown.
 
 ```{r include=FALSE}
 rmarkdown::render('MainProg.Rmd')
@@ -61,31 +61,31 @@ if((runflag == 0) || (runflag == 1)){
 	
 	daymax=NDAYS-IDAY+1
 	maxF=0
-	precc=rep(0,daymax)
-	evpp=rep(0,daymax)
-	floww=rep(0,daymax)
-	rnett=rep(0,daymax)
-	ptrann=rep(0,daymax)
-	irvpp=rep(0,daymax)
-	isvpp=rep(0,daymax)
-	snoww=rep(0,daymax)
-	swatt=rep(0,daymax)
-	pintt=rep(0,daymax)
-	snvpp=rep(0,daymax)
-	slvpp=rep(0,daymax)
-	trandd=rep(0,daymax)
-	mesfld=rep(0,daymax)
-	smltd=rep(0,daymax)
-	slfld=rep(0,daymax)
-	rfald=rep(0,daymax)
-	sfald=rep(0,daymax)
-	awatt=rep(0,daymax)
-	adeff=rep(0,daymax)
-	sintdd=rep(0,daymax)
-	rintdd=rep(0,daymax)
-	rthrd=rep(0,daymax)
-	sthrd=rep(0,daymax)
-	rsnod=rep(0,daymax)
+	timeseries_prec=rep(0,daymax)
+	timeseries_evp=rep(0,daymax)
+	timeseries_flow=rep(0,daymax)
+	timeseries_rnet=rep(0,daymax)
+	timeseries_ptran=rep(0,daymax)
+	timeseries_irvp=rep(0,daymax)
+	timeseries_isvp=rep(0,daymax)
+	timeseries_snow=rep(0,daymax)
+	timeseries_swat=rep(0,daymax)
+	timeseries_pint=rep(0,daymax)
+	timeseries_snvp=rep(0,daymax)
+	timeseries_slvp=rep(0,daymax)
+	timeseries_trand=rep(0,daymax)
+	timeseries_mesfld=rep(0,daymax)
+	timeseries_smltd=rep(0,daymax)
+	timeseries_slfld=rep(0,daymax)
+	timeseries_rfald=rep(0,daymax)
+	timeseries_sfald=rep(0,daymax)
+	timeseries_awat=rep(0,daymax)
+	timeseries_adef=rep(0,daymax)
+	timeseries_sintd=rep(0,daymax)
+	timeseries_rintd=rep(0,daymax)
+	timeseries_rthrd=rep(0,daymax)
+	timeseries_sthrd=rep(0,daymax)
+	timeseries_rsnod=rep(0,daymax)
 	
 	if( YEARN < 100){
 		if(YEARN > 20){
@@ -347,49 +347,48 @@ IDAY = IDAY + 1
 #subdatafileline()
 #
 # ***************   E N D    D A Y   L O O P    **************************
-	precc[daymax-NDAYS+IDAY-1]<-PRECD
-	evpp[daymax-NDAYS+IDAY-1]<-EVAPD
-	floww[daymax-NDAYS+IDAY-1]<-FLOWD
-	rnett[daymax-NDAYS+IDAY-1]<-RNET
-	irvpp[daymax-NDAYS+IDAY-1]<-IRVPD
-	isvpp[daymax-NDAYS+IDAY-1]<-ISVPD
-	ptrann[daymax-NDAYS+IDAY-1]<-PTRAND
-	snoww[daymax-NDAYS+IDAY-1]<-SNOW
-	swatt[daymax-NDAYS+IDAY-1]<-SWAT
-	pintt[daymax-NDAYS+IDAY-1]<-PINTD
-	snvpp[daymax-NDAYS+IDAY-1]<-SNVPD 
-	slvpp[daymax-NDAYS+IDAY-1]<-SLVPD 
-	trandd[daymax-NDAYS+IDAY-1]<-TRAND
-	mesfld[daymax-NDAYS+IDAY-1]<-MESFLD
-	smltd[daymax-NDAYS+IDAY-1]<-SMLTD
-	slfld[daymax-NDAYS+IDAY-1]<-SLFLD
-	rfald[daymax-NDAYS+IDAY-1]<-RFALD
-	awatt[daymax-NDAYS+IDAY-1]<-AWAT
-	adeff[daymax-NDAYS+IDAY-1]<-ADEF
-	sintdd[daymax-NDAYS+IDAY-1]<-SINTD
-	rintdd[daymax-NDAYS+IDAY-1]<-RINTD
-	sfald[daymax-NDAYS+IDAY-1]<-SFALD
-	rthrd[daymax-NDAYS+IDAY-1]<-RTHRD
-	sthrd[daymax-NDAYS+IDAY-1]<-STHRD
-	rsnod[daymax-NDAYS+IDAY-1]<-RSNOD
+	timeseries_prec[daymax-NDAYS+IDAY-1]<-PRECD
+	timeseries_evp[daymax-NDAYS+IDAY-1]<-EVAPD
+	timeseries_flow[daymax-NDAYS+IDAY-1]<-FLOWD
+	timeseries_rnet[daymax-NDAYS+IDAY-1]<-RNET
+	timeseries_irvp[daymax-NDAYS+IDAY-1]<-IRVPD
+	timeseries_isvp[daymax-NDAYS+IDAY-1]<-ISVPD
+	timeseries_ptran[daymax-NDAYS+IDAY-1]<-PTRAND
+	timeseries_snow[daymax-NDAYS+IDAY-1]<-SNOW
+	timeseries_swat[daymax-NDAYS+IDAY-1]<-SWAT
+	timeseries_pint[daymax-NDAYS+IDAY-1]<-PINTD
+	timeseries_snvp[daymax-NDAYS+IDAY-1]<-SNVPD 
+	timeseries_slvp[daymax-NDAYS+IDAY-1]<-SLVPD 
+	timeseries_trand[daymax-NDAYS+IDAY-1]<-TRAND
+	timeseries_mesfld[daymax-NDAYS+IDAY-1]<-MESFLD
+	timeseries_smltd[daymax-NDAYS+IDAY-1]<-SMLTD
+	timeseries_slfld[daymax-NDAYS+IDAY-1]<-SLFLD
+	timeseries_rfald[daymax-NDAYS+IDAY-1]<-RFALD
+	timeseries_awat[daymax-NDAYS+IDAY-1]<-AWAT
+	timeseries_adef[daymax-NDAYS+IDAY-1]<-ADEF
+	timeseries_sintd[daymax-NDAYS+IDAY-1]<-SINTD
+	timeseries_rintd[daymax-NDAYS+IDAY-1]<-RINTD
+	timeseries_sfald[daymax-NDAYS+IDAY-1]<-SFALD
+	timeseries_rthrd[daymax-NDAYS+IDAY-1]<-RTHRD
+	timeseries_sthrd[daymax-NDAYS+IDAY-1]<-STHRD
+	timeseries_rsnod[daymax-NDAYS+IDAY-1]<-RSNOD
 }
 ```
 
 ### Plotted data
 At the end some data are plotted:
 
-* precipitation - precc (points)
-* evpp          - evaporation (blue line)
-* mesfld        - measured flow (darkgreen line)
-* floww         - total flow (darkgreen line)
+* timeseries_prec - precipitation (points)
+* timeseries_evp - evaporation (blue line)
+* timeseries_mesfld - measured flow (darkgreen line)
+* timeseries_flow - total flow (darkgreen line)
 
 ```{r}
-plot(1:NDAYS,floww[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0, 70),xlab="Tage [d]",ylab="Werte [mm/d]")
+plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0, 70),xlab="Tage [d]",ylab="Werte [mm/d]")
 
 PrecBound<-10
-points( which(precc %in% precc[precc>PrecBound]),precc[precc>PrecBound],col="blue",pch="*")
-lines(1:NDAYS,evpp,col="blue",lwd=3)
-lines(1:NDAYS,mesfld,col="red",lwd=2)
-lines(1:NDAYS,floww,col="darkgreen",lwd=3)
+points( which(timeseries_prec %in% timeseries_prec[timeseries_prec>PrecBound]),timeseries_prec[timeseries_prec>PrecBound],col="blue",pch="*")
+lines(1:NDAYS,timeseries_evp,col="blue",lwd=3)
+lines(1:NDAYS,timeseries_mesfld,col="red",lwd=2)
+lines(1:NDAYS,timeseries_flow,col="darkgreen",lwd=3)
 ```
-![](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
