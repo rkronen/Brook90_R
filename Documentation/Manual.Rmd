@@ -18,7 +18,7 @@ These files are available for usage:
   * html-Files
       + to download and read the documentation offline
   * Data and R Code
-      + necessary data (precipitation data, meteorological data, catchment parameters) and written R scripts to run the programm
+      + necessary data (precipitation data, meteorological data) and written R scripts to run the programm
   * Catchment parameters
       + five .txt files where the characteristics of the catchment can be changed
   * Plot output
