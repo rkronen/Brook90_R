@@ -15,6 +15,7 @@ These files are available for download and usage:
   * Rmd-Files - as a documentation (on Github) of the created scripts to help the understanding
   * html-Files - to download the documentation and read on an own computer
   * Data and R Code - necessary data (precipitation data, meteorological data, catchment parameters) and written R scripts to run the programm
+  * Catchment parameters - five .txt files where the characteristics of the catchment can be changed
   * Plot output - example plot of calculated values
   
 #### 2. Download the data
