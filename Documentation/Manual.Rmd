@@ -13,7 +13,7 @@ This manual describes how to run the BROOK90 R implementation, based on the mode
 * [1. Overview of available files](#1.-overview-of-available-files)
 * [2. Download the data](#download-the-data)
 * [3. Run the programm](#run-the-programm)
-* [4. The Output](#4.-the-output)
+* [4. The Output](#4-.-the-output)
 
 #### 1. Overview of available files
 These files are available for usage:
