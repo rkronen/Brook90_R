@@ -128,6 +128,15 @@ $(document).ready(function () {
 <div id="manual-for-the-use-of-the-brook90-r-implementation" class="section level3">
 <h3>Manual for the Use of the BROOK90 R Implementation</h3>
 <p>This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.</p>
+<div id="content" class="section level4">
+<h4>Content</h4>
+<ul>
+<li><a href="#overview-of-available-files">1. Overview of available files</a></li>
+<li><a href="#download-the-data">2. Download the data</a></li>
+<li><a href="#run-the-programm">3. Run the programm</a></li>
+<li><a href="#the-output">4. The Output</a></li>
+</ul>
+</div>
 <div id="overview-of-available-files" class="section level4">
 <h4>1. Overview of available files</h4>
 <p>These files are available for usage:</p>
@@ -181,6 +190,117 @@ $(document).ready(function () {
 </ul>
 <p>After all changes are done, MainProg.R can be started by “Run from source”.</p>
 <p>The next step is to open the script B90V4.R. At the end of this script there is a code to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with “timeseries_” in its name. Finally B90V4.R can also be started with “Run from source” and then the model is running and producing the output.</p>
+</div>
+<div id="the-output" class="section level4">
+<h4>4. The Output</h4>
+<p>The programm calculates 24 time series of the water balance in the considered catchment as output of BROOK90. The table shows the explanation of the output data visible with the name “timeseries_…” and their corresponding shortcut:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>adef</td>
+<td>available water deficit in root zone</td>
+</tr>
+<tr class="even">
+<td>awat</td>
+<td>available soil water in root zone</td>
+</tr>
+<tr class="odd">
+<td>evp</td>
+<td>evapotranspiration</td>
+</tr>
+<tr class="even">
+<td>flow</td>
+<td>total flow</td>
+</tr>
+<tr class="odd">
+<td>irvp</td>
+<td>evaporation rate of intercepted rain</td>
+</tr>
+<tr class="even">
+<td>isvp</td>
+<td>evaporation rate of intercepted snow</td>
+</tr>
+<tr class="odd">
+<td>mesld</td>
+<td>measured flow</td>
+</tr>
+<tr class="even">
+<td>pint</td>
+<td>average potential interception for day</td>
+</tr>
+<tr class="odd">
+<td>prec</td>
+<td>precipitation</td>
+</tr>
+<tr class="even">
+<td>ptran</td>
+<td>average potential transpiration rate for day</td>
+</tr>
+<tr class="odd">
+<td>rfald</td>
+<td>rainfall rate</td>
+</tr>
+<tr class="even">
+<td>rintd</td>
+<td>rain interception</td>
+</tr>
+<tr class="odd">
+<td>rnet</td>
+<td>rain reaching soil surface</td>
+</tr>
+<tr class="even">
+<td>rthrd</td>
+<td>rain throughfall</td>
+</tr>
+<tr class="odd">
+<td>sfald</td>
+<td>snowfall</td>
+</tr>
+<tr class="even">
+<td>sintd</td>
+<td>snow interception</td>
+</tr>
+<tr class="odd">
+<td>slfld</td>
+<td>input to soil surface</td>
+</tr>
+<tr class="even">
+<td>slvp</td>
+<td>soil evaporation</td>
+</tr>
+<tr class="odd">
+<td>smltd</td>
+<td>snowmelt</td>
+</tr>
+<tr class="even">
+<td>snow</td>
+<td>water equivalent of snow on the ground</td>
+</tr>
+<tr class="odd">
+<td>snvp</td>
+<td>evaporation from snowpack</td>
+</tr>
+<tr class="even">
+<td>sthrd</td>
+<td>snow throughfall</td>
+</tr>
+<tr class="odd">
+<td>swat</td>
+<td>total soil water in all layers</td>
+</tr>
+<tr class="even">
+<td>trand</td>
+<td>transpiration</td>
+</tr>
+</tbody>
+</table>
+<p>As mentioned in <a href="#run-the-programm">Run the programm</a> all of this time series can be plotted, if you add or exchange the name of the time series at the end of the script “B90V4.R”.</p>
 </div>
 </div>
 
