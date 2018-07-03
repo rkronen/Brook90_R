@@ -1,6 +1,6 @@
 ---
 title: "B90V4"
-author: "Rico Kronenberg, Lisa Marie Oehlschl‰gel"
+author: "Rico Kronenberg, Lisa Marie Oehlschl√§gel"
 date: "11 Mai 2018"
 output: html_document
 ---
@@ -393,5 +393,5 @@ lines(1:NDAYS,timeseries_mesfld,col="red",lwd=2)
 lines(1:NDAYS,timeseries_flow,col="darkgreen",lwd=3)
 ```
 
-![Output](https://github.com/rkronen/Brook90_R/blob/master/Plot_Output/output.png)
+![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
 
