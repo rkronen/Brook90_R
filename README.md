@@ -26,9 +26,9 @@ These files are available for usage:
 * written R scripts to run the programm
 
 ##### Input data
-* necessary data (precipitation data, meteorological data)
+* precipitation data, meteorological data
 * Catchment parameters
-      + six .txt files where the characteristics of the catchment can be changed
+    + six .txt files where the characteristics of the catchment can be changed
 
 #### Download the data
 As the second step the files can be downloaded and unpacked. 
@@ -46,9 +46,9 @@ To run the programm in R, the MainProg.R script has to be opened. Important chan
     + initial.txt
     + location.txt
     + soil.txt
-* change the names of your input data (meteoFile, precFile,...) if you are not using the example and check the form of your data
+* if you are not using the example, change the names of your input data (meteoFile, precFile,...) and check the form of your data
 
-After all changes are done, MainProg.R can be started by "Run from source". 
+After all changes are done MainProg.R can be started by "Run from source". 
 
 The next step is to open the script B90V4.R. At the end of this script there is a code to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with "timeseries_" in its name. Finally B90V4.R can also be started with "Run from source" and then the model is running and producing the output.
 
