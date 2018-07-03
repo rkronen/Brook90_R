@@ -1,0 +1,688 @@
+---
+title: "PET"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "29 April 2018"
+output: html_document
+---
+
+### PET - Potential evaporation
+This script includes functions for the topics of:
+
+* canopy parameters
+* saturated vp and DELTA from temp
+* soil surface resistance to evaporation
+* interpolates between points in data functions
+* Penman-Monteith transpiration rate equation
+* closed canopy parameters
+* canopy surface resistance
+* [Shuttleworth and Wallace (1985)](./Literature.Rmd) ground evaporation when transpiration known
+* atmospheric resistances RAA, RAC, and RAS
+* [Shuttleworth and Wallace (1985)](./Literature.Rmd) transpiration and ground evaporation
+* weather
+* ratio of wind speed at reference height (above canopy) to wind speed at weather station
+
+A common approach to estimating evaporation calculates a potential evaporation (PE) from weather variables, and then reduces actual evaporation below PE in response to soil drying. PE quantifies what the evaporation rate would be in the absence of any limitation of liquid water supply to the evaporating surfaces. It is thus an upper limit to the evaporation rate. Actual evaporation falls below the potential rate whenever liquid water supply to the plant leaves or to the soil surface cannot maintain the PE rate. Changing knowledge of limitations on evaporation has produced a variety of definitions of PE, which are related to the methods chosen to calculate it ([Shuttleworth (1991)](./Literature.Rmd)). 
+
+BROOK90 separates evaporation into two pathways and five processes controlled by five resistances to vapor transfer:
+
+* canopy evaporation
+* ground evaporation
+
+BROOK90 obtains evaporation rates separately for daytime and nighttime within a day-night evaporation loop. All solar radiation (SOLRAD) is assigned to the daytime. The atmospheric humidity (EA) is assumed constant through the day ("day" refers to 24 hours). The daytime and nighttime values of air temperature and wind speed are obtained in subroutine WEATHER using function WNDADJ. Vapor pressure deficit (VPD) is obtained using subroutine ESAT. Subroutine CANOPY uses function INTERP to obtain canopy structure variables for the day. Subroutine ROUGH gets canopy roughness parameters. Within a day-night loop, the three aerodynamic resistances needed by the Shuttleworth-Wallace method are calculated in subroutine SWGRA. The canopy surface resistance (RSC) for the daytime is obtained from subroutine SRSC, and the soil surface resistance (RSS) in function FRSS. Subroutine SWPE uses function PM along with the various resistances to obtain potential transpiration rate (PTR) and the associated ground or soil evaporation rate (GER) by the Shuttleworth-Wallace equations. Subroutine SWPE is called again with RSC = 0 to give potential interception rate (PIR) and its associated soil evaporation rate (GIR). Subroutine TBYLAYER obtains actual transpiration by layer (ATRANI). If the actual transpiration is less than the potential, a new, higher GER is calculated by subroutine SWGE. BROOK90 then weights the daytime and nighttime rates by the solar daylength (DAYLEN) to obtain average rates for the day, PTRAN, GEVP, PINT, GIVP, and TRANI, which are used in later calculations. 
+
+### Contents
+
+* [Function CANOPY](#function-canopy)
+* [Function ESAT](#function-esat)
+* [Function FRSS](#function-frss)
+* [Function INTERP](#function-interp)
+* [Function PM](#function-pm)
+* [Function ROUGH](#function-rough)
+* [Function SRSC](#function-srsc)
+* [Function SWGE](#function-swge)
+* [Function SWGRA](#function-swgra)
+* [Function SWPE](#function-swpe)
+* [Function WEATHER](#function-weather)
+* [Function WNDADJ](#function-wndadj)
+
+### Function CANOPY
+Subroutine CANOPY calculates plant "parameters" that can vary with day of the year (DOY). 
+
+The height of the canopy above any snowpack, h (HEIGHT), is
+
+* HEIGHT = RELHIT x MAXHT - SNODEP
+
+where MAXHT is the maximum height for the year, which is an input parameter, and RELHIT is the relative height for the day of the year (doy), as obtained with function INTERP from the RELHT parameter array. HEIGHT is not allowed to be less than 0.01 m, which gives an appropriate roughness parameter for "smooth" surfaces. The snowpack depth (SNODEP, m) is the snow water content (SNOW, mm) divided by 1000 times snow density (SNODEN), which is assumed constant. Although snow density can actually vary from 0.05 to 0.5, the constant value is good enough to account for burying of the canopy in BROOK90. The RATIO of uncovered HEIGHT to total height (RELHT * MAXHT) is also calculated.
+
+Actual projected leaf area index, Lp (LAI), is
+
+* LAI = MAXLAI x RELLAI(DOY) x DENSEF x RATIO
+
+where MAXLAI is the maximum LAI for the year, RELLAI(DOY) is the relative LAI for the doy as obtained with [Function INTERP](#function-interp) from the RELLAI parameter array, DENSEF is a thinning parameter between zero and one (see below). The use of RATIO assumes that LAI is distributed uniformly with height. LAI is prevented from being less than 0.00001 to avoid zero divides; this can cause small amounts of transpiration, which may be ignored.
+
+Actual projected stem area index Sp (SAI), is assumed proportional to HEIGHT following [Federer et al. (1996)](./Literature.Rmd), so
+
+* SAI = CS x HEIGHT x DENSEF
+
+where CS is a parameter that is the ratio of SAI to HEIGHT.
+
+Total root length per unit area (RTLEN) is
+
+* RTLEN = MXRTLN x RELHT x DENSEF
+
+where MXRTLN is the maximum root length for the year. Correction for seasonal RELHT assumes that root length increases proportionally with height growth.
+
+The total plant resistance to water movement (RPLANT) is
+
+* RPLANT = 1 / (MXKPL x RELHT x DENSEF)
+
+where MXKPL is the plant conductivity at maximum height growth. RPLANT is not allowed to be greater than 1E8 MPa d/mm, which is effectively infinite. Correction for seasonal RELHT assumes that canopy conductance increases proportionally with height growth.
+
+DENSEF is normally 1.0 in the above four equations. This parameter was included in the model as a convenient way to "thin" a canopy by removing a fraction of the plants. LAI, SAI, and RTLEN are all reduced proportionally to DENSEF, and RPLANT is increased. However DENSEF does NOT reduce HEIGHT because the remaining canopy still has the same height. Therefore DENSEF should NOT be set to 0 to simulate a clearcut as HEIGHT is unchanged and the aerodynamic resistances will be wrong. Probably DENSEF should not be less than 0.05. 
+
+So the input parameters to this subroutine are:
+
+Input   |Description
+--------|-----------------------------------------
+DOY%    |day of year (first day of DFILE and run)
+MAXHT   |maximum height for the year (m, minimum of 0.01 m)
+RELHT() |ten pairs of DOY% and relative canopy height
+MAXLAI  |maximum projected leaf area index for the year (m2/m2)
+RELLAI()|ten pairs of DOY% and relative LAI
+SNOW    |water equivalent of snow on the ground (mm)
+SNODEN  |snow density (mm/mm)
+MXRTLN  |maximum root length per unit land area (m/m2)
+MXKPL   |maximum plant conductivity ((mm/d)/MPa)
+CS      |ratio of projected SAI to canopy height (m-1)
+DENSEF  |density factor
+
+Defined locals in CANOPY:
+
+* SNODEP - snow depth
+* HNOSNO - height of canopy without snow
+* HSNO - height of canopy above snow
+* RATIO - fraction of canopy above snow
+* RELHIT - RELHT for DOY%
+* KPL - plant conductivity (mm/(d MPa)
+
+CSNG is a intrinsic needed function and the external functions INTERP and RMAX are also needed. 
+The resulting output of CANOPY is:
+
+* HEIGHT - canopy height above any snow (m, minimum of 0.01 m)
+* LAI - leaf area index (m2/m2, minimum of 0.00001)
+* SAI - stem area index (m2/m2)
+* RTLEN - root length per unit land area (m/m2)
+* RPLANT - plant resistivity to water flow (MPa d/mm)
+
+```{r}
+CANOPY<-function(DOY, MAXHT, RELHT, MAXLAI, RELLAI, SNOW, SNODEN, MXRTLN, MXKPL, CS, DENSEF){
+  #local
+  SNODEP<-0 
+  HNOSNO<-0 
+  HSNO<-0   
+  RATIO<-0 
+  RELHIT<-0 
+  KPL<-0
+  #
+  RELHIT <- INTERP(10, RELHT, DOY)
+  SNODEP <- 0.001 * SNOW / SNODEN
+  HNOSNO <- RMAXF(0.01, RELHIT * MAXHT)
+  HSNO <- RMAXF(0, HNOSNO - SNODEP)
+  RATIO <- HSNO / HNOSNO
+  HEIGHT <- RMAXF(0.01, HSNO)
+  #
+  LAI <- RATIO * DENSEF * INTERP(10, RELLAI, DOY) * MAXLAI
+  SAI <- DENSEF * CS * HEIGHT
+  if(LAI < 0.00001)  LAI <- 0.00001
+  #
+  RTLEN <- DENSEF * RELHIT * MXRTLN
+  KPL <- DENSEF * RELHIT * MXKPL
+  if (KPL < 0.00000001)  KPL <- 0.00000001
+  RPLANT <- 1 / KPL
+  #
+return(c(HEIGHT, LAI, SAI, RTLEN, RPLANT))
+}
+```
+
+### Function ESAT
+The subroutine ESAT calculates the saturated vapor pressure (kPa) e*, from temperature (°C) T, and calculates &Delta;. The equations of [Murray (1967)](./Literature.Rmd) are used.
+
+The input to ESAT is:
+
+Input |Description
+------|----------------
+TA    |air temperature (degC)
+ES    |saturated vapor pressure at TA (kPa)
+DELTA |dES/dTA at TA (kPa/K)
+
+If TA is below zero, there are different values used in the equatation. Intrinsic for the calculation is EXP and the output of ESAT is:
+
+* Es - saturated vapor pressure at TA (kPa)
+* DELTa - dES/dTA at TA (kPa/K)
+
+```{r}
+ESAT<-function(TA, ES, DELTA){
+  Es <- 0.61078 * exp(17.26939 * TA / (TA + 237.3))
+  DELTa <- 4098 * Es / (TA + 237.3) ^ 2
+  if (TA < 0) {
+    Es <- 0.61078 * exp(21.87456 * TA / (TA + 265.5))
+    DELTa <- 5808 * Es / (TA + 265.5) ^ 2
+  }
+return(c(Es, DELTa))
+}
+```
+
+### Function FRSS
+FRSS returns the Shuttleworth-Wallace soil surface resistance, rss (RSS), which must increase with drying of the surface. BROOK90 currently uses only the top soil layer to calculate RSS, no matter what its thickness. The model assumes that the ratio of matric potential (PSIM) to matric potential at field capacity (PSIF) in the surface layer is the controlling variable.
+
+The value of RSSA is poorly known; BROOK90 suggests using the Shuttleworth-Wallace value of 500 s/m; soil evaporation (SLVP) will be inversely proportional to this value. Using RSSB = 1 makes SLVP inversely proportional to PSIM in the top layer. Certainly more investigation is required before changing these values for any soil surfaces. A valid relationship is yet to be developed even for bare soil ([van de Griend and Owe (1994)](./Literature.Rmd)).
+
+Currently in BROOK90 the presence of intercepted rain (INTR) does not affect RSS. That is, the soil surface is not assumed to be saturated during and after storms. An alternative would be to make RSS = 0 when INTR > 0.
+
+When there is SNOW, RSS is set to zero, which affects calculated transpiration and interception rates, but there is no soil evaporation and snow evaporation is calculated using subroutine [SNOVAP](./SNO.Rmd). This leaves something to be desired, but the whole situation with melting and evaporating snow as well as transpiration is a complicated mess.
+
+When the parameter RSSA is set to 0 there is no soil evaporation (SLVP). 
+
+This is a short function to receive the soil surface resistance to evaporation. The following table includes the input to FRSS:
+
+Input |Description
+------|------------------------------
+RSSA  |soil evaporation resistance at field capacity, s/m
+RSSB  |exponent in relation of soil evap res to water potential
+PSIF  |water potential at field capacity, kPa
+PSIM  |water potential of evaporating layer. kPa
+
+If the soil evaporation resistance is very small the soil surface resistance is extremly high. Else the Shuttleworth-Wallace soil surface resistance is calculated as written in the following script. The output of the function is:
+
+* FRSs - Shuttleworth-Wallace soil surface resistance (s/m)
+
+```{r}
+FRSS<-function(RSSA, RSSB, PSIF, PSIM){
+if (RSSA < 0.0001) {
+  FRSs <- 10000000000
+}else{
+  FRSs <- RSSA * (PSIM / PSIF) ^ RSSB
+}
+return(FRSs)
+}
+```
+
+### Function INTERP
+INTERP is a function to interpolate between points in data functions. Input arguments are:
+
+Input   |Description
+--------|-----------------------------
+NPAIRS% |number of pairs of values to be used
+FUNCT() |array of pairs of values: x1, y1, x2, y2, ...
+XVALUE  |x value
+
+Local are:
+
+* Dim I%, J% - DO indexes
+* XX - series of x values of FUNCT
+* YY - series of y values of FUNCT
+
+The resulting output of this calculation is:
+
+* INTERp - y value
+
+```{r}
+INTERP<-function(NPAIRS, FUNCT, XVALUE){
+#local
+#Dim I%, J%
+ XX<-c(seq(1,10,1)) 
+ YY<-c(seq(1,10,1))
+# put FUNCT into XX and YY
+  i <- 0
+  for (J in seq(1,(2 * NPAIRS - 1),2)){
+    i <- i + 1
+    XX[i] <- FUNCT[J]
+    YY[i] <- FUNCT[J + 1]
+  }
+# interpolate using XX and YY
+  for (J in 1:NPAIRS){
+    if (XVALUE == XX[J]){
+      INTERp <- YY[J]
+      return(INTERp)
+    }else if (XVALUE < XX[J]){
+      INTERp <- YY[J - 1] + (XVALUE - XX[J - 1]) * (YY[J] - YY[J - 1]) / (XX[J] - XX[J - 1])
+      return(INTERp)
+    }
+  }
+return(INTERp)
+}
+```
+
+### Function PM
+With PM the Penman-Monteith transpiration rate equation is calculated. The input to Penman-Monteith is:
+
+Input |Description
+------|-------------------------
+AA    |net energy input, Rn - S (W/m2)
+VPD   |vapor pressure deficit (kPa)
+DELTA |dEsat/dTair (kPa/K)
+RA    |boundary layer resistance (s/m)
+RC    |canopy resistance (s/m)
+
+The result of the equatation is:
+
+* PM - Penman-Monteith latent heat flux density (W/m2)
+
+```{r}
+PM<-function(AA, VPD, DELTA, RA, RC){
+Pm <- (RA * DELTA * AA + CPRHO * VPD) / ((DELTA + GAMMA) * RA + GAMMA * RC)
+return(Pm)
+}
+```
+
+### Function ROUGH
+ROUGH obtains the roughness parameter, z0, and the zero-plane displacement, d, based on canopy height, h, the projected leaf area index, Lp, and the projected stem area index, Sp. The methods used follow [Shuttleworth and Gurney (1990)](./Literature.Rmd) with some modifications. [Shuttleworth and Gurney (1990)](./Literature.Rmd) defined plant canopies as either "closed" or "sparse" based on whether Lp is greater or less than some arbitrary value Lpc, which they take as 4. Following [Federer et al. (1996)](./Literature.Rmd), BROOK90 defines a closed canopy as having Lp + Sp greater than Lpc + Spc, where Spc is taken as cs h, as described in the previous section. Spc is not reduced by DENSEF. RATIO is (Lp + Sp) / (Lpc + Spc) (this RATIO differs from RATIO in subroutine [Function CANOPY](#function-canopy). When RATIO is greater than or equal to 1, the canopy is "closed" and z0 and d are the values for a closed canopy. 
+
+ROUGH is used to get the closed canopy parameters. The following table includes the input to ROUGH:
+
+Input |Description
+------|----------------------------------
+HEIGHT|canopy height (m, minimum of 0.01 m)
+ZMINH |ZA minus HEIGHT, reference height above canopy top (m)
+LAI   |leaf area index (m2/m2, minimum of 0.00001)
+SAI   |stem area index (m2/m2)
+CZS   |ratio of roughness to height for smooth closed canopies
+CZR   |ratio of roughness to height for rough closed canopies
+HS    |height below which CZS applies (m)
+HR    |height above which CZR applies (m)
+LPC   |minimum LAI defining a closed canopy
+CS    |ratio of projected SAI to canopy height (m-1)
+
+Z0GS (roughness parameter of soil surface, m) is an input and output argument. Local defined are:
+
+* RATIO - (LAI + SAI) / (LAI + SAI for closed canopy)
+* XX
+
+Intrinsic functions for ROUGH are LOG and EXP. Z0C is calculated depending on HEIGHT. Z0 and DISP are depending on RATIO. If Ratio is >= 1 then it is calculated for closed canopy else for sparse canopy modified from [Shuttleworth and Gurney (1990)](./Literature.Rmd). The resulting output of ROUGH is:
+
+* Z0C - roughness length for closed canopy (m)
+* DISPC - zero-plane displacement for closed canopy (m)
+* Z0 - roughness parameter (m)
+* DISP - zero-plane displacement (m)
+* ZA - reference height for TA, EA, UA, above ground (m)
+
+```{r}
+ROUGH<-function(HEIGHT, ZMINH, LAI, SAI, CZS, CZR, HS, HR, LPC, CS, Z0GS){
+#local
+RATIO<-0
+XX<-0
+
+if (HEIGHT >= HR) {
+  Z0C <- CZR * HEIGHT
+}else if (HEIGHT <= HS){
+  Z0C <- CZS * HEIGHT
+}else{
+  Z0C <- CZS * HS + (CZR * HR - CZS * HS) * (HEIGHT - HS) / (HR - HS)
+}
+  DISPC <- HEIGHT - Z0C / 0.3
+  if (Z0GS > Z0C)  Z0GS <- Z0C
+  RATIO <- (LAI + SAI) / (LPC + CS * HEIGHT)
+  if (RATIO >= 1) {
+    Z0 <- Z0C
+    DISP <- DISPC
+  }else{
+    XX <- RATIO * (-1 + exp(0.909 - 3.03 * Z0C / HEIGHT)) ^ 4
+    DISP <- 1.1 * HEIGHT * log(1 + XX ^ 0.25)
+    Z0 <- RMINF(0.3 * (HEIGHT - DISP), Z0GS + 0.3 * HEIGHT * XX ^ 0.5)
+  }
+ZA <- HEIGHT + ZMINH
+return(list(Z0GS, Z0C, DISPC, Z0, DISP, ZA))
+}
+```
+
+### Function SRSC
+This routine obtains the canopy surface resistance, rsc, which is the classic canopy resistance in the Penman-Monteith equation, using the [Jarvis (1976)](./Literature.Rmd) expression for the factors that control the individual leaf resistance, r, and its reciprocal the leaf conductance, g. 
+
+The input arguments are:
+
+Input |Description
+------|--------------------------------
+RAD   |solar radiation on canopy (W/m2)
+TA    |mean  temperature for the day at reference height (degC)
+VPD   |vapor pressure deficit (kPa)
+LAI   |projected leaf area index
+SAI   |projected stem area index
+GLMIN |minimum leaf conductance, closed stomates, all sides (s/m)
+GLMAX |maximum leaf conductance, open stomates, all sides (s/m)
+R5    |solar radiation at which conductance is halved (W/m2)
+CVPD  |vpd at which leaf conductance is halved (kPa)
+RM    |maximum solar radiation, at which FR = 1 (W/m2)
+CR    |light extinction coefficient for LAI, projected area
+TL    |temperature below which stomates are closed (degC)
+T1    |lowest temp. at which stomates not temp. limited (degC)
+T2    |highest temp. at which stomates not temp. limited (degC)
+TH    |temperature above which stomates are closed (degC)
+
+In SRSC defined as local are:
+
+* FS - correction for stem area
+* R0 - a light response parameter
+* FRINT - integral of fR dL over Lp
+* FD - dependence of leaf conductance on vpd, 0 to 1
+* FT - dependence of leaf conductance on temperature, 0 to 1
+* GSC - canopy conductance, m/s
+
+Intrinsic to receive an output are LOG and EXP. First the solar radiation limitation integrated down through canopy
+([Stewart (1988)](./Literature.Rmd) and [Saugier and Katerji (1991)](./Literature.Rmd)) and then the vapor deficit limitation is done ([Lohammar et al. (1980)](./Literature.Rmd)). A temperature limitation follows and then the canopy surface resistance RSC (s/m) is the output of SRSC calculated as a reciprocal of GSC.
+
+```{r}
+SRSC<-function(RAD, TA, VPD, LAI, SAI, GLMIN, GLMAX, R5, CVPD, RM, CR, TL, T1, T2, TH){
+#local
+FS<-0 
+R0 <-0 
+FRINT<-0 
+FD <-0 
+FT <-0    
+GSC <-0  
+#solar radiation limitation
+FS <- (2 * LAI + SAI) / (2 * LAI)
+if (RAD <= 0.0000000001){
+    FRINT <- 0
+}else{
+  R0 <- RM * R5 / (RM - 2 * R5)
+  FRINT <- ((RM + R0) / (RM * CR * FS)) * log((R0 + CR * RAD) / (R0 + CR * RAD * exp(-CR * FS * LAI)))
+}
+#vapor deficit limitation
+FD <- 1 / (1 + VPD / CVPD)
+#temperature limitation
+if (TA <= TL) {
+  FT <- 0
+}else if (TA > TL && TA < T1) {
+  FT <- 1 - ((T1 - TA) / (T1 - TL)) ^ 2
+}else if (TA >= T1 && TA <= T2) {
+  FT <- 1
+}else if (TA > T2 && TA < TH) {
+  FT <- 1 - ((TA - T2) / (TH - T2)) ^ 2
+}else{
+  FT <- 0
+}
+GSC <- FD * FT * FRINT * (GLMAX - GLMIN) + LAI * GLMIN
+RSC <- 1 / GSC
+return(RSC)
+}
+```
+
+### Function SWGE
+The Shuttleworth-Wallace approach incorporates the energy tradeoff between transpiration and soil evaporation. When transpiration is reduced by low availability of soil water or is zero, BROOK90 uses the new value of transpiration, Ec (ARATE), in subroutine SWGE to get a new value of soil evaporation, Es (ERATE).
+
+With SWGE the Shuttleworth and Wallace ground evaporation when the transpiration is known is calculated. As input are necessary:
+
+Input |Description
+------|-------------------------------------
+AA    |net radiation at canopy top minus ground flux, W/m2
+ASUBS |net radiation minus ground flux at ground, W/m2
+VPD   |vapor pressure deficit, kPa
+RAA   |boundary layer resistance, s/m
+RAS   |ground-air resitance, s/m
+RSS   |ground evaporation resistance, s/m
+DELTA |dEsat/dTair, kPa/K
+ARATE |actual transpiration rate, mm/d
+
+Local determined variables are:
+
+* RS
+* RA - as in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
+* LE - total latent heat flux density (W/m2)
+* LEC - actual transpiration latent heat flux density (W/m2)
+
+The input is used to receive values for these. And with the help of this values the output can be calculated:
+
+* ERATE - ground evaporation rate (mm/d)
+
+```{r}
+SWGE<-function(AA, ASUBS, VPD, RAA, RAS, RSS, DELTA, ARATE, ERATE){
+#local
+RS<-0
+RA<-0 
+LE<-0  
+LEC<-0 
+#
+LEC <- ARATE / (ETOM * WTOMJ)
+RS <- (DELTA + GAMMA) * RAS + GAMMA * RSS
+RA <- (DELTA + GAMMA) * RAA
+LE <- (RS / (RS + RA)) * LEC + (CPRHO * VPD + DELTA * RAS * ASUBS + DELTA * RAA * AA) / (RS + RA)
+ERATE <- ETOM * WTOMJ * (LE - LEC)
+return(ERATE)
+}
+```
+
+### Function SWGRA
+The three SW aerodynamic resistances, raa, ras, and rac are obtained in subroutine SWGRA by the methods of [Shuttleworth and Gurney (1990)](./Literature.Rmd). 
+
+The friction velocity ,USTAR, is first obtained from the classic logarithmic wind profile as
+
+* u* = k ua / ln [(za - d) / z0]
+
+where ua is the wind speed at the reference height za, z0 is the surface roughness parameter, d is the zero-plane displacement, and k is the von Karman constant. The roughness parameter is a measure of the turbulence-inducing properties of the surface. The zero-plane displacement, d, arises because the height of the effective canopy surface is above the ground surface that is taken as zero height. Both z0 and d are obtained in subroutine [Function ROUGH](#function-rough). This USTAR equation strictly only applies for neutral atmospheric stability. Corrections for non-neutral stability are well-known ([Brutsaert (1982)](./Literature.Rmd)), but are not usually considered where the objective is to evaluate PE for periods of a day and are not used in BROOK90.
+
+[Shuttleworth and Gurney (1990)](./Literature.Rmd) assume that the classic logarithmic wind profile applies above the canopy and that an exponential profile applies within the canopy. As the canopy becomes sparser, they further assume that the effective source height of the energy fluxes remains at the same height as for a closed canopy, Dc = z0c + dc; these values are obtained in subroutine [Function ROUGH](#function-rough). 
+
+For the calculation this input is needed:
+
+Input |Description
+------|-------------------------
+UA    |wind speed at reference height (m/s)
+ZA    |reference height (m)
+HEIGHT|canopy height (m)
+Z0    |roughness parameter (m)
+DISP  |zero-plane displacement (m)
+Z0C   |roughness length for closed canopy (m)
+DISPC |zero-plane displacement for closed canopy (m)
+Z0GS  |roughness parameter of soil surface (m)
+LWIDTH|characteristic leaf width (m)
+RHOTP |ratio of total leaf area to projected leaf area
+NN    |wind/diffusivity extinction coefficient
+LAI   |projected leaf area index
+SAI   |projected stem area index
+
+As local defined are USTAR, KH, UH and RB. LOG and EXP are intrinsic in this function too. The Shuttleworth-Gurney RB equation is strictly for one side of flat leaves. When RHOTP > 2, LWIDTH is small (needles) and so RAC is small. Their equation should have NN in numerator (see [Choudhury and Monteith (1988)](./Literature.Rmd)). Note LAI is prevented from being less than 1E-5. The resulting output of SWGRA is:
+
+* RAA - boundary layer resistance (s/m)
+* RAC - leaf-air resistance (s/m)
+* RAS - ground-air resitance (s/m)
+
+```{r}
+SWGRA<-function(UA, ZA, HEIGHT, Z0, DISP, Z0C, DISPC, Z0GS, LWIDTH, RHOTP, NN, LAI, SAI, RAA, RAC, RAS){
+#local
+USTAR<-0
+KH<-0
+UH<-0
+RB<-0
+#
+USTAR <- K * UA / (log((ZA - DISP) / Z0))
+KH <- K * USTAR * (HEIGHT - DISP)
+RAS <- (HEIGHT * exp(NN) / (NN * KH)) * (exp(-NN * Z0GS / HEIGHT) - exp(-NN * (Z0C + DISPC) / HEIGHT))
+if (RAS < 1) RAS <- 1
+RAA <- log((ZA - DISP) / (HEIGHT - DISP)) / (K * USTAR) + (HEIGHT / (NN * KH)) * (-1 + exp(NN * (HEIGHT - DISPC - Z0C) / HEIGHT))
+UH <- (USTAR / K) * log((HEIGHT - DISP) / Z0)
+RB <- (100 * NN) * (LWIDTH / UH) ^ 0.5 / (1 - exp(-NN / 2))
+RAC <- RB / (RHOTP * LAI + PI * SAI)
+return(list(RAA, RAC, RAS))
+}
+```
+
+### Function SWPE
+[Shuttleworth and Wallace (1985)](./Literature.Rmd) (SW) modified the Penman-Monteith method to account separately for the different water vapor and sensible heat pathways from the soil and from the leaves. Instead of the two resistances of [Function PM](#function-pm), rc and ra,SW define five: rsc, raa, rac, ras, and rss. Resistances rsc and rac are in the transpiration pathway while rss and ras are in the soil evaporation pathway and raa is common to both. The canopy surface resistance, rsc, is the resistance to movement of water vapor out of the leaves. The resistance rac restricts vapor movement from the leaf surfaces to the effective source height for water vapor in the canopy. The resistance between the source height and a reference height above the canopy is raa, which corresponds to ra in [Function PM](#function-pm). The reference height is that at which air temperature, humidity, and wind speed are known. The resistance to movement of water vapor from inside the soil to the soil surface is rss. The resistance to vapor movement from the soil surface to the source height is ras. The resistances rac, ras, and raa are assumed also to apply to sensible heat transfer. 
+
+The outputs Ec (PRATE) and Es (ERATE) from SWPE are in units of mm/d whereas Lv&rho;w E in (1) is output as W m-2 from [Function PM](#function-pm). The conversion is ETOM * WTOMJ.
+
+This function is used to calculate Shuttleworth and Wallace transpiration and ground evaporation. It needs the input shown in the following table:
+
+Input |Description
+------|---------------------------
+AA    |net radiation at canopy top minus ground flux (W/m2)
+ASUBS |net radiation minus ground flux at ground (W/m2)
+VPD   |vapor pressure deficit (kPa)
+RAA   |boundary layer resistance (s/m)
+RAC   |leaf-air resistance (s/m)
+RAS   |ground-air resistance (s/m)
+RSC   |canopy surface resistance (s/m)
+RSS   |ground evaporation resistance (s/m)
+DELTA |dEsat/dTair (kPa/K)
+
+Many locals need to be defined in this function:
+
+* RS
+* RC
+* RA
+* PMS
+* PMC
+* D0 - vapor pressure deficit, as in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
+* CCS
+* CCC - as CC and CS in [Shuttleworth and Wallace (1985)](./Literature.Rmd)
+* LE - total latent heat flux density (W/m2)
+
+After defining them, their values will be calculated with equatations because they are needed to get PRATE and ERATE. The external [Function PM](#function-pm) is necessary and then the output of this function is:
+
+* PRATE - potential transpiration rate (mm/d)
+* ERATE - ground evaporation rate (mm/d)
+
+```{r}
+SWPE<-function(AA, ASUBS, VPD, RAA, RAC, RAS, RSC, RSS, DELTA){
+#local
+RS<-0
+RC<-0
+RA<-0
+PMS<-0
+PMC<-0
+D0<-0
+CCS<-0
+CCC<-0
+LE<-0
+#
+RS <- (DELTA + GAMMA) * RAS + GAMMA * RSS
+RC <- (DELTA + GAMMA) * RAC + GAMMA * RSC
+RA <- (DELTA + GAMMA) * RAA
+CCS <- 1 / (1 + RS * RA / (RC * (RS + RA)))
+CCC <- 1 / (1 + RC * RA / (RS * (RC + RA)))
+PMS <- PM(AA, VPD - DELTA * RAS * (AA - ASUBS) / CPRHO, DELTA, RAA + RAS, RSS)
+PMC <- PM(AA, VPD - DELTA * RAC * ASUBS / CPRHO, DELTA, RAA + RAC, RSC)
+LE <- (CCC * PMC + CCS * PMS)
+D0 <- VPD + RAA * (DELTA * AA - (DELTA + GAMMA) * LE) / CPRHO
+PRATE <- ETOM * WTOMJ * PM(AA - ASUBS, D0, DELTA, RAC, RSC)
+ERATE <- ETOM * WTOMJ * PM(ASUBS, D0, DELTA, RAS, RSS)
+return(list(PRATE, ERATE))
+}
+```
+
+### Function WEATHER
+WEATHER includes all adjustments of input weather data, including separation into daytime and nighttime values.
+
+If daily solar radiation (SOLRAD) is input as zero, it is estimated as 0.55 * I0HDAY, or 55% of the potential solar radiation for the doy and location. The 0.55 value is an overall generalization for the United States, where values range from 0.50 in the east to 0.60 in the west ([U.S. Department of Commerce (1968)](./Literature.Rmd)).
+
+If vapor pressure (EA) is input as zero, it is estimated as the saturated vapor pressure at the minimum daily temperatire (TMIN) using subroutine ESAT.
+
+If daily average wind speed at a weather station (UW) is input as zero, it is estimated as 3 m s-1. This is a surprisingly good approximation for most weather stations in the United States at all seasons of the year ([U.S. Departement of Commerce (1968)](./Literature.Rmd)). For other default values, enter the value as UA for each day in the data file. Note: measured values of zero wind speed should be entered as 0.1. 
+
+The average temperature for the day (TA) is taken as the average of the input maximum and minimum temperatures (TMAX and TMIN). Daytime (TADTM) and nighttime (TANTM) average temperatures are calculated by assuming a sine wave variation between TMAX and TMIN.
+
+For wind speed, a parameter, WNDRAT, defines the average ratio of nighttime wind speed (UANTM) to daytime wind speed (UADTM). The default value for WNDRAT is 0.3 based on Hubbard Brook data. 
+
+TA, UA, and the vapor pressure, EA, which is assumed constant over the day, are all theoretically the values at the reference height above the canopy (ZA). In practice, these values are rarely measured above the canopy of interest, but are usually from some relatively nearby weather station. Any attempt to theoretically adjust TA and EA would require some information on their profiles, such as surface temperature and vapor pressure, which are not known. So BROOK90 assumes that TA and EA are the same at the weather station and at za. However, UA can be estimated from wind speed at the weather station (UW) because wind speed extrapolates to zero at height z0 + d over both surfaces. This adjustment is done in [Function WNDADJ](#function-wndadj). UW is prevented from being less than 0.2 m s-1. 
+
+The input arguments for WEATHER are included in the next table:
+
+Input |Description
+------|-------------------------
+TMAX  |maximum temperature for the day (degC)
+TMIN  |minimum temperature for the day, (degC)
+DAYLEN|daylength in fraction of day
+I0HDAY|potential insolation on horizontal (MJ/(m2 d))
+EA    |vapor pressure for the day (kPa)
+UW    |average wind speed for day at weather station (m/s)
+ZA    |reference height for TA, EA, UA, above ground (m)
+DISP  |zero-plane displacement (m)
+Z0    |roughness parameter (m)
+WNDRAT|ratio of nighttime to daytime wind speed
+FETCH |weather station fetch (m)
+Z0W   |weather station roughness parameter (m)
+ZW    |weather station measurement height for wind (m)
+SOLRAD|solar radiation for the day, horizontal surface (MJ/m2)
+
+The only local is:
+
+* dummy
+
+Intrinsic for WEATHER is SIN and the external function WNDADJ is necessary. 
+
+SOLRAD has to be estimated if missing or limited if it is too high. After calculating the avarage temperature for day, the daytime and nighttime average air temperature can be estimated. If there is no vapor pressure data, saturated vapor pressure at minimum temperature is used. And if there is no wind data, use the value from frmmainb90. Measured wind of zero must be input as 0.1 (a problem). When wind is < 0.2 m/s, set it to 0.2 to prevent zero divide. It follows a adjustion of wind speed from weather station to ZA. At the end a daytime and nighttime average wind speed is calculated.
+
+Output:
+
+* SOLRADC - corrected solar radiation for the day, horizontal surface (MJ/m2)
+* TA - mean temperature for the day (degC)
+* TADTM - average daytime temperature (degC)
+* TANTM - average nighttime temperature (degC)
+* UA - average wind speed for the day at reference height (m/s)
+* UADTM - average wind speed for daytime at ZA (m/s)
+* UANTM - average wind speed for nighttime at ZA (m/s)
+
+```{r}
+WEATHER<-function(TMAX, TMIN, DAYLEN, I0HDAY, EA, UW, ZA, DISP, Z0, WNDRAT, FETCH, Z0W, ZW, SOLRAD, SOLRADC, TA, TADTM, TANTM, UA, UADTM, UANTM){
+#local
+dummy<-0
+#
+if (SOLRAD < 0.001) {
+  SOLRADC <<- RRD * I0HDAY
+}else if (SOLRAD > I0HDAY) {
+  SOLRADC <<- 0.99 * I0HDAY
+}else{
+  SOLRADC <<- SOLRAD
+}
+TA <<- (TMAX + TMIN) / 2
+TADTM <<- TA + ((TMAX - TMIN) / (2 * PI * DAYLEN)) * sin(PI * DAYLEN)
+TANTM <<- TA - ((TMAX - TMIN) / (2 * PI * (1 - DAYLEN))) * sin(PI * DAYLEN)
+if (EA == 0) {esat<-ESAT(TMIN, EA, dummy)
+  EA<<-unlist(esat[1])
+}
+if (UW == 0) UW <<- UWD  #[28022018]  changed after Federer:be <<- UWD, where UWD is specified as 3.0 or some other value
+if (UW < 0.2) UW <<- 0.2
+if (Z0W < 0.000001) {
+UA <<- UW
+}else{
+UA <<- UW * WNDADJ(ZA, DISP, Z0, FETCH, ZW, Z0W)
+}
+UADTM <<- UA / (DAYLEN + (1 - DAYLEN) * WNDRAT)
+UANTM <<- WNDRAT * UADTM
+return(list(SOLRADC, TA, TADTM, TANTM, UA, UADTM, UANTM))
+}
+```
+
+### Function WNDADJ
+This function estimates the wind speed (UA) at reference height ZA above the canopy from input wind speed at a remote weather station (UW). Assume that the weather station represents a new surface downwind that has a roughness of z0w (Z0W) and a fetch of F (FETCH).
+
+If the parameter Z0W is set to zero, then no adjustment is made and ua = uw. 
+
+It requires as input:
+
+Input |Description
+------|-------------------
+ZA    |reference height (m)
+DISP  |height of zero-plane (m)
+Z0    |roughness parameter (m)
+FETCH |weather station fetch (m)
+ZW    |weather station measurement height for wind,above any zero plane (m)
+Z0W   |weather station roughness parameter (m)
+
+LOG is intrinsic for WNDADJ and defined as a local to calculate the output is:
+
+* HIBL - height of internal boundary layer (m)
+
+With the help of Brutsaert (1982) the height of the internal boundary layer and the ouput of WNDADJ is calculated:
+
+* WNDADj - ratio of wind speed at reference height to weather station
+
+```{r}
+WNDADJ<-function(ZA, DISP, Z0, FETCH, ZW, Z0W){
+#local
+HIBL<-0
+HIBL <- 0.334 * FETCH ^ 0.875 * Z0W ^ 0.125
+WNDADj <- log(HIBL / Z0W) * log((ZA - DISP) / Z0) / (log(HIBL / Z0) * log(ZW / Z0W))
+return(WNDADj)
+}
+```
