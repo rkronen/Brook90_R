@@ -26,7 +26,10 @@ These files are available for usage:
 * written R scripts to run the programm
 
 ##### Input data
-* precipitation data, meteorological data
+* precipitation data
+    + P_WBG_0060_Minuten_1999_point.txt
+* meteorological data
+    + data_input_WB_1999_point.txt
 * catchment parameters
     + 6 .txt files where the characteristics of the catchment can be changed
 
