@@ -14,35 +14,39 @@ This manual describes how to run the BROOK90 R implementation, based on the mode
 #### Overview of available files
 These files are available for usage:
 
-  * Manual
-      + instruction how to make the model work
-  * Rmd-Files
-      + as a documentation of the created scripts to help the understanding (to read on Github)
-  * html-Files
-      + to download and read the documentation offline
-  * Data and R Code
-      + necessary data (precipitation data, meteorological data) and written R scripts to run the programm
-  * Catchment parameters
-      + five .txt files where the characteristics of the catchment can be changed
-  * Plot output
-      + example plot of calculated values
+##### Documentation
+* Rmd-Files
+  + as a documentation of the created scripts to help the understanding (to read on Github)
+* html-Files
+  + to download and read the documentation offline
+* Plot output
+  + example plot of calculated values
   
+##### R Code
+* written R scripts to run the programm
+
+##### Input data
+* necessary data (precipitation data, meteorological data)
+* Catchment parameters
+      + six .txt files where the characteristics of the catchment can be changed
+
 #### Download the data
 As the second step the files can be downloaded and unpacked. 
 
 #### Run the programm
-To run the programm in R, the MainProg.R script has to be opened. Important changes that have to be done are:
+To run the programm in R, the MainProg.R script has to be opened. Important changes that have to be done in MainProg.R are :
 
-* put the data (meteorological and precipitatin data, .txt files) and R-Codes in the same folder, if it is not done yet
-* change the SCRIPTPATH, where the R-scripts are located on your computer
-* change the names of your input data (meteoFile, precFile), if you are not using the example
-* change SCRIPTPATH_catchment, where the data of catchment parameters are located
-* change catchment parameters in these files, if necessary:
+* change the "SCRIPTPATH", where the R-scripts are located on your computer
+* put the input data (meteorological data, precipitatin data, catchment parameters, .txt files) in the same folder, if it is not done yet
+* change "Input_data" (script path of your input data), where the they are located
+* change catchment parameters (located in "Input_data" - folder) in these files, if necessary:
     + canopy.txt
     + fixed.txt
     + flow_standart.txt
     + initial.txt
     + location.txt
+    + soil.txt
+* change the names of your input data (meteoFile, precFile,...) if you are not using the example and check the form of your data
 
 After all changes are done, MainProg.R can be started by "Run from source". 
 
