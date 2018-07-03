@@ -19,7 +19,7 @@ These files are available for usage:
   + as a documentation of the created scripts to help the understanding (to read on Github)
 * html-Files
   + to download and read the documentation offline
-* Plot output
+* plot output
   + example plot of calculated values
   
 ##### R Code
@@ -27,8 +27,8 @@ These files are available for usage:
 
 ##### Input data
 * precipitation data, meteorological data
-* Catchment parameters
-    + six .txt files where the characteristics of the catchment can be changed
+* catchment parameters
+    + 6 .txt files where the characteristics of the catchment can be changed
 
 #### Download the data
 As the second step the files can be downloaded and unpacked. 
@@ -46,7 +46,7 @@ To run the programm in R, the MainProg.R script has to be opened. Important chan
     + initial.txt
     + location.txt
     + soil.txt
-* if you are not using the example, change the names of your input data (meteoFile, precFile,...) and check the form of your data
+* if you are not using the example data, change the names of your input data (meteoFile, precFile,...) and check the form of your data
 
 After all changes are done MainProg.R can be started by "Run from source". 
 
