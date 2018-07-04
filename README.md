@@ -56,9 +56,9 @@ After all changes are done MainProg.R can be started by "Run from source".
 The next step is to open the script B90V4.R. At the end of this script there is a code to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with "timeseries_" in its name. Finally B90V4.R can also be started with "Run from source" and then the model is running and producing the output.
 
 #### The output
-The programm calculates 24 time series of the water balance in the considered catchment as output of BROOK90. The table shows the explanation of the output data visible with the name "timeseries_..." and their corresponding shortcut:
+The programm calculates 24 daily time series of different water balance components in the considered catchment as output of BROOK90 at the current state. The table shows the explanation of the output data visible with the name "timeseries_..." and their corresponding shortcut:
 
-Shortcut|Explanation
+Shortcut|Explanation [d]
 --------|-------------------------------------
 adef    |available water deficit in root zone
 awat    |available soil water in root zone
