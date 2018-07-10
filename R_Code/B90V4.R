@@ -512,6 +512,8 @@ IDAY = IDAY + 1
 	
 } #End B90
 
+#png(file="c:\\Users\\LM\\Documents\\BROOK90\\Documentation\\Documentation\\Plot_output\\model_results.png")
+
 plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0, 50),xlab="Tage [d]",ylab="Werte [mm/d]")#,xlim=c(IDAY,NDAYS+1))
 
 PrecBound<-10 #mm
