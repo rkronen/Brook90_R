@@ -384,7 +384,7 @@ At the end some data are plotted:
 * timeseries_flow - total flow (red line)
 
 ```{r}
-plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0,50),xlab="Day [d]",ylab="Value [mm/d]")
+plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0,50),xlab="Day [d]",ylab="Value [mm/d]", main = "Model results")
 
 PrecBound<-10
 points( which(timeseries_prec %in% timeseries_prec[timeseries_prec>PrecBound]),timeseries_prec[timeseries_prec>PrecBound],col="blue",pch="*")
@@ -393,6 +393,7 @@ lines(1:NDAYS,timeseries_mesfld,col="darkgreen",lwd=2)
 lines(1:NDAYS,timeseries_flow,col="red",lwd=3)
 
 legend("topright",
+       inset=c(0.1,0),
        legend=c("Simulated flow [mm/d]","Observed precipitation [mm/d]","Simulated evapotranspiration [mm/d]","Observed flow [mm/d]"),
         col=c("red","blue","blue","darkgreen"),
        pch=c(NA,"*",NA,NA),
@@ -400,6 +401,8 @@ legend("topright",
        pt.cex=1, 
        cex=0.8,
        bty="n")
+dev.copy(png,'model_results.png')
+dev.off()
 ```
 
 ![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
