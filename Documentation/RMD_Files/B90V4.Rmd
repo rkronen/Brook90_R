@@ -383,7 +383,19 @@ At the end some data are plotted:
 * timeseries_mesfld - measured flow (darkgreen line)
 * timeseries_flow - total flow (red line)
 
+The plot will be saved in the same directory as your R- or Rmd-file is located. 
+
+If you want to save it in another folder then just add the scriptpath where you want the plot to be saved in before the plot() command in the script:
+
+* png(file="(your scriptpath\\name of your outputfile.png")
+
+As an example:
+
+* png(file="c:\\Users\\LM\\Documents\\BROOK90\\Documentation\\Documentation\\Plot_output\\model_results.png")
+
 ```{r}
+#png(file="c:\\Users\\LM\\Documents\\BROOK90\\Documentation\\Documentation\\Plot_output\\model_results.png")
+
 plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0,50),xlab="Day [d]",ylab="Value [mm/d]", main = "Model results")
 
 PrecBound<-10
