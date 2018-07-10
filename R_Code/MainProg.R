@@ -199,3 +199,73 @@ assign(location_varname[9],rellai)
 
 rm(laia,laib,laic,laid,lai_a,lai_b,rellai)
 rm(location_varname,location_varvalue,quant_location)
+
+#####soil
+soil_file <-read.table(file.path(Input_data,"soil.txt"), header = FALSE, fill=TRUE , dec = "." , sep = "", strip.white = TRUE)
+
+soil_var1 <- as.character(soil_file[,1])
+soil_var2 <- as.character(soil_file[,2])
+soil_var3 <- as.character(soil_file[,3])
+soil_var4 <- as.character(soil_file[,4])
+soil_var5 <- as.character(soil_file[,5])
+soil_var6 <- as.character(soil_file[,6])
+soil_var7 <- as.character(soil_file[,7])
+soil_var8 <- as.character(soil_file[,8])
+
+# NLAYER
+a_nlayer <- unlist(soil_var1[1])
+a_nlayer <- as.character(gsub(",","",a_nlayer))
+b_nlayer <- as.numeric(unlist(soil_var2[1]))
+assign(a_nlayer,b_nlayer)
+rm(a_nlayer,b_nlayer)
+
+# THICK
+a_thick <- unlist(soil_var1[2])
+b_thick <- as.numeric(unlist(soil_var1[3:27]))
+assign(a_thick,b_thick)
+rm(a_thick,b_thick)
+
+# STONEF
+a_stonef <- unlist(soil_var2[2])
+b_stonef <- as.numeric(unlist(soil_var2[3:27]))
+assign(a_stonef,b_stonef)
+rm(a_stonef,b_stonef)
+
+# PSIF
+a_psif <- unlist(soil_var3[2])
+b_psif <- as.numeric(unlist(soil_var3[3:27]))
+assign(a_psif,b_psif)
+rm(a_psif,b_psif)
+
+# THETAF
+a_thetaf <- unlist(soil_var4[2])
+b_thetaf <- as.numeric(unlist(soil_var4[3:27]))
+assign(a_thetaf,b_thetaf)
+rm(a_thetaf,b_thetaf)
+
+# THSAT
+a_thsat <- unlist(soil_var5[2])
+b_thsat <- as.numeric(unlist(soil_var5[3:27]))
+assign(a_thsat,b_thsat)
+rm(a_thsat,b_thsat)
+
+# BEXP
+a_bexp <- unlist(soil_var6[2])
+b_bexp <- as.numeric(unlist(soil_var6[3:27]))
+assign(a_bexp,b_bexp)
+rm(a_bexp,b_bexp)
+
+# KF
+a_kf <- unlist(soil_var7[2])
+b_kf <- as.numeric(unlist(soil_var7[3:27]))
+assign(a_kf,b_kf)
+rm(a_kf,b_kf)
+
+# WETINF
+a_wetinf <- unlist(soil_var8[2])
+b_wetinf <- as.numeric(unlist(soil_var8[3:27]))
+assign(a_wetinf,b_wetinf)
+rm(a_wetinf,b_wetinf)
+
+rm(soil_var1,soil_var2,soil_var3,soil_var4,soil_var5,soil_var6,soil_var7,soil_var8)
+
