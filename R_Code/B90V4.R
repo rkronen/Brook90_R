@@ -529,7 +529,7 @@ lines(1:NDAYS,timeseries_mesfld,col="darkgreen",lwd=2)
 lines(1:NDAYS,timeseries_flow,col="red",lwd=3)
 #	points(IDAY,RNET,col="brown",pch="?")
 legend("topright",
-       inset=c(-0.37,0),
+       inset=c(-0.2,0),
        xpd=TRUE,
        legend=c("Simulated flow [mm/d]","Observed precipitation [mm/d]","Simulated evapotranspiration [mm/d]","Observed flow [mm/d]"),
        col=c("red","blue","blue","darkgreen"),
