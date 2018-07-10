@@ -418,4 +418,5 @@ dev.off()
 ```
 
 ![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
+
 Figure: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
