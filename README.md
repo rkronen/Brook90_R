@@ -4,7 +4,7 @@ Brook90 coded in R
 ### Manual for the Use of the BROOK90 R Implementation
 This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.
 
-![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/Model_results_Version2.gif)
+![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
 
 Figure: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
 
