@@ -512,7 +512,7 @@ IDAY = IDAY + 1
 	
 } #End B90
 
-plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0, 70),xlab="Tage [d]",ylab="Werte [mm/d]")#,xlim=c(IDAY,NDAYS+1))
+plot(1:NDAYS,timeseries_flow[1:NDAYS],col="red",type="l",lwd=3,ylim=c(0.0, 50),xlab="Tage [d]",ylab="Werte [mm/d]")#,xlim=c(IDAY,NDAYS+1))
 
 PrecBound<-10 #mm
 #points(IDAY,PTRAN,col="black",pch="?")
@@ -526,3 +526,16 @@ lines(1:NDAYS,timeseries_evp,col="blue",lwd=3)
 lines(1:NDAYS,timeseries_mesfld,col="darkgreen",lwd=2)
 lines(1:NDAYS,timeseries_flow,col="red",lwd=3)
 #	points(IDAY,RNET,col="brown",pch="?")
+legend("topright",
+       inset=c(-0.37,0),
+       xpd=TRUE,
+       legend=c("Simulated flow [mm/d]","Observed precipitation [mm/d]","Simulated evapotranspiration [mm/d]","Observed flow [mm/d]"),
+       col=c("red","blue","blue","darkgreen"),
+       pch=c(NA,"*",NA,NA),
+       lty=c("solid",NA,"solid","solid"),
+       pt.cex=1, 
+       cex=0.7,
+       y.intersp = 0.5,
+       bty="n")
+dev.copy(png,'myplot.png')
+dev.off()
