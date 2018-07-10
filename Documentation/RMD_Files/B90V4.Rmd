@@ -1,6 +1,6 @@
 ---
 title: "B90V4"
-author: "Rico Kronenberg, Lisa Marie Oehlschl‰gel"
+author: "Rico Kronenberg, Lisa Marie Oehlschl√§gel"
 date: "11 Mai 2018"
 output: html_document
 ---
@@ -418,3 +418,4 @@ dev.off()
 ```
 
 ![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/output.png)
+Figure: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
