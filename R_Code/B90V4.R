@@ -539,5 +539,5 @@ legend("topright",
        cex=0.7,
        y.intersp = 0.5,
        bty="n")
-dev.copy(png,'myplot.png')
+dev.copy(png,'model_results.png')
 dev.off()
