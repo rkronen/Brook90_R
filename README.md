@@ -43,9 +43,8 @@ As the second step the files can be downloaded and unpacked.
 #### Run the programm
 To run the programm in R, the MainProg.R script has to be opened. Important changes that have to be done in MainProg.R are :
 
-* change the "SCRIPTPATH", where the R-scripts are located on your computer
+* change the "PROJECTPATH", where you stored all the data on your computer
 * put the input data (meteorological data, precipitatin data, catchment parameters, .txt files) in the same folder, if it is not done yet
-* change "Input_data" (script path of your input data), where the they are located
 * change catchment parameters (located in "Input_data" - folder) in these files, if necessary:
     + canopy.txt
     + fixed.txt
