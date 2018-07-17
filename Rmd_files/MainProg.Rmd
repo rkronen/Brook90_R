@@ -1,6 +1,6 @@
 ---
 title: "MainProg"
-author: "Rico Kronenberg, Lisa Marie Oehlschl‰gel"
+author: "Rico Kronenberg, Lisa Marie Oehlschl√§gel"
 date: "14 April 2018"
 output: html_document
 ---
@@ -49,20 +49,6 @@ It is important to define your "projectpath" to upload the necessary scripts inc
 
 Running the Rmd-files causes that html-files of the included scripts will be produced. To store them in another directory as the Rmd-files it is defined where they will be saved ("output_html"). 
 
-The following table shows the description of the scriptnames. 
-
-Variable            | Description
---------------------|---------------
-GLOBDECL            | Global declaration of catchment area
-AXX                 | Auxiliary routines
-KPT                 | Soil water properties
-EVP                 | Interception and transpiration
-PET                 | Potential evaporation
-SUN                 | Radiation
-WAT                 | Water movement in Soil
-SNO                 | Snow accumulation and melt
-B90V4_sub           | Subroutine
-
 ```{r chunk3, message=FALSE, results='hide'}
 projectpath<-"c:\\Users\\LM\\Documents\\BROOK90\\Documentation\\"
 output_html<-file.path(projectpath,"Documentation\\HTML_Files")
@@ -86,6 +72,20 @@ rmarkdown::render(file.path(projectpath,"Rmd_files\\",'SNO.Rmd'),output_dir = ou
 rmarkdown::render(file.path(projectpath,"Rmd_files\\",'B90V4_sub.Rmd'),output_dir = output_html)
 ```
 
+The following table shows the description of the scriptnames. 
+
+Variable            | Description
+--------------------|---------------
+GLOBDECL            | Global declaration of catchment area
+AXX                 | Auxiliary routines
+KPT                 | Soil water properties
+EVP                 | Interception and transpiration
+PET                 | Potential evaporation
+SUN                 | Radiation
+WAT                 | Water movement in Soil
+SNO                 | Snow accumulation and melt
+B90V4_sub           | Subroutine
+
 ### Load meteorological and precipitation file
 Both datasets will be uploaded and with this data for each set a matrix has been created. The datasets don't have have a header, so the following table shows the included data.
 
@@ -95,8 +95,8 @@ column  |Meteorological file      | Precipitation file
 2       |Month                    |Month
 3       |Day                      |Day
 4       |Solar radiation (MJ/m2)  |Number of precipitation interval
-5       |TMAX(∞C)                 |Precipitation (mm)
-6       |TMIN(∞C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
+5       |TMAX(¬∞C)                 |Precipitation (mm)
+6       |TMIN(¬∞C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
 7       |Vapor pressure (kPa)     |/
 8       |Wind speed (m/s)         |/
 9       |Precipitation (mm)       |/
