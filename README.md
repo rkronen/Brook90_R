@@ -52,9 +52,9 @@ The first step is to open B90V4.Rmd. There the "projectpath" has to be changed i
     + initial.txt
     + location.txt
     + soil.txt
-* if you are NOT using the example data, change the names of your input data (meteoFile, precFile,...) and check the form of your data
+* if you are NOT using the example data, change the names of your input data files (meteoFile, precFile,...) and check the form of your data with consistency_meteoFile.Rmd.
 
-The next step is to open again the script B90V4.Rmd. At the end of this script there is a code to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with "timeseries_" in its name. Finally B90V4.Rmd can also be started with "Run All" (click on the little arrow button next to "Run") and then the model is running and producing the output.
+The next step is to open again the script B90V4.Rmd. At the end of this script there is a code chunk to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with "timeseries_" in its name. Finally B90V4.Rmd can also be started with "Run All" (click on the little arrow button next to "Run") and then the model is running and producing the output.
 
 #### The output
 The programm calculates 24 daily time series of different water balance components in the considered catchment as output of BROOK90 at the current state. The table shows the explanation of the output data visible with the name "timeseries_..." and their corresponding shortcut:
