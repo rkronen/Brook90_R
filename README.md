@@ -34,17 +34,17 @@ These files are available for usage:
 * meteorological data
     + data_input_WB_1999_point.txt
 * catchment parameters
-    + 6 .txt files where the characteristics of the catchment can be changed
+    + 6 txt-files where the characteristics of the catchment can be changed
 
 #### Download the data
 As the second step the files can be downloaded and unpacked. 
 
 #### Run the programm
-The first step is to open B90V4.Rmd. There the "projectpath" has to be changed. How this must be done is described there.
-Then to run the programm in R, the MainProg.Rmd script has to be opened. Important changes that have to be done in MainProg.Rmd are:
+The first step is to open B90V4.Rmd. There the "projectpath" has to be changed in the first R-chunk. How this must be done is described in the file. Then to run the programm MainProg.Rmd has to be opened. Important changes that have to be done in MainProg.Rmd are:
 
 * change the "projectpath", it has to be the same as in B90V4.Rmd
-* the the input data (meteorological data, precipitatin data, catchment parameters, .txt files) have to be in the same folder (is already done if you unpack the zip-folder)
+* the input data (meteorological data, precipitatin data, catchment parameters) have to be in the same folder 
+  + is already done if you unpack the zip-folder
 * change catchment parameters (located in "Input_data" - folder) in these files, if necessary:
     + canopy.txt
     + fixed.txt
