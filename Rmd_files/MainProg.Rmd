@@ -72,7 +72,7 @@ rmarkdown::render(file.path(projectpath,"Rmd_files\\",'SNO.Rmd'),output_dir = ou
 rmarkdown::render(file.path(projectpath,"Rmd_files\\",'B90V4_sub.Rmd'),output_dir = output_html)
 ```
 
-The following table shows the description of the scriptnames. 
+The following table shows the description of the scriptnames:
 
 Variable            | Description
 --------------------|---------------
