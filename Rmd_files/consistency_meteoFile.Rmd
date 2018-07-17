@@ -1,0 +1,103 @@
+---
+title: "Function Datacheck"
+author: "Lisa Marie Oehlschlägel"
+date: "12 April 2018"
+output: html_document
+---
+
+## Check data ranges
+### Import
+
+* .txt-file with the daily values of parameters in columns
+* date included in the columns 1 - 3 but order is not checked here
+* Parameters:
+
+    + Solar radiation
+    + Maximum temperature
+    + Minimum temperature
+    + Vapor pressure
+    + Wind speed 
+    + Precipitation
+    + Measured flow  
+
+### Extract the data
+The following steps are necessary to check the data ranges of the imported data:
+
+* Import the data file with the decimal separator used in the file, change "SCRIPTPATH"
+* Extract the required parameters and assign them to variables
+* The variables are:
+
+    + SOLRAD = Solar radiation
+    + TMAX = Maximum temperature 
+    + TMIN = Minimum temperature
+    + EA = Vapor pressure
+    + UW = Wind speed 
+    + PRECIN = Precipitation
+    + MESFL = Measured flow  
+
+```{r}
+SCRIPTPATH <-"c:\\Users\\LM\\Documents\\BROOK90\\Documentation\\Input_data"
+meteoFile <-read.table(file.path(SCRIPTPATH,"data_input_WB_1999_point.txt"),dec=".")
+
+SOLRAD <- c(meteoFile$V4)
+TMAX <- c(meteoFile$V5)
+TMIN <- c(meteoFile$V6)
+EA <- c(meteoFile$V7)
+UW <- c(meteoFile$V8)
+PRECIN <- c(meteoFile$V9)
+MESFL <- c(meteoFile$V10)
+```
+
+### Defining the function
+The function gets the name "subcheckdata" and will check SOLRAD,TMAX,TMIN,EA,UW,PRECIN and MESFL. It will be tested if any value of the paramter is out of their given respective range.  If all values are in the given range, the returned output will be "TRUE". If any one of the values of the parameters is not in its given range the returned output will be "FALSE".
+
+```{r}
+subcheckdata <- function(SOLRAD,TMAX,TMIN,EA,UW,PRECIN,MESFL){
+ output <- TRUE
+ if (any (SOLRAD < 0 | SOLRAD > 80)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (TMAX < -50 | TMAX > 50 | TMIN < -50 | TMIN > 50)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (TMAX < TMIN)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (EA < 0 | EA > 10)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (UW < 0 | UW > 50)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (PRECIN < 0 | PRECIN > 1000)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+ if (any (MESFL < 0 | MESFL > 1000)){
+   output <- FALSE
+ } else {
+   #print("TRUE")
+ }
+return(output)
+}
+```
+
+After defining the function it will be executed.
+
+```{r}
+subcheckdata(SOLRAD,TMAX,TMIN,EA,UW,PRECIN,MESFL)
+```
+### Output
+In this case the output is "TRUE" and this proves that all data are in their defined ranges.
+

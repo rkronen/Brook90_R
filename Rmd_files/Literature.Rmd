@@ -1,0 +1,206 @@
+---
+title: "Literature"
+author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+date: "19 April 2018"
+output: html_document
+---
+
+### Literature - BROOK90 - LITERATURE CITED
+
+* Abdul-Jabbar, A.S., D.G. Lugg, T.W. Sams, and L.W. Gay. 1984. A field study of plant resistance to water flow in alfalfa. Agron J 76:765-769.
+
+* Aitken, A.P. 1973. Assessing systematic errors in rainfall-runoff models. J Hydrol 20:121-136.
+
+* Anderson, E.A. and N.H. Crawford. 1964. The synthesis of continuous snowmelt runoff hydrographs on a digital computer. Stanford Univ Dep Civil Eng Tech Rep 36. 103 p.
+
+* Anderson, E.A. 1973. National Weather Service river forecast system: Snow accumulation and ablation model. U.S. Dep Commerce Natl Oceanic Atmos Admin Tech Rep NWS-19. 150 p.
+
+* Anderson, E.A. 1976. A point energy and mass balance model of a snow cover. U.S. Dep Commer Natl Oceanic Atmos Admin Tech Rep NWS-19. 150 p.
+
+* Anderson, E.A. 1979. Streamflow simulation models for use on snow covered watersheds. In S.C. Colbeck and M. Ray, eds. Modeling of snow cover runoff. U.S. Army Cold Regions Res Eng Lab, p 336-350.
+
+* Baver, L.D., W.H. Gardner, and W.R. Gardner. 1972. Soil Physics, 4th ed. John Wiley and Sons, New York. 498 p.
+
+* Beven, K.J., and E.F. Wood. 1983. Catchment geomorphology and the dynamics of runoff contributing areas. J Hydrol 65: 139-158.
+
+* Beven, K.J., and R.T. Clarke. 1986. On the variation of infiltration into a homogeneous soil matrix containing a population of macropores. Water Resour Res 22:383-388.
+
+* Bristow, K.L. and G.S. Campbell. 1984. On the relationship between incoming solar radiation and daily maximum and mnimum temperature. Agric For Meteorol 31:159-166.
+
+* Brooks, R.H. and A.T. Corey. 1964. Hydraulic properties of porous media. Colo St Univ Hydrol Pap 3:1-27.
+
+* Brunt, D. 1932. Notes on radiation in the atmosphere: I. Quart J Royal Meteorol Soc 58:389-420.
+
+* Brutsaert, W. 1982. Evaporation into the atmosphere: theory, history, and applications. D.Reidel, Hingham MA, 299 p.
+
+* Campbell, G.S. 1974. A simple method for determining unsaturated conductivity from moisture retention data. Soil Sci 117:311-314.
+
+* Campbell, G.S. 1977. An introduction to environmental biophysics. Springer-Verlag, New York, 159 p.
+
+* Choudhury, B.J. and J.L. Monteith. 1988. A four-layer model for the heat budget of homogeneous land surfaces. Quart J Royal Meteorol Soc 114: 373-398.
+
+* Clapp, R.B. and G.M. Hornberger. 1978. Empirical equations for some soil hydraulic properties. Water Resour Res 14:601-604.
+
+* Colbeck, S.C., E.A. Anderson, V.C. Bissell, A.G. Crook, D. H. Male, C.W. Slaughter, and D. R. Wiesnet. 1979. Snow accumulation, distribution, melt , and runoff. EOS 60:465-468
+
+* Colbeck, S.C. and M. Ray, eds. 1979. Proceedings modeling of snow cover runoff. U.S. Army Corps of Eng, Cold Regions Res Eng Lab. Hanover NH. 432 p.
+
+* Cowan, I.R. 1965. Transport of water in the soil-plant-atmosphere system. J Appl Ecol 2:221-239.
+
+* Dawson, T.E. 1993. Hydraulic lift and water use by plants: implications for water balance, performance, and plant-plant interactions. Oecologia 95:565-574.
+
+* DeVries, D.A. 1963. Thermal properties of soils. In Physics of plant environment, W.R. VanWijk, ed. John Wiley and Sons. New York. p 210-235.
+
+* Dingman, S.L. 1994. Physical hydrology. Macmillan, New York. 575 p.
+
+* Diskin, M.H., and E. Simon. 1977. A procedure for the selection of objective functions for hydrologic simulation models. J Hydrol(Aust) 34:129-149.
+
+* Dunne, T., T.R. Moore, and C.H. Taylor. 1975. Recognition and prediction of runoff-producing zones in humid regions. Hydrol Sci Bull 20: 305-327.
+
+* Federer, C.A. 1965. Sustained winter streamflow from groundmelt. U.S.D.A. For Serv Res Note NE-41. 4 p.
+
+* Federer, C.A. and C.B. Tanner. 1966. The spectral distribution of light in the forest. Ecology 47:555-560.
+
+* Federer, C.A. 1973. Forest transpiration greatly speeds streamflow recession. Water Resour Res 9:1599-1604.
+
+* Federer, C.A., R.S. Pierce, and J.W. Hornbeck. 1973. Snow management seems unlikely in northeastern forests. Proc Eastern Snow Conf 1973:102-113.
+
+* Federer, C.A. and D. Lash. 1978a. Simulated streamflow response to possible differences in transpiration among species of hardwood trees. Water Resour Res 14:1089-1097.
+
+* Federer, C.A. and D. Lash. 1978b, rev 1983. BROOK: A hydrologic simulation model for eastern forests. Water Resour Res Cent Res Rep 19. Univ New Hampshire, Durham.
+
+* Federer, C.A. 1979. A soil-plant-atmosphere model for transpiration and availability of soil water. Water Resour Res 15:555-562.
+
+* Federer, C.A. 1980. Paper birch and white oak saplings differ in response to drought. For Sci 26:313-324.
+
+* Federer, C.A. 1982. Transpirational supply and demand: plant, soil, and atmospheric effects evaluated by simulation. Water Resour Res 18:355-362.
+
+* Federer, C.A., L.D. Flynn, C.W. Martin, J.W. Hornbeck, and R.S. Pierce. 1990. Thirty years of hydrometeorologic data at the Hubbard Brook Experimental Forest, New Hampshire. USDA Forest Serv Gen Tech Rep NE-141, 44p.
+
+* Federer, C.A., D.E. Turcotte, and C.T. Smith. 1993. The organic fraction - bulk density relationship and the expression of nutrient content in forest soils. Can J For Res 23: 1026-1032
+
+* Federer, C.A., C. Vörösmarty, and B. Fekete. 1996. Intercomparison of methods for calculating potential evaporation in regional and global water balance models. Water Resour Res 32:2315-2321.
+
+* Federer, C.A., C. Vörösmarty, and B. Fekete. 2003. Sensitivity of annual evaporation to soil and root properties in two models of contrasting complexity. J Hydrometeorology 4:1276-1290.
+
+* Fitzpatrick, E.A. and W.R. Stern. 1966. Estimates of potential evaporation using alternative data in Penman's formula. Agric Meteorol 3:225-239.
+
+* Freeze, R. A. 1974. Streamflow generation. Rev Geophys Space Phys 12(4): 627-647.
+
+* Gerwitz, A. and E.R. Page. 1974. An empirical mathematical model to describe plant root systems. J Appl Ecol 11:773-781.
+
+* Haverkamp, R. and M. Vauclin. 1979. A note on estimating finite difference interblock hydraulic conductivity values for unsaturated flow problems. Water Resour Res 15: 181-187.
+
+* Hewlett, J.D. 1974. Comments on letters relating to 'Role of subsurface flow in generating surface runoff, 2, Upstream source areas' by R. Allan Freeze. Water Resour Res 10: 605-607.
+
+* Hillel, D. and C.H.M. van Bavel. 1976. Simulation of profile water storage as related to soil hydraulic properties. Soil Sci Soc Am J 40:807-815. Hinckley, T.M., J.P. Lassoie, and S.W. Running. 1978. Temporal and spatial variations in the water status of forest trees. Forest Science Monograph 20, 72 p.
+
+* Hunt, E.R.Jr., S.W. Running, and C.A. Federer. 1991. Extrapolating plant water flow resistances and capacitances to regional scales. Agric For Meteorol 54:169-195.
+
+* Idso, S.B. and R.D. Jackson. 1969. Thermal radiation from the atmosphere. J Geophys Res 74:5397-5403.
+
+* Jackson, R.B. J. Canadell, J.R. Ehleringer, H.A. Mooney, O.E. Sala, and E.-D. Schulze. 1996. A global analysis of root distributions for terrestrial biomes. Oecologia, 108:389-411.
+
+* Jarvis, P. G. 1976. The interpretation of the variations in leaf water potential and stomatal conductance found in canopies in the field. Phil Trans Royal Soc Lond. B 273: 593-610.
+
+* Jarvis, P. G., and K.G. McNaughton. 1986. Stomatal control of transpiration: scaling up from leaf to region. Adv Ecol Res 15: 1-49.
+
+* Klute, A. ed. 1986. Methods of Soil Analysis, Part 1. Am Soc Agron, Madison. 1188 p.
+
+* Körner, Ch., J.A. Scheel, and H. Bauer. 1979. Maximum leaf diffusive conductance in vascular plants. Photosynthetica 13:45-82.
+
+* Körner, Ch. 1994. Leaf diffusive conductances in the major vegetation types of the globe. In E.-D. Schulze and M.M. Caldwell, eds. Ecophysiology of photosynthesis. Springer Verlag, Berlin. p. 463-490.
+
+* Leaf, C.F., and G.E. Brink. 1973. Hydrologic simulation model of Colorado subalpine forest. USDA For Serv Res Pap RM-107, 23 p.
+
+* Lean, J. 1991. Variations in the sun's radiative output. Rev Geophys 29:505-535.
+
+* Leavesley, G.H., and W.D. Striffler. 1979. A mountain watershed simulation model. In S.C. Colbeck and M. Ray, eds. Modeling of snow cover runoff. U.S. Army Cold Regions Res Eng Lab. p 379-386.
+
+* Levine, J.B. And G.D. Salvucci. 1999. Characteristic rate and timescale of supply-limited transpiration under a richards-cowan framework. Water Resour Res 35:3947-3954.
+
+* Lohammar, T., L. Larsson, S. Linder, and S.O. Falk. 1980. FAST - simulation models of gaseous exchange in Scots pine. In T. Persson, ed. Structure and function of northern coniferous forests. Ecol. Bull 32: 505-523.
+
+* Lynn, B.H. and T.N. Carlson. 1990. A stomatal resistance model illustrating plant vs. external control of transpiration. Agric For Meteorol 52:5-43.
+
+* Ma, Q., J.E. Hook, and L.R. Ahuja. 1999. Influence of three-parameter conversion methods between van Genuchten and Brooks-Corey functions on soil hydraulic properties and water-balance predictions. Water Resour Res 35:2571-2578.
+
+* McDonnell, J. J. 1990. A rationale for old water discharge through macropores in a steep, humid catchment. Water Resour Res 26: 2821-2832.
+
+* Miller, C.T., G.A. Williams, C.T. Kelley, and M.D. Tocci. 1998. Robust solution of Richards' equation for nonuniform porous media. Water Resour Res 34:2599-2610.
+
+* Miller, D.R., M.J. Focazio, M.A. Dickinson, and W.E. Archey. 1988. A user's guide to a model for estimating the hydrological effects of land use change. Cooperative Extension, University of Connecticut, Storrs, Connecticut, U.S.A. 71 p.
+
+* Monteith, J.L. 1973. Principles of environmental physics. American Elsevier, New York. 241 pp.
+
+* Murray, F.W. 1967. On the computation of saturation vapor pressure. J Appl Meteorol 6:203-204.
+
+* Newman, E.I. 1974. Root-soil water relations. In E.W. Carson, ed. The plant root and its environment. Univ Press of Virginia, Charlottesville. p 363-440.
+
+* O'Loughlin, E.M. 1986. Prediction of surface saturation zones in natural catchments by topographic analysis. Water Resour Res 22: 794-804.
+
+* Ollinger, S.V., J.D. Aber, C.A. Federer, G.M. Lovett, and J. Ellis. 1995. Modeling physical and chemical climate of the northeastern United States for a geographic information system. USDA For Serv Gen Tech Rep NE-191. Radnor, PA. 30 p.
+
+* Penman, H.L. 1948. Natural evaporation from open water, bare soil, and grass. Proc Royal Soc London A193:120-146.
+
+* Richards, J.H. and M.M. Caldwell. 1987. Hydraulic lift: substantial nocturnal water transport between soil layers by artemisia tridentata roots. Oecologia 73:486-489.
+
+* Ross, P.J. 1992. Cubic approximation of hydraulic properties for simulations of unsaturated flow. Water Resour Res 28: 2617-2620.
+
+* Rutter, A.J., A. Kershaw, P.C. Robins, and A.J. Morton. 1972. A predictive model of rainfall interception in forests, 1. Derivation of the model from observations in a plantation of Corsican pine. Agric Meteorol 9:367-384.
+
+* Safford, L.O. and S. Bell. 1972. Biomass of fine roots in a white spruce plantation. Can J For Res 2:169-172.
+
+* Safford, L.O. 1974. Effect of fertilization on biomass and nutrient content of fine roots in a beech-birch-maple stand. Plant and Soil 40:349-363.
+
+* Satterlund, D.R. 1979. An improved equation for estimating long-wave radiation from the atmosphere. water Resour Res 15:1649-1650.
+
+* Saugier, B., and N. Katerji. 1991. Some plant factors controlling evapotranspiration. Agric For Meteorol 54: 263-277.
+
+* Saxton, K.E., W.J. Rawls, J.S. Romberger, and R.I. Papendick. 1986. Estimating generalized soil-water characteristics from texture. Soil Sci Soc Am J 50:1031-1036.
+
+* Schnabel, R.R. and E.B. Richie. 1984. Calculation of internodal conductances for unsaturated flow simulations: a comparison. Soil Sci Soc Am J 48: 1006-1010.
+
+* Shaw, R.H. and A.R. Pereira. 1982. Aerodynamic roughness of a plant canopy: a numerical experiment. Agric Meteorol 26: 51-65.
+
+* Shuttleworth, W.J. 1989. Micrometeorology of temperate and tropical forests. Phil Trans Roy Soc London Ser B 324: 199-224.
+
+* Shuttleworth, W.J., and R.J. Gurney. 1990. The theoretical relationship between foliage temperature and canopy resistance in sparse crops. Quart J Royal Meteorol Soc 116: 497-519.
+
+* Shuttleworth, W.J., and J.S. Wallace. 1985. Evaporation from sparse crops - an energy combination theory. Quart J Royal Meteorol Soc 111: 839-855.
+
+* Shuttleworth, W.J. 1991 Evaporation models in hydrology. In T.J. Schmugge and J. André, eds, Land surface evaporation, Springer, New York. pp 93-120.
+
+* Stewart, J.B. 1988. Modelling surface conductance of pine forest. Agric For Meteorol 43: 19-35.
+
+* Stone, J.F. 1983. On Julian day notation for meteorological conditions. Agric For Meteorol 29:137-140.
+
+* Swift, L.W. Jr. 1976. Algorithm for solar radiation on mountain slopes. Water Resour Res 12:108-112.
+
+* Swinbank, W.C. 1963. Longwave radiation from clear skies. Quart J Royal Meteorol Soc 89:339-348.
+
+* Tanner, C.B. and W.L. Pelton. 1960. Potential evapotranspiration estimates by the approximate energy balance method of Penman. J Geophys Res 65:3391-3413.
+
+* Troutman, B.M. 1985. Errors and parameter estimation in precipitation-runoff modeling, 1. Theory. Water Resour Res 21:1195-1213.
+
+* U.S. Army Corps of Engineers. 1956. Snow hydrology. U.S. Army Corps Eng North Pacific Div. Portland OR.
+
+* U.S. Department of Commerce. 1968 Climatic atlas of the United States. Environmental Science Services Admin. 80 p.
+
+* U.S. Department of Commerce. 1993. Solar and meteorologic surface observation network, 1961-1990, 3 compact discs. National Climatic Data Center, Asheville NC.
+
+* van de Griend, A. A. and M. Owe. 1994. Bare soil resistance to evaporation by vapor diffusion under semiarid conditions. Water Resour Res 30:181-188.
+
+* van Genuchten, M.Th. 1980. A closed-form equation for predicting the hydraulic conductivity of unsaturated soils. Soil Sci Soc Am J 44: 892-898.
+
+* Vörösmarty, C.J., C.A. Federer, and A.L. Schloss. 1998. Potential evaporation functions compared on US watersheds: Possible implications for global-scale water balance and terrestrial ecosystem modeling. J Hydrol 207:147-169.
+
+* Wetzel, P.J. and J.T. Chang. 1987. Concerning the relationship between evapotranspiration and soil moisture. J Climate Appl Meteorol 26:18-27
+
+* Willen, D.W. and C.A. Shumway. 1971. Simulation of daily snow water equivalent and melt. Proc Western Snow Conf 1971:1-8.
+
+* Willmott, C.J. 1982. Some comments on the evaluation of model performance. Bull Am Meteorol Soc 63:1309-1313.
+
+* Wösten, J.H.M. and M. Th. van Genuchten. 1988. Using texture and other soil properties to predict the unsaturated soil hydraulic functions. Soil Sci Soc Am J 52:1762-1770.
+
+* Yates, S.R., M.Th. van Genuchten, A.W. Warrick, and F.J. Leij. 1992. Analysis of measured, predicted, and estimated hydraulic conductvity using the RETC computer program. Soil Sci Soc Am J 56: 347-354. 
