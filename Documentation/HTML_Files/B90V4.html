@@ -157,7 +157,7 @@ $(document).ready(function () {
 output_html&lt;-file.path(projectpath,&quot;Documentation\\HTML_Files&quot;)</code></pre>
 <p>Then the script of the main programm MainProg.Rmd has to be rendered to run the script of B90V4.Rmd in R-Markdown.</p>
 <pre class="r"><code>rmarkdown::render('MainProg.Rmd',output_dir = output_html)</code></pre>
-<p>The program initializations starts if it is New Run or Rerun. Settings for the time are done, like number of days per month, interval times and zeroed vectors are set. The Year dates are changed from two-digit year to four-digit. The DOY is set with the help of <a href="./B90V4_sub.html">Function DOYF</a> with the input DOM, MONTHN and DAYMO and number of days for february depending on leap year or not. The time step for precipitation interval is calculated and zero accumulators are called. Some neccesary values are calculated or unlisted from functions:</p>
+<p>The program initializations starts if it is New Run or Rerun. Settings for the time are done, like number of days per month, interval times and zeroed vectors are set. The Year dates are changed from two-digit year to four-digit. The DOY is set with the help of <a href="./B90V4_sub.Rmd">Function DOYF</a> with the input DOM, MONTHN and DAYMO and number of days for february depending on leap year or not. The time step for precipitation interval is calculated and zero accumulators are called. Some neccesary values are calculated or unlisted from functions:</p>
 <ul>
 <li>initial values</li>
 <li>soil water parameters and initial variables</li>
@@ -276,7 +276,7 @@ output_html&lt;-file.path(projectpath,&quot;Documentation\\HTML_Files&quot;)</co
 </div>
 <div id="parameter-initializations" class="section level3">
 <h3>Parameter initializations</h3>
-<p>Parameter initializations are done for New Run, Rerun and Continue Run. First some parameters are converted. Then the equivalent slope for radiation calculations is extracted with the help of <a href="./SUN.html">Function EQUIVSLP</a>. Other initialized parameters are:</p>
+<p>Parameter initializations are done for New Run, Rerun and Continue Run. First some parameters are converted. Then the equivalent slope for radiation calculations is extracted with the help of <a href="./SUN.Rmd">Function EQUIVSLP</a>. Other initialized parameters are:</p>
 <ul>
 <li>infiltration parameters</li>
 <li>source area parameters</li>
