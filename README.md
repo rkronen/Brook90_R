@@ -40,7 +40,12 @@ These files are available for usage:
 As the second step the files can be downloaded and unpacked. 
 
 #### Run the programm
-The first step is to open B90V4.Rmd. There the "projectpath" has to be changed in the first R-chunk. How this must be done is described in the file. Then to run the programm MainProg.Rmd has to be opened. Important changes that have to be done in MainProg.Rmd are:
+To open the Rmd-files it is necessary to open R Studio first and the package for R-Markdown has to be installed.
+
+```{r}
+install.packages("rmarkdown")
+```
+The next step is to open the script B90V4.Rmd. There the "projectpath" has to be changed in the first R-chunk. How this must be done is described in the file. Then MainProg.Rmd has to be opened. Important changes that have to be done in MainProg.Rmd are:
 
 * change the "projectpath", it has to be the same as in B90V4.Rmd
 * the input data (meteorological data, precipitatin data, catchment parameters) have to be in the same folder 
