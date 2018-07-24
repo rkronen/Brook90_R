@@ -76,15 +76,15 @@ The following table shows the description of the scriptnames:
 
 Variable            | Description                           |Link
 --------------------|---------------------------------------|------------------
-GLOBDECL            | Global declaration of catchment area  |./GLOBDECL.Rmd
-AXX                 | Auxiliary routines                    |./AXX.Rmd
-KPT                 | Soil water properties                 |./KPT.Rmd
-EVP                 | Interception and transpiration        |./EVP.Rmd
-PET                 | Potential evaporation                 |./PET.Rmd
-SUN                 | Radiation                             |./SUN.Rmd
-WAT                 | Water movement in Soil                |./WAT.Rmd
-SNO                 | Snow accumulation and melt            |./SNO.Rmd
-B90V4_sub           | Subroutine                            |./B90V4_sub.Rmd
+GLOBDECL            | Global declaration of catchment area  |[GLOBDECL](./GLOBDECL.Rmd)
+AXX                 | Auxiliary routines                    |[AXX](./AXX.Rmd)
+KPT                 | Soil water properties                 |[KPT](./KPT.Rmd)
+EVP                 | Interception and transpiration        |[EVP](./EVP.Rmd)
+PET                 | Potential evaporation                 |[PET](./PET.Rmd)
+SUN                 | Radiation                             |[SUN](./SUN.Rmd)
+WAT                 | Water movement in Soil                |[WAT](./WAT.Rmd)
+SNO                 | Snow accumulation and melt            |[SNO](./SNO.Rmd)
+B90V4_sub           | Subroutine                            |[B90V4_sub](./B90V4_sub.Rmd)
 
 ### Load meteorological and precipitation file
 Both datasets will be uploaded and with this data for each set a matrix has been created. The datasets don't have have a header, so the following table shows the included data.
