@@ -5,7 +5,7 @@ This manual describes how to run the BROOK90 R implementation, based on the mode
 
 ![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/model_results.png)
 
-Figure: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
+Figure 1: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
 
 #### Content
 
@@ -109,8 +109,8 @@ The change of the temporal resolution varies the output. The results for daily a
 
 ![](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/resolution_daily.png)
 
-Figure 1: Temporal model resolution daily
+Figure 2: Temporal model resolution daily
 
 ![](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/resolution_hourly.png)
 
-Figure 2: Temporal model resolution hourly
+Figure 3: Temporal model resolution hourly
