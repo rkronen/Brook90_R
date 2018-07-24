@@ -1,5 +1,4 @@
-# Brook90_R
-Brook90 coded in R
+# Brook90 coded in R
 
 ### Manual for the Use of the BROOK90 R Implementation
 This manual describes how to run the BROOK90 R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.
@@ -14,7 +13,7 @@ Figure: One year of model results for the Wernersbach catchment in Germany. Data
 * [Download the data](#download-the-data)
 * [Run the programm](#run-the-programm)
 * [The output](#the-output)
-* [Temporal model resolution (daily or subdaily)](#temporal-model-resolution-(daily or subdaily))
+* [Temporal model resolution (daily or subdaily)](#temporal-model-resolution-:-daily-or-subdaily)
 
 #### Overview of available files
 These files are available for usage:
@@ -89,7 +88,7 @@ trand   |transpiration
 
 As mentioned in [Run the programm](#run-the-programm), all of this time series can be plotted if you add or exchange time series at the end of the script B90V4.Rmd.
 
-#### Temporal model resolution (daily or subdaily)
+#### Temporal model resolution: daily or subdaily
 The default setting in this version is in daily resolution but the model can be driven by subdaily data like hourly data.This can be changed in the MainProg.Rmd (chunk2). For hourly values NPINT has to be changed from 1 to 24 and SUBDAYDATA has to be set TRUE. 
 
 Parameter |Default setting|Description
