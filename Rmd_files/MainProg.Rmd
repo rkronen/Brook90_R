@@ -1,6 +1,6 @@
 ---
 title: "MainProg"
-author: "Rico Kronenberg, Lisa Marie Oehlschl√§gel"
+author: "Rico Kronenberg, Lisa Marie Oehlschl‰gel"
 date: "14 April 2018"
 output: html_document
 ---
@@ -33,13 +33,13 @@ Before loading the variables some parameters will be set.
 
 Parameter |Value|Description
 ----------|-----|-------------
-NPINT     |1    |number of precipitation intervals per day  1 = 1 Tag, 24 = 24 Stunden pro Tag
+NPINT     |1    |number of precipitation intervals per day,  1 = 1 day, 24 = 24 hours per day
 SUBDAYDATA|FALSE| #TRUE#TRUE
 RRD       |0.55 |default ratio of solar radiation to potential
 UWD       |3.0  |default wind speed at weather station
 
 ```{r chunk2}
-NPINT <- 1           
+NPINT <- 1         
 SUBDAYDATA <- FALSE
 RRD <- 0.55
 UWD <- 3.0
@@ -95,8 +95,8 @@ column  |Meteorological file      | Precipitation file
 2       |Month                    |Month
 3       |Day                      |Day
 4       |Solar radiation (MJ/m2)  |Number of precipitation interval
-5       |TMAX(¬∞C)                 |Precipitation (mm)
-6       |TMIN(¬∞C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
+5       |TMAX(∞C)                 |Precipitation (mm)
+6       |TMIN(∞C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
 7       |Vapor pressure (kPa)     |/
 8       |Wind speed (m/s)         |/
 9       |Precipitation (mm)       |/

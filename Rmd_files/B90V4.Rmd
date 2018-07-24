@@ -6,8 +6,6 @@ output: html_document
 ---
 
 ### B90V4 - BROOK90 Version 4
-With running the MainProg.Rmd script all necessary scripts and variables are loaded. Starting the model requires to run the script B90V4.Rmd.
-
 This Code is modified for Version 4, June 3, 1999. The Symbol ^^ shows variables that are returned from or altered by subroutines (requires a fixed width font). There are intrinsic functions needed:
 
 * CSNG
@@ -414,7 +412,7 @@ maxPR   <- max(timeseries_prec, na.rm = T)
 par(mar = c(4, 4, 3, 4) + 0.2)
 plot(1:NDAYS, timeseries_evp,
      type = 'l', col = "darkseagreen2",
-     ylim = c(0, 1.3 * maxSF),
+     ylim = c(0, 14),
      xaxs = "i", yaxs = "i",
      xlab = "", ylab = "",
      lwd=2)
