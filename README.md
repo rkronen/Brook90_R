@@ -14,6 +14,7 @@ Figure: One year of model results for the Wernersbach catchment in Germany. Data
 * [Download the data](#download-the-data)
 * [Run the programm](#run-the-programm)
 * [The output](#the-output)
+* [Temporal model resolution (daily or subdaily)](#temporal-model-resolution-(daily-or-subdaily))
 
 #### Overview of available files
 These files are available for usage:
@@ -87,3 +88,26 @@ swat    |total soil water in all layers
 trand   |transpiration
 
 As mentioned in [Run the programm](#run-the-programm), all of this time series can be plotted if you add or exchange time series at the end of the script B90V4.Rmd.
+
+#### Temporal model resolution (daily or subdaily)
+The default setting in this version is in daily resolution but the model can be driven by subdaily data like hourly data.This can be changed in the MainProg.Rmd (chunk2). For hourly values NPINT has to be changed from 1 to 24 and SUBDAYDATA has to be set TRUE. 
+
+Parameter |Default setting|Description
+----------|---------------|-------------
+NPINT     |1      |number of precipitation intervals per day,  1 = 1 day, 24 = 24 hours per day
+SUBDAYDATA|FALSE  |FALSE or TRUE
+
+The following lines show the part of MainProg.Rmd where the changes can be done:
+
+```{r chunk2}
+NPINT <- 1     #change to 24    
+SUBDAYDATA <- FALSE   #change to TRUE
+RRD <- 0.55
+UWD <- 3.0
+```
+
+The change of the temporal resolution varies the output. The results for daily and hourly resolution is shown in the next two figures.
+
+![Figure 1: Temporal model resolution daily](C:\Users\LM\Documents\BROOK90\Documentation\Rmd_files\B90V4_files\figure-markdown_github\daily_values.png)
+
+![Figure 2: Temporal model resolution hourly](C:\Users\LM\Documents\BROOK90\Documentation\Rmd_files\B90V4_files\figure-markdown_github\hourly_values.png)
