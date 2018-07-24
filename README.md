@@ -40,7 +40,7 @@ These files are available for usage:
 As the second step the files can be downloaded and unpacked. 
 
 #### Run the programm
-To open the Rmd-files it is necessary to open R Studio first and the package for R-Markdown has to be installed.
+To open the Rmd-files it is necessary to open R Studio first and to install the package for R-Markdown.
 
 ```{r}
 install.packages("rmarkdown")
