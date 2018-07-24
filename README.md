@@ -13,7 +13,7 @@ Figure: One year of model results for the Wernersbach catchment in Germany. Data
 * [Download the data](#download-the-data)
 * [Run the programm](#run-the-programm)
 * [The output](#the-output)
-* [Temporal model resolution (daily or subdaily)](#temporal-model-resolution-daily-or-subdaily)
+* [Temporal model resolution (daily or subdaily)](#temporal-model-resolution---daily-or-subdaily)
 
 #### Overview of available files
 These files are available for usage:
