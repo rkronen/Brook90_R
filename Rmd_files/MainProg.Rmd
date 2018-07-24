@@ -1,6 +1,6 @@
 ---
 title: "MainProg"
-author: "Rico Kronenberg, Lisa Marie Oehlschlägel"
+author: "Rico Kronenberg, Lisa Marie OehlschlÃ¤gel"
 date: "14 April 2018"
 output: html_document
 ---
@@ -74,17 +74,17 @@ rmarkdown::render(file.path(projectpath,"Rmd_files\\",'B90V4_sub.Rmd'),output_di
 
 The following table shows the description of the scriptnames:
 
-Variable            | Description
---------------------|---------------
-GLOBDECL            | Global declaration of catchment area
-AXX                 | Auxiliary routines
-KPT                 | Soil water properties
-EVP                 | Interception and transpiration
-PET                 | Potential evaporation
-SUN                 | Radiation
-WAT                 | Water movement in Soil
-SNO                 | Snow accumulation and melt
-B90V4_sub           | Subroutine
+Variable            | Description                           |Link
+--------------------|---------------------------------------|------------------
+GLOBDECL            | Global declaration of catchment area  |./GLOBDECL.Rmd
+AXX                 | Auxiliary routines                    |./AXX.Rmd
+KPT                 | Soil water properties                 |./KPT.Rmd
+EVP                 | Interception and transpiration        |./EVP.Rmd
+PET                 | Potential evaporation                 |./PET.Rmd
+SUN                 | Radiation                             |./SUN.Rmd
+WAT                 | Water movement in Soil                |./WAT.Rmd
+SNO                 | Snow accumulation and melt            |./SNO.Rmd
+B90V4_sub           | Subroutine                            |./B90V4_sub.Rmd
 
 ### Load meteorological and precipitation file
 Both datasets will be uploaded and with this data for each set a matrix has been created. The datasets don't have have a header, so the following table shows the included data.
@@ -95,8 +95,8 @@ column  |Meteorological file      | Precipitation file
 2       |Month                    |Month
 3       |Day                      |Day
 4       |Solar radiation (MJ/m2)  |Number of precipitation interval
-5       |TMAX(°C)                 |Precipitation (mm)
-6       |TMIN(°C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
+5       |TMAX(Â°C)                 |Precipitation (mm)
+6       |TMIN(Â°C)                 |Average measured streamflow rate (mm/d),if not available it should be set -1
 7       |Vapor pressure (kPa)     |/
 8       |Wind speed (m/s)         |/
 9       |Precipitation (mm)       |/
