@@ -1,6 +1,6 @@
 ---
 title: "B90V4"
-author: "Rico Kronenberg, Lisa Marie Oehlschl‰gel"
+author: "Rico Kronenberg, Lisa Marie Oehlschl√§gel"
 date: "11 Mai 2018"
 output: html_document
 ---
@@ -21,7 +21,7 @@ This Code is modified for Version 4, June 3, 1999. The Symbol ^^ shows variables
 * [Plotted data](#plotted-data)
 
 ### Programm initialisations
-The first step is to change the "projectpath" in both scripts, the B90V4.Rmd and MainProg.Rmd script. After downloading the data the script path has to look like this:
+The first step is to change the "projectpath" in both scripts, the B90V4.Rmd and [MainProg.Rmd](https://github.com/rkronen/Brook90_R/blob/master/Rmd_files/MainProg.Rmd) script. After downloading the data the script path has to look like this:
 
 * c:[location of downloaded zip-data]\Brook90_R-master\Brook90_R-master
 
