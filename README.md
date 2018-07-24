@@ -107,6 +107,6 @@ UWD <- 3.0
 
 The change of the temporal resolution varies the output. The results for daily and hourly resolution is shown in the next two figures.
 
-![Figure 1: Temporal model resolution daily](C:\Users\LM\Documents\BROOK90\Documentation\Rmd_files\B90V4_files\figure-markdown_github\daily_values.png)
+![Figure 1: Temporal model resolution daily](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/resolution_daily.png)
 
-![Figure 2: Temporal model resolution hourly](C:\Users\LM\Documents\BROOK90\Documentation\Rmd_files\B90V4_files\figure-markdown_github\hourly_values.png)
+![Figure 2: Temporal model resolution hourly](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/resolution_hourly.png)
