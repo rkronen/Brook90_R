@@ -36,6 +36,7 @@ These files are available for usage:
     + data_input_WB_1999_point.txt
 * catchment parameters
     + 6 txt-files where the characteristics of the catchment can be changed
+Input data has to formated as described [here](https://htmlpreview.github.io/?https://github.com/rkronen/Brook90_R/blob/master/Documentation/HTML_Files/MainProg.html)    
 
 #### Download the data
 As the second step the files can be downloaded and unpacked. 
