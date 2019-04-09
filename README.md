@@ -4,7 +4,7 @@ by Rico Kronenberg and Lisa Marie Oehlschlägel
 ### Manual for the Usage of the BROOK90 in R Implementation
 This manual describes how to run the BROOK90 as R implementation, based on the model by Federer, what files are necessary to download and what changes need to be done in the R-scripts.
 
-![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/model_results.png)
+![Output](https://github.com/rkronen/Brook90_R/blob/master/Documentation/Plot_Output/Brook90.png)
 
 Figure 1: One year of model results for the Wernersbach catchment in Germany. Data is included in the download.
 
