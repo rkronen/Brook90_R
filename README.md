@@ -60,7 +60,7 @@ The next step is to open the Rmd-script [B90V4.Rmd](https://htmlpreview.github.i
     + initial.txt
     + location.txt
     + soil.txt
-* if you are NOT using the example data, change the names of your input data files (meteoFile, precFile,...) and check the form of your data with consistency_meteoFile.Rmd.
+* if you are NOT using the example data, change the names of your input data files (meteoFile, precFile,...) and check the form of your data with [consistency_meteoFile.Rmd](https://htmlpreview.github.io/?https://github.com/rkronen/Brook90_R/blob/master/Documentation/HTML_Files/consistency_meteoFile.html).
 
 The next step is to open again the script B90V4.Rmd. At the end of this script there is a code chunk to plot the output data. In this case precipitation, evaporation, calculated and measured flow are plotted. If other data should be shown, add or exchange the output data with "timeseries_" in its name. Finally B90V4.Rmd can also be started with "Run All" (click on the little arrow button next to "Run") and then the model is running and producing the output.
 
